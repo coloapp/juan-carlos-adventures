@@ -1,330 +1,305 @@
 /**
- * home.css - Estilos del Menú Principal / Dashboard
- * Adaptado según las especificaciones del diseño didáctico.
+ * home.css - Réplica Exacta de la Pantalla Principal (Tablet UI)
+ * Diseñada pixel-perfect con base en la referencia visual del usuario.
  */
+
 .main-dashboard {
-  display: flex;
-  flex-direction: column;
   width: 100vw;
   height: 100vh;
-  background: var(--bg-sky);
-  box-sizing: border-box;
-  padding: 10px 16px;
-  overflow: hidden;
-}
-
-/* Barra Superior */
-.top-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  height: 10%;
-  padding: 0 8px;
-}
-
-.level-indicator {
-  background: rgba(0, 0, 0, 0.25);
-  padding: 6px 14px;
-  border-radius: 20px;
-  color: #fff;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-}
-
-.stars {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.star.active {
-  color: #ffd700;
-  font-size: 1.2rem;
-  text-shadow: 0 0 6px rgba(255, 215, 0, 0.8);
-}
-
-.star-count {
-  font-size: 1rem;
-  color: #ffffff;
-}
-
-.app-title {
-  color: #ffffff;
-  text-shadow: 3px 3px 0px #333333, -1px -1px 0 #333333;
-  font-size: 1.8rem;
   margin: 0;
-  letter-spacing: 1px;
-}
-
-.system-icons {
+  padding: 0;
   display: flex;
-  gap: 8px;
-}
-
-.icon-btn {
-  background: #ff5722;
-  border: 2px solid #fff;
-  border-radius: 50%;
-  font-size: 1.2rem;
-  cursor: pointer;
-  padding: 8px;
-  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.2);
-  transition: transform 0.1s;
-}
-
-.icon-btn:active {
-  transform: translateY(2px);
-}
-
-.audio-btn {
-  background: #2196f3;
-}
-
-/* Sección Central (2 Columnas) */
-.dashboard-content {
-  display: flex;
-  height: 76%;
-  gap: 24px;
   align-items: center;
   justify-content: center;
-  padding: 8px 0;
+  background: radial-gradient(circle at center, #fff9f0 0%, #f0e6d6 60%, #ded0bd 100%);
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
-/* Columna Izquierda: Avatar */
-.avatar-section {
-  flex: 1;
-  max-width: 420px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+/* Marco de Tablet Protectora Infantil (Bumper Azul) */
+.exact-screen-wrapper {
   position: relative;
+  width: 95vw;
+  max-width: 1100px;
+  height: 94vh;
+  max-height: 720px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px;
+  box-sizing: border-box;
+  background: linear-gradient(135deg, #29b6f6 0%, #0288d1 50%, #01579b 100%);
+  border-radius: 46px;
+  box-shadow: 
+    0 18px 45px rgba(0, 0, 0, 0.4),
+    inset 0 4px 8px rgba(255, 255, 255, 0.6),
+    inset 0 -6px 12px rgba(0, 0, 0, 0.3);
+  border: 4px solid #4fc3f7;
+}
+
+/* Pantalla Interna de la Tablet (Proporción 582 x 414 ~ 7:5) */
+.tablet-display {
+  position: relative;
+  width: 100%;
   height: 100%;
+  aspect-ratio: 582 / 414;
+  max-width: 100%;
+  max-height: 100%;
+  background: url('../../../public/assets/images/screen_full.png') center center / cover no-repeat;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.6);
+  user-select: none;
+  -webkit-user-select: none;
 }
 
-.welcome-banner h2 {
-  color: #ff3d00;
-  text-shadow: 2px 2px 0px #fff;
-  font-size: 2rem;
-  text-align: center;
-  margin: 0 0 8px 0;
-  line-height: 1.1;
-}
+/* Hotspots y Zonas Interactivas Superpuestas */
 
-.welcome-banner span {
-  color: #0077b6;
-}
-
-.avatar-container {
-  position: relative;
+/* 1. Barra Superior */
+.hud-level-pill {
+  position: absolute;
+  left: 2.5%;
+  top: 2.2%;
+  width: 18%;
+  height: 9%;
   cursor: pointer;
+  border-radius: 18px;
+  z-index: 20;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   align-items: center;
 }
 
-.avatar-container img {
-  max-height: 44vh;
-  max-width: 260px;
-  object-fit: contain;
-  filter: drop-shadow(0px 8px 12px rgba(0, 0, 0, 0.25));
-  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+.hud-level-pill:hover {
+  background: rgba(255, 255, 255, 0.15);
 }
 
-.avatar-container:active img {
-  transform: scale(1.08) rotate(3deg);
-}
-
-.avatar-speech-bubble {
-  background: #ffffff;
-  color: #333333;
-  padding: 8px 16px;
-  border-radius: 18px;
-  font-size: 0.95rem;
-  font-weight: bold;
-  border: 2px solid #ff9800;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-  margin-top: 6px;
-  position: relative;
-  text-align: center;
-}
-
-.avatar-speech-bubble::after {
-  content: '';
+.hud-btn-settings {
   position: absolute;
-  top: -8px;
+  left: 91.5%;
+  top: 2.2%;
+  width: 6.8%;
+  height: 9.2%;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  z-index: 25;
+  transition: transform 0.15s ease;
+}
+
+.hud-btn-settings:active {
+  transform: scale(0.9) rotate(45deg);
+}
+
+.hud-btn-settings:hover {
+  box-shadow: 0 0 12px rgba(255, 82, 82, 0.8);
+}
+
+/* 2. Zona del Personaje (Juan Carlos) */
+.hud-character-zone {
+  position: absolute;
+  left: 32.5%;
+  top: 14%;
+  width: 25%;
+  height: 72%;
+  cursor: pointer;
+  z-index: 15;
+  border-radius: 20px;
+}
+
+.hud-character-zone:hover {
+  filter: drop-shadow(0 0 8px rgba(255, 235, 59, 0.6));
+}
+
+.hud-character-zone:active {
+  transform: scale(1.03);
+}
+
+.character-speech-bubble {
+  position: absolute;
+  top: 10%;
   left: 50%;
   transform: translateX(-50%);
-  border-width: 0 8px 8px 8px;
-  border-style: solid;
-  border-color: transparent transparent #ffffff transparent;
-}
-
-.open-world-banner-btn {
-  margin-top: 10px;
-  background: linear-gradient(135deg, #4caf50 0%, #2e7d32 100%);
-  border: 3px solid #ffffff;
-  border-radius: 20px;
-  color: white;
-  padding: 8px 16px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-  box-shadow: 0 4px 0 #1b5e20;
-  transition: transform 0.1s;
-}
-
-.open-world-banner-btn:active {
-  transform: translateY(3px);
-  box-shadow: 0 1px 0 #1b5e20;
-}
-
-.open-world-banner-btn .btn-icon {
-  font-size: 1.6rem;
-}
-
-.open-world-banner-btn .btn-text {
-  text-align: left;
-}
-
-.open-world-banner-btn .btn-text strong {
-  display: block;
-  font-size: 0.95rem;
-}
-
-.open-world-banner-btn .btn-text small {
-  font-size: 0.75rem;
-  color: #c8e6c9;
-}
-
-/* Columna Derecha: Grid de Botones */
-.modules-grid {
-  flex: 1.3;
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: repeat(3, 1fr);
-  gap: 14px;
-  height: 94%;
-}
-
-.module-card {
-  border: 3px solid #ffffff;
-  border-radius: var(--card-radius);
-  display: flex;
-  align-items: center;
-  padding: 10px 18px;
-  gap: 14px;
-  cursor: pointer;
-  box-shadow: 0px 6px 0px rgba(0, 0, 0, 0.18);
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
-  outline: none;
-}
-
-.module-card:active {
-  transform: translateY(4px);
-  box-shadow: 0px 2px 0px rgba(0, 0, 0, 0.18);
-}
-
-.module-card span {
-  color: #ffffff;
-  font-weight: 900;
-  font-size: 1.15rem;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-  text-align: left;
-}
-
-.icon-box {
-  width: 52px;
-  height: 52px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(255, 255, 255, 0.25);
-  border-radius: 14px;
-  flex-shrink: 0;
-}
-
-.icon-box img {
-  width: 40px;
-  height: 40px;
-  object-fit: contain;
-}
-
-/* Colores Temáticos por Módulo */
-.letter-tracing { background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%); }
-.syllables { background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%); }
-.numbers { background: linear-gradient(135deg, #00bcd4 0%, #0097a7 100%); }
-.vowels { background: linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%); }
-.shapes { background: linear-gradient(135deg, #e91e63 0%, #c2185b 100%); }
-.name-tracing { background: linear-gradient(135deg, #009688 0%, #00796b 100%); }
-
-/* Barra Inferior */
-.bottom-bar {
-  height: 12%;
-  background: rgba(255, 255, 255, 0.45);
-  backdrop-filter: blur(8px);
-  border-radius: 20px 20px 0 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 20px;
-  border-top: 2px solid rgba(255, 255, 255, 0.6);
-}
-
-.bottom-bar-title {
-  font-weight: bold;
-  color: #004d40;
-  font-size: 1.1rem;
-}
-
-.unlocked-inventory {
-  display: flex;
-  gap: 12px;
-}
-
-.inventory-slot {
-  width: 44px;
-  height: 44px;
-  background: rgba(255, 255, 255, 0.7);
-  border: 2px dashed #009688;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.1rem;
-}
-
-.inventory-slot.filled {
   background: #ffffff;
-  border-style: solid;
-  border-color: #ff9800;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
-}
-
-.inventory-slot img {
-  width: 32px;
-  height: 32px;
-  object-fit: contain;
-}
-
-.home-btn {
-  background: #2196f3;
-  color: white;
-  border: 2px solid #fff;
-  border-radius: 20px;
-  font-size: 1rem;
-  font-weight: bold;
+  color: #1565c0;
+  border: 3px solid #ff9800;
   padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.95rem;
+  font-weight: 900;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+  white-space: nowrap;
+  pointer-events: none;
+  animation: popInBubble 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  z-index: 100;
+}
+
+@keyframes popInBubble {
+  from { opacity: 0; transform: translateX(-50%) scale(0.6); }
+  to { opacity: 1; transform: translateX(-50%) scale(1); }
+}
+
+/* 3. Los 6 Botones Circulares del Menú Derecho */
+.hud-module-btn {
+  position: absolute;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
   cursor: pointer;
-  box-shadow: 0 4px 0 #1976d2;
+  z-index: 20;
+  outline: none;
+  transition: transform 0.12s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.15s ease;
 }
 
-.home-btn:active {
-  transform: translateY(2px);
-  box-shadow: 0 1px 0 #1976d2;
+.hud-module-btn:hover {
+  transform: scale(1.07);
 }
 
+.hud-module-btn:active {
+  transform: scale(0.95);
+}
+
+/* Posiciones exactas % */
+.btn-letter-tracing {
+  left: 59.8%;
+  top: 12.2%;
+  width: 15.8%;
+  height: 24.2%;
+}
+.btn-letter-tracing:hover {
+  box-shadow: 0 0 20px rgba(255, 152, 0, 0.8);
+}
+
+.btn-syllables {
+  left: 77.2%;
+  top: 12.2%;
+  width: 15.8%;
+  height: 24.2%;
+}
+.btn-syllables:hover {
+  box-shadow: 0 0 20px rgba(76, 175, 80, 0.8);
+}
+
+.btn-numbers {
+  left: 59.8%;
+  top: 37.2%;
+  width: 15.8%;
+  height: 24.2%;
+}
+.btn-numbers:hover {
+  box-shadow: 0 0 20px rgba(0, 188, 212, 0.8);
+}
+
+.btn-vowels {
+  left: 77.2%;
+  top: 37.2%;
+  width: 15.8%;
+  height: 24.2%;
+}
+.btn-vowels:hover {
+  box-shadow: 0 0 20px rgba(171, 71, 188, 0.8);
+}
+
+.btn-shapes {
+  left: 59.8%;
+  top: 62.4%;
+  width: 15.8%;
+  height: 24.2%;
+}
+.btn-shapes:hover {
+  box-shadow: 0 0 20px rgba(255, 87, 34, 0.8);
+}
+
+.btn-name-tracing {
+  left: 77.2%;
+  top: 62.4%;
+  width: 15.8%;
+  height: 24.2%;
+}
+.btn-name-tracing:hover {
+  box-shadow: 0 0 20px rgba(0, 150, 136, 0.8);
+}
+
+/* 4. Barra Inferior */
+.hud-btn-home {
+  position: absolute;
+  left: 44.5%;
+  top: 85.5%;
+  width: 10.2%;
+  height: 13.5%;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  z-index: 25;
+  transition: transform 0.12s ease;
+}
+
+.hud-btn-home:hover {
+  box-shadow: 0 0 16px rgba(255, 152, 0, 0.9);
+  transform: scale(1.08);
+}
+
+.hud-btn-home:active {
+  transform: scale(0.94);
+}
+
+.hud-stars-shelf {
+  position: absolute;
+  left: 2.5%;
+  top: 87.2%;
+  width: 40.8%;
+  height: 11%;
+  cursor: pointer;
+  border-radius: 16px;
+  z-index: 20;
+}
+
+.hud-stars-shelf:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.hud-inventory-pills {
+  position: absolute;
+  left: 55.6%;
+  top: 87.2%;
+  width: 42.4%;
+  height: 11%;
+  cursor: pointer;
+  border-radius: 16px;
+  z-index: 20;
+}
+
+.hud-inventory-pills:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* Alumno Dinámico: Si el nombre cambia de Juan Carlos */
+.custom-name-banner {
+  position: absolute;
+  left: 4%;
+  top: 14%;
+  max-width: 30%;
+  background: rgba(255, 255, 255, 0.95);
+  border: 3px solid #ff9800;
+  border-radius: 18px;
+  padding: 4px 12px;
+  color: #d84315;
+  font-weight: 900;
+  font-size: 1.1rem;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  z-index: 30;
+}
+
+/* Adaptación para pantallas pequeñas / móviles verticales */
+@media (max-width: 768px) {
+  .exact-screen-wrapper {
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+    padding: 6px;
+    border: none;
+  }
+}

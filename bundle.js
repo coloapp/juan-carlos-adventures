@@ -472,117 +472,49 @@
 
     render(container) {
       this.student = StorageManager.getActiveStudent();
-      const unlockedItems = rewards.getUnlockedItems();
+      const isCustomName = this.student.name && this.student.name.trim().toLowerCase() !== 'juan carlos';
 
       container.innerHTML = `
         <div class="main-dashboard fade-in">
-          <header class="top-bar">
-            <div class="level-indicator">
-              <span class="label">NIVEL: ${this.student.level || 1}</span>
-              <div class="stars">
-                <span class="star active">★</span>
-                <span class="star-count">${this.student.stars || 0}</span>
+          <div class="exact-screen-wrapper">
+            <div class="tablet-display" id="tabletDisplay">
+              
+              <!-- 1. Barra Superior -->
+              <div class="hud-level-pill" id="btnLevelInfo" title="Nivel ${this.student.level || 1} - ${this.student.stars || 0} Estrellas"></div>
+              <button class="hud-btn-settings" id="btnSettings" title="⚙️ Ajustes del Alumno"></button>
+
+              <!-- 2. Alumno / Bienvenida personalizada si cambia el nombre -->
+              ${isCustomName ? `<div class="custom-name-banner">¡HOLA, ${this.student.name.toUpperCase()}! 👋</div>` : ''}
+
+              <!-- 3. Avatar de Juan Carlos (Zona interactiva con voz y animaciones) -->
+              <div class="hud-character-zone" id="characterAvatarZone" title="¡Tócame para hablar conmigo!">
+                <div class="character-speech-bubble" id="charSpeechBubble" style="display:none;"></div>
               </div>
+
+              <!-- 4. Los 6 Módulos Educativos Circulares -->
+              <button class="hud-module-btn btn-letter-tracing" id="btnLetterTracing" title="🔤 Trazado de Letras (A-Z)"></button>
+              <button class="hud-module-btn btn-syllables" id="btnSyllables" title="🧩 Sílabas (MA - MA)"></button>
+              <button class="hud-module-btn btn-numbers" id="btnNumbers" title="🔢 Números (1 2 3)"></button>
+              <button class="hud-module-btn btn-vowels" id="btnVowels" title="🍎 Vocales (A E I O U)"></button>
+              <button class="hud-module-btn btn-shapes" id="btnShapes" title="🔷 Figuras y Colores"></button>
+              <button class="hud-module-btn btn-name-tracing" id="btnNameTracing" title="✍️ Trazado de Mi Nombre"></button>
+
+              <!-- 5. Barra Inferior -->
+              <div class="hud-stars-shelf" id="btnStarsShelf" title="⭐ Tus Estrellas Ganadas"></div>
+              <button class="hud-btn-home" id="btnHomeWorld" title="🏠 Mi Mundo Abierto (Sala Libre)"></button>
+              <div class="hud-inventory-pills" id="btnInventoryPills" title="🎒 Tus Recompensas"></div>
+
             </div>
-            <h1 class="app-title" id="appTitle">${this.student.name.toUpperCase()}'S ADVENTURES</h1>
-            <div class="system-icons">
-              <button class="icon-btn audio-btn" id="btnAudioToggle" title="Audio">
-                ${audio.isMuted ? '🔇' : '🔊'}
-              </button>
-              <button class="icon-btn settings-btn" id="btnSettings" title="Ajustes de Alumno">⚙️</button>
-            </div>
-          </header>
-
-          <main class="dashboard-content">
-            <section class="avatar-section">
-              <div class="welcome-banner">
-                <h2>¡HOLA, <br><span id="studentNameDisplay">${this.student.name.toUpperCase()}!</span></h2>
-              </div>
-              <div class="avatar-container" id="characterAvatarWrapper" title="¡Haz clic en Juan Carlos!">
-                <img src="${this.student.avatarUrl || 'public/assets/images/character_avatar.svg'}" 
-                     id="characterSprite" alt="Personaje Principal"
-                     onerror="this.src='public/assets/images/character_avatar.png'">
-                <div class="avatar-speech-bubble" id="avatarSpeechBubble">¡Vamos a jugar y aprender! 🎉</div>
-              </div>
-              <button class="open-world-banner-btn" id="btnGoToWorld">
-                <span class="btn-icon">🌍</span>
-                <div class="btn-text">
-                  <strong>MI MUNDO VIRTUAL</strong>
-                  <small>${unlockedItems.length} objetos desbloqueados</small>
-                </div>
-              </button>
-            </section>
-
-            <section class="modules-grid">
-              <button class="module-card letter-tracing" id="btnLetterTracing">
-                <div class="icon-box"><img src="public/assets/icons/tracing.svg" alt="Trazado"></div>
-                <span>TRAZADO DE LETRAS</span>
-              </button>
-
-              <button class="module-card syllables" id="btnSyllables">
-                <div class="icon-box"><img src="public/assets/icons/syllables.svg" alt="Sílabas"></div>
-                <span>SÍLABAS</span>
-              </button>
-
-              <button class="module-card numbers" id="btnNumbers">
-                <div class="icon-box"><img src="public/assets/icons/numbers.svg" alt="Números"></div>
-                <span>NÚMEROS</span>
-              </button>
-
-              <button class="module-card vowels" id="btnVowels">
-                <div class="icon-box"><img src="public/assets/icons/vowels.svg" alt="Vocales"></div>
-                <span>VOCALES</span>
-              </button>
-
-              <button class="module-card shapes" id="btnShapes">
-                <div class="icon-box"><img src="public/assets/icons/shapes.svg" alt="Figuras"></div>
-                <span>FIGURAS Y COLORES</span>
-              </button>
-
-              <button class="module-card name-tracing" id="btnNameTracing">
-                <div class="icon-box"><img src="public/assets/icons/nametracing.svg" alt="Mi Nombre"></div>
-                <span>TRAZADO DEL NOMBRE</span>
-              </button>
-            </section>
-          </main>
-
-          <footer class="bottom-bar">
-            <div class="bottom-bar-title">🎒 Mis Premios:</div>
-            <div class="unlocked-inventory" id="previewInventory">
-              ${this.renderInventorySlots(unlockedItems)}
-            </div>
-            <button class="home-btn" id="btnOpenWorldQuick" title="Ver mi mundo libre">
-              🏰 Ver Sala
-            </button>
-          </footer>
+          </div>
         </div>
       `;
 
       this.bindEvents(container);
     }
 
-    renderInventorySlots(items) {
-      let html = '';
-      for (let i = 0; i < 6; i++) {
-        if (items[i]) {
-          html += `<div class="inventory-slot filled" title="${items[i].name}">
-            <img src="${items[i].iconPath}" alt="${items[i].name}">
-          </div>`;
-        } else {
-          html += `<div class="inventory-slot empty" title="¡Gana estrellas para desbloquear más!">🔒</div>`;
-        }
-      }
-      return html;
-    }
-
     bindEvents(container) {
-      container.querySelector('#btnAudioToggle')?.addEventListener('click', (e) => {
-        const isMuted = audio.toggleMute();
-        e.currentTarget.innerText = isMuted ? '🔇' : '🔊';
-        if (!isMuted) audio.playClick();
-      });
-
       container.querySelector('#btnSettings')?.addEventListener('click', () => {
+        audio.playClick();
         Modal.showStudentSettings(this.student, (updated) => {
           StorageManager.saveActiveStudent(updated);
           this.student = updated;
@@ -590,40 +522,45 @@
         });
       });
 
-      container.querySelector('#characterAvatarWrapper')?.addEventListener('click', () => {
+      container.querySelector('#characterAvatarZone')?.addEventListener('click', () => {
         audio.playPop();
         const phrases = [
-          `¡Hola ${this.student.name}! ¿Qué jugamos hoy?`,
-          '¡Eres súper inteligente! 🌟',
-          '¡Vamos a ganar más estrellas para tu mundo!',
-          '¡Me encanta aprender contigo! 🚀'
+          `¡Hola ${this.student.name}! ¿Listo para una aventura?`,
+          '¡Vamos a jugar y ganar muchas estrellas!',
+          '¡Eres el mejor estudiante de kínder! 🌟',
+          '¡Toca cualquiera de los círculos de colores para empezar!'
         ];
-        const randomPhrase = phrases[Math.floor(Math.random() * phrases.length)];
-        const bubble = container.querySelector('#avatarSpeechBubble');
+        const selectedPhrase = phrases[Math.floor(Math.random() * phrases.length)];
+        
+        const bubble = container.querySelector('#charSpeechBubble');
         if (bubble) {
-          bubble.innerText = randomPhrase;
-          bubble.classList.remove('pop-bubble');
-          void bubble.offsetWidth;
-          bubble.classList.add('pop-bubble');
+          bubble.innerText = selectedPhrase;
+          bubble.style.display = 'block';
+          clearTimeout(this._bubbleTimer);
+          this._bubbleTimer = setTimeout(() => {
+            bubble.style.display = 'none';
+          }, 3200);
         }
-        audio.speak(randomPhrase);
+        audio.speak(selectedPhrase);
       });
 
-      const navMap = [
-        { id: '#btnLetterTracing', module: 'letter-tracing' },
-        { id: '#btnSyllables', module: 'syllables' },
-        { id: '#btnNumbers', module: 'numbers' },
-        { id: '#btnVowels', module: 'vowels' },
-        { id: '#btnShapes', module: 'shapes' },
-        { id: '#btnNameTracing', module: 'name-tracing' },
-        { id: '#btnGoToWorld', module: 'open-world' },
-        { id: '#btnOpenWorldQuick', module: 'open-world' }
+      const modules = [
+        { id: '#btnLetterTracing', key: 'letter-tracing', sound: 'playClick' },
+        { id: '#btnSyllables', key: 'syllables', sound: 'playPop' },
+        { id: '#btnNumbers', key: 'numbers', sound: 'playClick' },
+        { id: '#btnVowels', key: 'vowels', sound: 'playPop' },
+        { id: '#btnShapes', key: 'shapes', sound: 'playClick' },
+        { id: '#btnNameTracing', key: 'name-tracing', sound: 'playStar' },
+        { id: '#btnHomeWorld', key: 'open-world', sound: 'playFanfare' },
+        { id: '#btnStarsShelf', key: 'name-tracing', sound: 'playStar' },
+        { id: '#btnInventoryPills', key: 'open-world', sound: 'playPop' },
+        { id: '#btnLevelInfo', key: 'open-world', sound: 'playStar' }
       ];
 
-      navMap.forEach(item => {
-        container.querySelector(item.id)?.addEventListener('click', () => {
-          audio.playClick();
-          this.navigator.navigate(item.module);
+      modules.forEach(m => {
+        container.querySelector(m.id)?.addEventListener('click', () => {
+          if (m.sound && audio[m.sound]) audio[m.sound]();
+          this.navigator.navigate(m.key);
         });
       });
     }
@@ -1668,3 +1605,4 @@
     window.__APP = new App();
   }
 })();
+
