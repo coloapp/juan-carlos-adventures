@@ -246,3 +246,4 @@ export class NameTracingScreen {
     audio.speak(`¡Felicidades ${this.student.name}! ¡Completaste todo tu nombre!`);
   }
 }
+

@@ -77,3 +77,4 @@ export class App {
 window.addEventListener('DOMContentLoaded', () => {
   window.__APP_INSTANCE = new App();
 });
+

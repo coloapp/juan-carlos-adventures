@@ -120,3 +120,4 @@ export class StorageManager {
     localStorage.setItem(this.KEYS.AUDIO_MUTED, isMuted ? 'true' : 'false');
   }
 }
+

@@ -9,3 +9,4 @@ Esta carpeta está preparada para que puedas agregar o reemplazar archivos de au
 - `pop.mp3`: Sonido al colocar objetos en el mundo abierto.
 
 > **Nota:** La aplicación incluye un sintetizador dinámico (`AudioManager.js`) basado en la **Web Audio API** y la **Web Speech API** en español, por lo que la aplicación ya reproduce sonidos interactivos alegres, notas musicales y pronuncia fonemas **incluso si no agregas archivos .mp3**. Si agregas tus archivos aquí, el sistema los reproducirá automáticamente.
+

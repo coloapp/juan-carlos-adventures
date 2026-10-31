@@ -123,3 +123,4 @@ Para que el proyecto sea público y open-source sin comprometer firmas privadas 
 2. Sincronizar proyecto Android: `npx cap sync android`
 3. Abrir en Android Studio: `npx cap open android`
 4. Generar APK firmada: Menú `Build` > `Generate Signed Bundle / APK` usando tu Keystore privado.
+

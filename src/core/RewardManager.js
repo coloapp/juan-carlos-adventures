@@ -125,3 +125,4 @@ export class RewardManager {
 }
 
 export const rewards = new RewardManager();
+
