@@ -1,6 +1,8 @@
 /**
- * home.css - Réplica Exacta de la Pantalla Principal (Tablet UI)
- * Diseñada pixel-perfect con base en la referencia visual del usuario.
+ * home.css - Pantalla Principal Fullscreen UX/UI
+ * Toma el 100% de la pantalla sin marcos exteriores.
+ * Réplica fiel del diseño didáctico con paisaje natural a la izquierda
+ * y galaxia de módulos circulares a la derecha.
  */
 
 .main-dashboard {
@@ -9,297 +11,711 @@
   margin: 0;
   padding: 0;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  background: radial-gradient(circle at center, #fff9f0 0%, #f0e6d6 60%, #ded0bd 100%);
+  flex-direction: column;
   overflow: hidden;
   box-sizing: border-box;
-}
-
-/* Marco de Tablet Protectora Infantil (Bumper Azul) */
-.exact-screen-wrapper {
-  position: relative;
-  width: 95vw;
-  max-width: 1100px;
-  height: 94vh;
-  max-height: 720px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 14px;
-  box-sizing: border-box;
-  background: linear-gradient(135deg, #29b6f6 0%, #0288d1 50%, #01579b 100%);
-  border-radius: 46px;
-  box-shadow: 
-    0 18px 45px rgba(0, 0, 0, 0.4),
-    inset 0 4px 8px rgba(255, 255, 255, 0.6),
-    inset 0 -6px 12px rgba(0, 0, 0, 0.3);
-  border: 4px solid #4fc3f7;
-}
-
-/* Pantalla Interna de la Tablet (Proporción 582 x 414 ~ 7:5) */
-.tablet-display {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  aspect-ratio: 582 / 414;
-  max-width: 100%;
-  max-height: 100%;
-  background: url('../../../public/assets/images/screen_full.png') center center / cover no-repeat;
-  border-radius: 24px;
-  overflow: hidden;
-  box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.6);
+  font-family: var(--font-child);
   user-select: none;
   -webkit-user-select: none;
+  background: #092147;
 }
 
-/* Hotspots y Zonas Interactivas Superpuestas */
-
-/* 1. Barra Superior */
-.hud-level-pill {
-  position: absolute;
-  left: 2.5%;
-  top: 2.2%;
-  width: 18%;
+/* ==========================================================================
+   1. BARRA SUPERIOR (HEADER)
+   ========================================================================== */
+.top-bar {
   height: 9%;
-  cursor: pointer;
-  border-radius: 18px;
-  z-index: 20;
+  min-height: 48px;
+  max-height: 60px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 16px;
+  background: rgba(10, 25, 50, 0.75);
+  backdrop-filter: blur(8px);
+  border-bottom: 2px solid rgba(255, 255, 255, 0.15);
+  z-index: 100;
+  box-sizing: border-box;
+}
+
+/* Indicador de Nivel (Izquierda) */
+.level-badge {
+  background: #173b64;
+  border: 2px solid #29b6f6;
+  border-radius: 20px;
+  padding: 4px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #ffffff;
+  font-weight: 900;
+  font-size: 0.95rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.level-stars-mini {
+  display: flex;
+  gap: 3px;
+}
+
+.mini-star {
+  font-size: 1rem;
+  color: #455a64;
+}
+
+.mini-star.active {
+  color: #ffd700;
+  text-shadow: 0 0 6px #ffd700;
+}
+
+/* Título Central 3D */
+.app-title-3d {
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
+  text-align: center;
+  line-height: 1;
 }
 
-.hud-level-pill:hover {
-  background: rgba(255, 255, 255, 0.15);
+.title-line-1 {
+  font-size: 1.15rem;
+  font-weight: 900;
+  color: #ffd54f;
+  text-shadow: 
+    -1.5px -1.5px 0 #5d2e08,
+    1.5px -1.5px 0 #5d2e08,
+    -1.5px 1.5px 0 #5d2e08,
+    1.5px 1.5px 0 #5d2e08,
+    0 3px 0 #3e1f05;
+  letter-spacing: 1px;
 }
 
-.hud-btn-settings {
-  position: absolute;
-  left: 91.5%;
-  top: 2.2%;
-  width: 6.8%;
-  height: 9.2%;
+.title-line-2 {
+  font-size: 0.95rem;
+  font-weight: 900;
+  color: #ff5252;
+  text-shadow: 
+    -1.5px -1.5px 0 #5c0e0e,
+    1.5px -1.5px 0 #5c0e0e,
+    -1.5px 1.5px 0 #5c0e0e,
+    1.5px 1.5px 0 #5c0e0e,
+    0 2.5px 0 #3e0a0a;
+  letter-spacing: 1px;
+}
+
+/* Iconos de Sistema y Ajustes (Derecha) */
+.system-status-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.status-icon {
+  font-size: 1.1rem;
+  color: #ffffff;
+  opacity: 0.9;
+}
+
+.btn-audio-toggle {
+  background: #0288d1;
+  color: white;
+  border: 2px solid #ffffff;
   border-radius: 50%;
-  border: none;
-  background: transparent;
+  width: 36px;
+  height: 36px;
+  font-size: 1rem;
   cursor: pointer;
-  z-index: 25;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  transition: transform 0.1s;
+}
+
+.btn-audio-toggle:active {
+  transform: scale(0.92);
+}
+
+.btn-settings-red {
+  background: radial-gradient(circle, #ff5252 0%, #d32f2f 100%);
+  color: white;
+  border: 3px solid #ffffff;
+  border-radius: 50%;
+  width: 38px;
+  height: 38px;
+  font-size: 1.15rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.35);
   transition: transform 0.15s ease;
 }
 
-.hud-btn-settings:active {
-  transform: scale(0.9) rotate(45deg);
+.btn-settings-red:hover {
+  transform: rotate(45deg) scale(1.08);
 }
 
-.hud-btn-settings:hover {
-  box-shadow: 0 0 12px rgba(255, 82, 82, 0.8);
+.btn-settings-red:active {
+  transform: scale(0.92);
 }
 
-/* 2. Zona del Personaje (Juan Carlos) */
-.hud-character-zone {
+/* ==========================================================================
+   2. CONTENIDO PRINCIPAL DIVIDIDO EN 2 SECCIONES
+   ========================================================================== */
+.dashboard-content {
+  flex: 1;
+  display: flex;
+  height: 80%;
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+/* --------------------------------------------------------------------------
+   LADO IZQUIERDO: PAISAJE NATURAL DIDÁCTICO (55% ancho)
+   -------------------------------------------------------------------------- */
+.landscape-section {
+  flex: 1.15;
+  position: relative;
+  height: 100%;
+  background: linear-gradient(180deg, #64b5f6 0%, #90caf9 40%, #c8e6c9 70%, #81c784 100%);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-right: 4px solid #0288d1;
+}
+
+/* Montañas y Cielo al Fondo */
+.scenery-sky-decor {
   position: absolute;
-  left: 32.5%;
-  top: 14%;
-  width: 25%;
-  height: 72%;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.sun-smiling {
+  position: absolute;
+  top: 15px;
+  left: 55%;
+  font-size: 3.5rem;
+  filter: drop-shadow(0 0 12px #ffeb3b);
+  animation: floatSun 4s ease-in-out infinite alternate;
+}
+
+@keyframes floatSun {
+  from { transform: translateY(0) scale(1); }
+  to { transform: translateY(-6px) scale(1.04); }
+}
+
+.cloud-puffy {
+  position: absolute;
+  color: #ffffff;
+  opacity: 0.9;
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+}
+
+.cloud-1 { top: 20px; left: 10%; font-size: 2.8rem; }
+.cloud-2 { top: 50px; left: 40%; font-size: 2rem; opacity: 0.7; }
+
+/* Montañas Nevadas */
+.mountains-bg {
+  position: absolute;
+  bottom: 25%;
+  left: 0;
+  width: 100%;
+  height: 140px;
+  background: 
+    linear-gradient(135deg, transparent 40%, #b0bec5 40%, #cfd8dc 60%, transparent 60%),
+    linear-gradient(225deg, transparent 45%, #90a4ae 45%, #b0bec5 65%, transparent 65%);
+  background-size: 160px 140px, 200px 140px;
+  background-repeat: repeat-x;
+  opacity: 0.8;
+  z-index: 2;
+}
+
+/* Colinas Verdes y Pinos */
+.hills-fg {
+  position: absolute;
+  bottom: 0;
+  left: -5%;
+  width: 110%;
+  height: 38%;
+  background: radial-gradient(ellipse at 50% 100%, #66bb6a 0%, #43a047 60%, #2e7d32 100%);
+  border-radius: 50% 50% 0 0;
+  z-index: 3;
+  box-shadow: inset 0 8px 16px rgba(255,255,255,0.3);
+}
+
+.pine-tree {
+  position: absolute;
+  bottom: 30%;
+  font-size: 2.2rem;
+  z-index: 3;
+}
+.tree-1 { left: 8%; font-size: 3rem; }
+.tree-2 { left: 22%; font-size: 2.2rem; }
+.tree-3 { left: 75%; font-size: 2.6rem; }
+.tree-4 { left: 85%; font-size: 1.8rem; }
+
+/* Título Bienvenido */
+.welcome-badge-group {
+  position: relative;
+  z-index: 10;
+  padding: 16px 0 0 24px;
+}
+
+.welcome-title-cyan {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: #00e5ff;
+  text-shadow: 
+    -2px -2px 0 #ffffff,
+    2px -2px 0 #ffffff,
+    -2px 2px 0 #ffffff,
+    2px 2px 0 #ffffff,
+    0 3px 6px rgba(0,0,0,0.25);
+  margin: 0;
+  line-height: 1.1;
+}
+
+.student-name-split {
+  font-size: 2.1rem;
+  font-weight: 900;
+  margin: 2px 0 0 0;
+  line-height: 1;
+}
+
+.name-part-1 {
+  color: #ffca28;
+  text-shadow: 
+    -2px -2px 0 #ffffff,
+    2px -2px 0 #ffffff,
+    -2px 2px 0 #ffffff,
+    2px 2px 0 #ffffff,
+    0 3px 6px rgba(0,0,0,0.25);
+}
+
+.name-part-2 {
+  color: #ff5252;
+  text-shadow: 
+    -2px -2px 0 #ffffff,
+    2px -2px 0 #ffffff,
+    -2px 2px 0 #ffffff,
+    2px 2px 0 #ffffff,
+    0 3px 6px rgba(0,0,0,0.25);
+}
+
+/* Personaje de Juan Carlos */
+.character-center-stage {
+  position: relative;
+  z-index: 10;
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 8px;
+}
+
+.character-clickable-wrapper {
+  position: relative;
   cursor: pointer;
-  z-index: 15;
-  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.hud-character-zone:hover {
-  filter: drop-shadow(0 0 8px rgba(255, 235, 59, 0.6));
+.character-img-sprite {
+  height: 52vh;
+  max-height: 380px;
+  min-height: 220px;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 14px rgba(0,0,0,0.3));
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-.hud-character-zone:active {
-  transform: scale(1.03);
+.character-clickable-wrapper:active .character-img-sprite {
+  transform: scale(1.08) rotate(2deg);
 }
 
 .character-speech-bubble {
   position: absolute;
-  top: 10%;
-  left: 50%;
-  transform: translateX(-50%);
+  top: -20px;
   background: #ffffff;
-  color: #1565c0;
+  color: #0277bd;
   border: 3px solid #ff9800;
   padding: 8px 16px;
   border-radius: 20px;
   font-size: 0.95rem;
   font-weight: 900;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.25);
   white-space: nowrap;
-  pointer-events: none;
   animation: popInBubble 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  z-index: 100;
+  z-index: 50;
+  pointer-events: none;
 }
 
-@keyframes popInBubble {
-  from { opacity: 0; transform: translateX(-50%) scale(0.6); }
-  to { opacity: 1; transform: translateX(-50%) scale(1); }
-}
-
-/* 3. Los 6 Botones Circulares del Menú Derecho */
-.hud-module-btn {
+.character-speech-bubble::after {
+  content: '';
   position: absolute;
-  border-radius: 50%;
-  border: none;
-  background: transparent;
+  bottom: -9px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 9px 8px 0 8px;
+  border-style: solid;
+  border-color: #ff9800 transparent transparent transparent;
+}
+
+/* --------------------------------------------------------------------------
+   LADO DERECHO: GALAXIA DE LOS 6 MÓDULOS (45% ancho)
+   -------------------------------------------------------------------------- */
+.modules-section {
+  flex: 0.85;
+  position: relative;
+  height: 100%;
+  background: radial-gradient(circle at 70% 30%, #153b75 0%, #092147 60%, #061530 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  box-sizing: border-box;
+}
+
+/* Estrellitas centelleantes decorativas en el fondo */
+.sparkle-star {
+  position: absolute;
+  color: #fff9c4;
+  opacity: 0.7;
+  pointer-events: none;
+  animation: sparkleTwinkle 3s ease-in-out infinite alternate;
+}
+
+@keyframes sparkleTwinkle {
+  from { opacity: 0.3; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1.2); }
+}
+
+.sp-1 { top: 12%; left: 10%; font-size: 1.4rem; color: #ffeb3b; }
+.sp-2 { top: 25%; right: 8%; font-size: 1.1rem; color: #00e5ff; }
+.sp-3 { bottom: 20%; left: 8%; font-size: 1.2rem; color: #ff80ab; }
+.sp-4 { bottom: 15%; right: 12%; font-size: 1.5rem; color: #76ff03; }
+.sp-5 { top: 50%; left: 48%; font-size: 0.9rem; color: #ffffff; }
+
+/* Grid de los 6 Botones Circulares */
+.circle-modules-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 12px 16px;
+  width: 100%;
+  max-width: 440px;
+  height: 94%;
+  align-items: center;
+  justify-items: center;
+}
+
+/* Estructura de cada botón circular */
+.circle-module-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   cursor: pointer;
-  z-index: 20;
+  background: transparent;
+  border: none;
   outline: none;
-  transition: transform 0.12s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.15s ease;
+  padding: 4px;
+  transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-.hud-module-btn:hover {
-  transform: scale(1.07);
-}
-
-.hud-module-btn:active {
-  transform: scale(0.95);
-}
-
-/* Posiciones exactas % */
-.btn-letter-tracing {
-  left: 59.8%;
-  top: 12.2%;
-  width: 15.8%;
-  height: 24.2%;
-}
-.btn-letter-tracing:hover {
-  box-shadow: 0 0 20px rgba(255, 152, 0, 0.8);
-}
-
-.btn-syllables {
-  left: 77.2%;
-  top: 12.2%;
-  width: 15.8%;
-  height: 24.2%;
-}
-.btn-syllables:hover {
-  box-shadow: 0 0 20px rgba(76, 175, 80, 0.8);
-}
-
-.btn-numbers {
-  left: 59.8%;
-  top: 37.2%;
-  width: 15.8%;
-  height: 24.2%;
-}
-.btn-numbers:hover {
-  box-shadow: 0 0 20px rgba(0, 188, 212, 0.8);
-}
-
-.btn-vowels {
-  left: 77.2%;
-  top: 37.2%;
-  width: 15.8%;
-  height: 24.2%;
-}
-.btn-vowels:hover {
-  box-shadow: 0 0 20px rgba(171, 71, 188, 0.8);
-}
-
-.btn-shapes {
-  left: 59.8%;
-  top: 62.4%;
-  width: 15.8%;
-  height: 24.2%;
-}
-.btn-shapes:hover {
-  box-shadow: 0 0 20px rgba(255, 87, 34, 0.8);
-}
-
-.btn-name-tracing {
-  left: 77.2%;
-  top: 62.4%;
-  width: 15.8%;
-  height: 24.2%;
-}
-.btn-name-tracing:hover {
-  box-shadow: 0 0 20px rgba(0, 150, 136, 0.8);
-}
-
-/* 4. Barra Inferior */
-.hud-btn-home {
-  position: absolute;
-  left: 44.5%;
-  top: 85.5%;
-  width: 10.2%;
-  height: 13.5%;
-  border-radius: 50%;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  z-index: 25;
-  transition: transform 0.12s ease;
-}
-
-.hud-btn-home:hover {
-  box-shadow: 0 0 16px rgba(255, 152, 0, 0.9);
+.circle-module-card:hover {
   transform: scale(1.08);
 }
 
-.hud-btn-home:active {
+.circle-module-card:active {
   transform: scale(0.94);
 }
 
-.hud-stars-shelf {
+/* La Burbuja Circular Brillante */
+.circle-bubble {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 4px solid #ffffff;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.4);
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+}
+
+/* Efecto reflejo de cristal */
+.circle-bubble::before {
+  content: '';
   position: absolute;
-  left: 2.5%;
-  top: 87.2%;
-  width: 40.8%;
-  height: 11%;
-  cursor: pointer;
-  border-radius: 16px;
-  z-index: 20;
+  top: 4px;
+  left: 8px;
+  width: 60px;
+  height: 24px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 100%);
+  pointer-events: none;
 }
 
-.hud-stars-shelf:hover {
-  background: rgba(255, 255, 255, 0.15);
+/* Iconos o contenido dentro de cada círculo */
+.bubble-inner-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
 
-.hud-inventory-pills {
-  position: absolute;
-  left: 55.6%;
-  top: 87.2%;
-  width: 42.4%;
-  height: 11%;
-  cursor: pointer;
-  border-radius: 16px;
-  z-index: 20;
+/* 1. Letter Tracing (Amarillo / Naranja) */
+.bubble-letter {
+  background: radial-gradient(circle, #fff8e1 15%, #ffd54f 60%, #ff9800 100%);
+  border-color: #ff9800;
+  box-shadow: 0 0 16px rgba(255, 152, 0, 0.6);
 }
-
-.hud-inventory-pills:hover {
-  background: rgba(255, 255, 255, 0.15);
-}
-
-/* Alumno Dinámico: Si el nombre cambia de Juan Carlos */
-.custom-name-banner {
-  position: absolute;
-  left: 4%;
-  top: 14%;
-  max-width: 30%;
-  background: rgba(255, 255, 255, 0.95);
-  border: 3px solid #ff9800;
-  border-radius: 18px;
-  padding: 4px 12px;
-  color: #d84315;
+.letter-big-a {
+  font-size: 2.2rem;
   font-weight: 900;
+  color: #ff6f00;
+  line-height: 1;
+}
+.pencil-mini {
+  position: absolute;
+  top: 12px;
+  right: 12px;
   font-size: 1.1rem;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-  z-index: 30;
 }
 
-/* Adaptación para pantallas pequeñas / móviles verticales */
-@media (max-width: 768px) {
-  .exact-screen-wrapper {
-    width: 100vw;
-    height: 100vh;
-    border-radius: 0;
-    padding: 6px;
-    border: none;
-  }
+/* 2. Syllables (Verde) */
+.bubble-syllables {
+  background: radial-gradient(circle, #e8f5e9 15%, #81c784 60%, #4caf50 100%);
+  border-color: #4caf50;
+  box-shadow: 0 0 16px rgba(76, 175, 80, 0.6);
+}
+.syl-pill-1 {
+  background: #ffffff;
+  color: #00796b;
+  font-size: 0.8rem;
+  font-weight: 900;
+  padding: 1px 6px;
+  border-radius: 6px;
+  margin-bottom: 2px;
+}
+.syl-pill-2 {
+  background: #ffffff;
+  color: #d32f2f;
+  font-size: 0.7rem;
+  font-weight: 900;
+  padding: 1px 6px;
+  border-radius: 6px;
+}
+
+/* 3. Numbers (Celeste / Azul) */
+.bubble-numbers {
+  background: radial-gradient(circle, #e0f7fa 15%, #4dd0e1 60%, #00bcd4 100%);
+  border-color: #00bcd4;
+  box-shadow: 0 0 16px rgba(0, 188, 212, 0.6);
+}
+.numbers-3d-text {
+  font-size: 1.5rem;
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+.num-orange { color: #ff5722; }
+.num-cyan { color: #00e5ff; }
+.num-blue { color: #1e88e5; }
+.blocks-row-mini {
+  display: flex;
+  gap: 3px;
+  font-size: 0.65rem;
+  font-weight: bold;
+}
+.b-mini {
+  background: #ffffff;
+  color: #006064;
+  padding: 0 3px;
+  border-radius: 3px;
+}
+
+/* 4. Vowels (Magenta / Morado) */
+.bubble-vowels {
+  background: radial-gradient(circle, #f3e5f5 15%, #ba68c8 60%, #9c27b0 100%);
+  border-color: #9c27b0;
+  box-shadow: 0 0 16px rgba(156, 39, 176, 0.6);
+}
+.vowels-row-1 {
+  font-size: 1.1rem;
+  font-weight: 900;
+  letter-spacing: 4px;
+}
+.v-a { color: #ff5252; }
+.v-e { color: #76ff03; }
+.vowels-row-2 {
+  font-size: 0.95rem;
+  font-weight: 900;
+  letter-spacing: 2px;
+}
+.v-i { color: #ffffff; }
+.v-o { color: #ff80ab; }
+.v-u { color: #ffeb3b; }
+.audio-mini-speaker { font-size: 0.65rem; color: #ffffff; }
+
+/* 5. Shapes (Rojo Coral) */
+.bubble-shapes {
+  background: radial-gradient(circle, #ffebee 15%, #ef5350 60%, #e53935 100%);
+  border-color: #f44336;
+  box-shadow: 0 0 16px rgba(244, 67, 54, 0.6);
+}
+.shapes-cluster-mini {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 3px;
+  font-size: 1.1rem;
+}
+
+/* 6. Name Tracing (Verde Azulado / Teal) */
+.bubble-name-tracing {
+  background: radial-gradient(circle, #e0f2f1 15%, #4db6ac 60%, #009688 100%);
+  border-color: #009688;
+  box-shadow: 0 0 16px rgba(0, 150, 136, 0.6);
+}
+.name-tracing-inner-text {
+  font-size: 0.72rem;
+  font-weight: 900;
+  color: #ffffff;
+  line-height: 1.1;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+  border-bottom: 2px dashed #ffeb3b;
+  padding-bottom: 2px;
+}
+
+/* Texto debajo de cada círculo */
+.circle-module-label {
+  font-size: 0.85rem;
+  font-weight: 900;
+  color: #ffffff;
+  margin-top: 5px;
+  text-align: center;
+  letter-spacing: 0.5px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+}
+
+.label-highlight {
+  color: #ffeb3b;
+}
+
+/* ==========================================================================
+   3. BARRA INFERIOR (FOOTER)
+   ========================================================================== */
+.bottom-bar {
+  height: 11%;
+  min-height: 52px;
+  max-height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  background: rgba(10, 25, 50, 0.85);
+  backdrop-filter: blur(8px);
+  border-top: 2px solid rgba(255, 255, 255, 0.15);
+  z-index: 100;
+  box-sizing: border-box;
+}
+
+/* Repisa de Estrellas (Izquierda) */
+.stars-shelf-container {
+  display: flex;
+  align-items: center;
+  background: #ffb74d;
+  border: 3px solid #ffe082;
+  border-radius: 20px;
+  padding: 6px 14px;
+  box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), 0 3px 6px rgba(0,0,0,0.3);
+}
+
+.shelf-stars-row {
+  display: flex;
+  gap: 6px;
+}
+
+.shelf-star {
+  font-size: 1.3rem;
+  color: #ffffff;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+.shelf-star.filled {
+  color: #ffd700;
+  text-shadow: 0 0 6px #ff9800;
+}
+
+/* Botón Home Central en Arco (Naranja) */
+.home-arch-button {
+  background: radial-gradient(circle, #ff9800 0%, #f57c00 100%);
+  border: 4px solid #ffffff;
+  border-radius: 50%;
+  width: 56px;
+  height: 56px;
+  font-size: 1.6rem;
+  color: #ffffff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.6);
+  margin-top: -16px;
+  transition: transform 0.15s ease;
+  z-index: 110;
+}
+
+.home-arch-button:hover {
+  transform: scale(1.12);
+}
+
+.home-arch-button:active {
+  transform: scale(0.92);
+}
+
+/* Cápsulas de Inventario (Derecha) */
+.inventory-pills-row {
+  display: flex;
+  gap: 8px;
+}
+
+.reward-pill {
+  width: 42px;
+  height: 28px;
+  border-radius: 14px;
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+
+.reward-pill:hover {
+  transform: scale(1.1);
+}
+
+.pill-red { background: linear-gradient(135deg, #ff5252, #d32f2f); }
+.pill-green { background: linear-gradient(135deg, #69f0ae, #00c853); }
+.pill-purple { background: linear-gradient(135deg, #e040fb, #aa00ff); }
+.pill-cyan { background: linear-gradient(135deg, #40c4ff, #0091ea); }
+
+.reward-pill img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
 }
