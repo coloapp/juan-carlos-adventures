@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Toy Race Car -->
+  <path d="M 12 60 L 25 42 L 68 42 L 85 55 L 92 65 Q 92 72 82 72 L 18 72 Q 10 72 12 60 Z" fill="#e53935"/>
+  <!-- Cabin / Windshield -->
+  <path d="M 32 45 L 42 32 L 62 32 L 68 45 Z" fill="#b3e5fc"/>
+  <!-- Spoiler -->
+  <rect x="8" y="44" width="6" height="15" fill="#d32f2f"/>
+  <rect x="4" y="42" width="14" height="4" rx="2" fill="#212121"/>
+  <!-- Racing number 1 -->
+  <circle cx="50" cy="58" r="9" fill="#ffffff"/>
+  <text x="50" y="63" font-family="'Comic Sans MS', sans-serif" font-weight="bold" font-size="12" text-anchor="middle" fill="#d32f2f">1</text>
+  <!-- Wheels -->
+  <circle cx="28" cy="72" r="12" fill="#212121"/>
+  <circle cx="28" cy="72" r="6" fill="#cfd8dc"/>
+  <circle cx="75" cy="72" r="12" fill="#212121"/>
+  <circle cx="75" cy="72" r="6" fill="#cfd8dc"/>
+  <!-- Headlight -->
+  <polygon points="90,60 92,60 92,66 89,66" fill="#ffeb3b"/>
+</svg>

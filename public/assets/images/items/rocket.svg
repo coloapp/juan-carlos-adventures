@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Space Rocket -->
+  <!-- Exhaust fire -->
+  <polygon points="44,82 50,96 56,82" fill="#ff5722"/>
+  <polygon points="47,82 50,90 53,82" fill="#ffeb3b"/>
+  <!-- Fins -->
+  <polygon points="34,65 20,80 34,78" fill="#d32f2f"/>
+  <polygon points="66,65 80,80 66,78" fill="#d32f2f"/>
+  <!-- Fuselage -->
+  <path d="M 50 15 Q 68 35 68 76 L 32 76 Q 32 35 50 15 Z" fill="#eceff1"/>
+  <!-- Tip -->
+  <path d="M 50 15 Q 60 27 64 36 L 36 36 Q 40 27 50 15 Z" fill="#e53935"/>
+  <!-- Window -->
+  <circle cx="50" cy="50" r="11" fill="#42a5f5" stroke="#90a4ae" stroke-width="3"/>
+  <circle cx="47" cy="47" r="3" fill="#ffffff" opacity="0.8"/>
+  <line x1="32" y1="70" x2="68" y2="70" stroke="#d32f2f" stroke-width="3"/>
+</svg>

@@ -1,0 +1,36 @@
+{
+  "name": "juan-carlos-adventures",
+  "version": "1.0.0",
+  "description": "Aplicación educativa interactiva para kínder y preescolar basada en libros de texto",
+  "main": "src/main.js",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "android:sync": "cap sync android",
+    "android:open": "cap open android"
+  },
+  "keywords": [
+    "educacion",
+    "kinder",
+    "preescolar",
+    "sep",
+    "trazado",
+    "lectoescritura",
+    "matematicas",
+    "capacitor",
+    "android"
+  ],
+  "author": "Juan Carlos & Familia",
+  "license": "MIT",
+  "dependencies": {
+    "@capacitor/android": "^6.1.2",
+    "@capacitor/cli": "^6.1.2",
+    "@capacitor/core": "^6.1.2"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.5",
+    "vite": "^5.2.11"
+  }
+}

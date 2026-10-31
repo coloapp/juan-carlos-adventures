@@ -1,0 +1,311 @@
+/**
+ * main.css - Estilos globales, variables y sistema modal
+ */
+:root {
+  --primary-color: #ff9800;
+  --secondary-color: #4a90e2;
+  --success-color: #4caf50;
+  --accent-pink: #e91e63;
+  --accent-cyan: #00bcd4;
+  --accent-purple: #9c27b0;
+  --accent-teal: #009688;
+  --bg-sky: linear-gradient(180deg, #87ceeb 0%, #b0e0e6 100%);
+  --font-child: 'Comic Sans MS', 'Chalkboard SE', 'Fredoka One', 'Quicksand', system-ui, sans-serif;
+  --card-radius: 24px;
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body, html {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: var(--font-child);
+  user-select: none;
+  -webkit-user-select: none;
+  background-color: #87ceeb;
+}
+
+#app {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Animaciones */
+.fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.bounce-in {
+  animation: bounceIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes bounceIn {
+  from { opacity: 0; transform: scale(0.7); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.bounce-gentle {
+  animation: floatGentle 2.5s ease-in-out infinite alternate;
+}
+
+@keyframes floatGentle {
+  from { transform: translateY(0); }
+  to { transform: translateY(-8px); }
+}
+
+/* Modales */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 10000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.reward-modal-card {
+  background: linear-gradient(135deg, #ffffff 0%, #fff9c4 100%);
+  border: 5px solid #ffb300;
+  border-radius: 32px;
+  padding: 28px 36px;
+  max-width: 480px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35);
+}
+
+.modal-star-burst {
+  font-size: 2.2rem;
+  margin-bottom: 8px;
+}
+
+.modal-title {
+  color: #ff6f00;
+  font-size: 1.5rem;
+  margin: 0 0 14px 0;
+  text-shadow: 1px 1px 0 #ffe082;
+}
+
+.reward-badge-glow {
+  width: 130px;
+  height: 130px;
+  margin: 0 auto 16px auto;
+  background: radial-gradient(circle, #fff 40%, #ffe082 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 4px dashed #ff9800;
+}
+
+.reward-modal-img {
+  width: 85px;
+  height: 85px;
+  object-fit: contain;
+}
+
+.reward-item-name {
+  color: #00796b;
+  font-size: 1.4rem;
+  margin: 0 0 8px 0;
+}
+
+.reward-item-desc {
+  color: #555;
+  font-size: 1rem;
+  margin: 0 0 12px 0;
+}
+
+.reward-hint {
+  color: #e65100;
+  font-size: 0.95rem;
+  margin-bottom: 20px;
+}
+
+.modal-btn-confirm {
+  background: #4caf50;
+  color: white;
+  border: 3px solid #fff;
+  border-radius: 25px;
+  padding: 12px 32px;
+  font-size: 1.3rem;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 6px 0 #2e7d32;
+  transition: transform 0.1s;
+}
+
+.modal-btn-confirm:active {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0 #2e7d32;
+}
+
+/* Modal de Ajustes del Alumno */
+.settings-modal-card {
+  background: #ffffff;
+  border: 5px solid #2196f3;
+  border-radius: 28px;
+  padding: 24px 28px;
+  max-width: 520px;
+  width: 92%;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px dashed #b3e5fc;
+  padding-bottom: 12px;
+}
+
+.modal-header h2 {
+  margin: 0;
+  color: #0288d1;
+  font-size: 1.4rem;
+}
+
+.close-modal-btn {
+  background: #ff5252;
+  color: white;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.avatar-preview-area {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin: 18px 0;
+}
+
+.settings-avatar-img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 4px solid #00bcd4;
+  object-fit: cover;
+  background: #e0f7fa;
+}
+
+.custom-file-upload {
+  background: #ff9800;
+  color: white;
+  border-radius: 18px;
+  padding: 8px 14px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  cursor: pointer;
+  display: inline-block;
+  box-shadow: 0 3px 0 #e65100;
+  margin-bottom: 6px;
+}
+
+.btn-restore-avatar {
+  background: #f5f5f5;
+  border: 1px solid #ccc;
+  border-radius: 14px;
+  padding: 6px 10px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  display: block;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  font-weight: bold;
+  color: #37474f;
+  margin-bottom: 6px;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 10px 14px;
+  font-size: 1.1rem;
+  font-family: inherit;
+  border: 2px solid #90caf9;
+  border-radius: 12px;
+  outline: none;
+}
+
+.form-group input:focus {
+  border-color: #1e88e5;
+}
+
+.form-group small {
+  display: block;
+  color: #78909c;
+  font-size: 0.8rem;
+  margin-top: 4px;
+}
+
+.stats-overview {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.stat-pill {
+  flex: 1;
+  background: #f0f4c3;
+  border: 2px solid #dce775;
+  border-radius: 12px;
+  padding: 8px;
+  text-align: center;
+  font-size: 0.95rem;
+  color: #558b2f;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.btn-cancel, .btn-save {
+  padding: 10px 22px;
+  border-radius: 18px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.btn-cancel {
+  background: #eeeeee;
+  border: 2px solid #ccc;
+  color: #555;
+}
+
+.btn-save {
+  background: #4caf50;
+  border: 2px solid #fff;
+  color: white;
+  box-shadow: 0 4px 0 #2e7d32;
+}

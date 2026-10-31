@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 400" width="100%" height="100%">
+  <defs>
+    <!-- Filtro sombra suave -->
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="6" flood-opacity="0.25"/>
+    </filter>
+    <radialGradient id="skin" cx="50%" cy="40%" r="50%">
+      <stop offset="0%" stop-color="#c68642"/>
+      <stop offset="100%" stop-color="#a06028"/>
+    </radialGradient>
+    <linearGradient id="shirt" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00b4d8"/>
+      <stop offset="100%" stop-color="#0077b6"/>
+    </linearGradient>
+    <linearGradient id="shorts" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#3a5a40"/>
+      <stop offset="100%" stop-color="#344e41"/>
+    </linearGradient>
+    <linearGradient id="sneaker" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ff7b00"/>
+      <stop offset="100%" stop-color="#ff5400"/>
+    </linearGradient>
+  </defs>
+
+  <g filter="url(#shadow)">
+    <!-- Sombra piso -->
+    <ellipse cx="150" cy="380" rx="75" ry="12" fill="rgba(0,0,0,0.18)" />
+
+    <!-- Piernas -->
+    <rect x="118" y="240" width="22" height="75" rx="10" fill="#a06028" />
+    <rect x="160" y="240" width="22" height="75" rx="10" fill="#a06028" />
+
+    <!-- Tenis Naranjas vibrantes con suela blanca -->
+    <!-- Pie Izquierdo -->
+    <path d="M 105 310 Q 115 295 138 300 L 142 328 Q 110 330 102 322 Z" fill="url(#sneaker)" />
+    <rect x="100" y="322" width="44" height="10" rx="4" fill="#ffffff" stroke="#ddd" stroke-width="1.5" />
+    <circle cx="115" cy="312" r="3" fill="#ffffff" />
+    <circle cx="125" cy="310" r="3" fill="#ffffff" />
+    <!-- Pie Derecho -->
+    <path d="M 195 310 Q 185 295 162 300 L 158 328 Q 190 330 198 322 Z" fill="url(#sneaker)" />
+    <rect x="156" y="322" width="44" height="10" rx="4" fill="#ffffff" stroke="#ddd" stroke-width="1.5" />
+    <circle cx="185" cy="312" r="3" fill="#ffffff" />
+    <circle cx="175" cy="310" r="3" fill="#ffffff" />
+
+    <!-- Bermudas / Shorts -->
+    <path d="M 112 195 L 188 195 L 185 245 L 153 245 L 150 220 L 147 245 L 115 245 Z" fill="url(#shorts)" />
+    <line x1="150" y1="195" x2="150" y2="220" stroke="#283618" stroke-width="2" />
+
+    <!-- Brazos -->
+    <!-- Brazo izquierdo saludando arriba con entusiasmo -->
+    <path d="M 110 135 Q 70 110 65 80 Q 75 75 88 95 Q 110 125 115 140 Z" fill="#a06028" />
+    <circle cx="68" cy="78" r="14" fill="#c68642" />
+    <ellipse cx="60" cy="72" rx="4" ry="7" fill="#c68642" transform="rotate(-30 60 72)" />
+
+    <!-- Brazo derecho a la cadera -->
+    <path d="M 190 135 Q 225 155 220 185 Q 210 188 200 170 Q 185 145 185 140 Z" fill="#a06028" />
+    <circle cx="218" cy="188" r="13" fill="#c68642" />
+
+    <!-- Playera / Torso -->
+    <path d="M 105 130 Q 150 115 195 130 L 190 200 Q 150 205 110 200 Z" fill="url(#shirt)" />
+    <!-- Mangas -->
+    <path d="M 105 130 L 85 150 L 100 162 L 112 142 Z" fill="#0077b6" />
+    <path d="M 195 130 L 215 150 L 200 162 L 188 142 Z" fill="#0077b6" />
+    <!-- Detalle gráfico playera: Estrella divertida -->
+    <polygon points="150,145 154,157 167,157 156,165 160,177 150,170 140,177 144,165 133,157 146,157" fill="#ffd166" />
+
+    <!-- Cuello -->
+    <rect x="138" y="112" width="24" height="20" rx="6" fill="#a06028" />
+
+    <!-- Cabeza / Cara -->
+    <circle cx="150" cy="85" r="48" fill="url(#skin)" />
+
+    <!-- Orejas -->
+    <circle cx="102" cy="85" r="11" fill="#a06028" />
+    <circle cx="102" cy="85" r="6" fill="#c68642" />
+    <circle cx="198" cy="85" r="11" fill="#a06028" />
+    <circle cx="198" cy="85" r="6" fill="#c68642" />
+
+    <!-- Cabello moreno moderno infantil -->
+    <path d="M 102 75 Q 105 32 150 32 Q 195 32 198 75 Q 185 50 165 48 Q 150 42 135 52 Q 115 50 102 75 Z" fill="#1b1b1e" />
+    <path d="M 125 45 Q 135 25 150 30 Q 155 40 145 46 Z" fill="#2d3142" />
+    
+    <!-- Ojos grandes y alegres -->
+    <ellipse cx="135" cy="80" rx="8" ry="11" fill="#ffffff" />
+    <ellipse cx="165" cy="80" rx="8" ry="11" fill="#ffffff" />
+    <ellipse cx="137" cy="80" rx="5" ry="7" fill="#2b1810" />
+    <ellipse cx="167" cy="80" rx="5" ry="7" fill="#2b1810" />
+    <circle cx="138" cy="77" r="2.5" fill="#ffffff" />
+    <circle cx="168" cy="77" r="2.5" fill="#ffffff" />
+    <!-- Cejas tiernas -->
+    <path d="M 127 67 Q 137 62 144 66" stroke="#1b1b1e" stroke-width="2.5" stroke-linecap="round" fill="none" />
+    <path d="M 156 66 Q 163 62 173 67" stroke="#1b1b1e" stroke-width="2.5" stroke-linecap="round" fill="none" />
+
+    <!-- Naricita -->
+    <path d="M 148 88 Q 150 92 153 88" stroke="#7f4f24" stroke-width="2.5" stroke-linecap="round" fill="none" />
+
+    <!-- Gran sonrisa feliz de kínder con lengua -->
+    <path d="M 132 98 Q 150 120 168 98 Q 150 106 132 98 Z" fill="#780000" />
+    <path d="M 142 108 Q 150 102 158 108 Q 150 115 142 108 Z" fill="#ff4d6d" />
+    <!-- Dientitos superiores -->
+    <path d="M 143 99 L 143 103 L 157 103 L 157 99 Z" fill="#ffffff" />
+
+    <!-- Chapitas / Rubor en mejillas -->
+    <ellipse cx="122" cy="94" rx="7" ry="4" fill="#ff758f" opacity="0.45" />
+    <ellipse cx="178" cy="94" rx="7" ry="4" fill="#ff758f" opacity="0.45" />
+  </g>
+</svg>

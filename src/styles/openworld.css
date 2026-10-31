@@ -1,0 +1,290 @@
+/**
+ * openworld.css - Estilos del Mundo Abierto / Sala Libre Interactiva
+ * Estilo Toca Boca World con soporte Drag & Drop táctil.
+ */
+.open-world-container {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  background: #aed581;
+}
+
+.world-header {
+  height: 10%;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 16px;
+  border-bottom: 3px solid #81c784;
+  z-index: 100;
+}
+
+.world-header h2 {
+  font-size: 1.6rem;
+  color: #1b5e20;
+  margin: 0;
+  text-shadow: 1px 1px 0 #fff;
+}
+
+.world-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.bag-icon-btn {
+  background: #ff9800;
+  color: white;
+  border: 2px solid #ffffff;
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #e65100;
+}
+
+.clean-world-btn {
+  background: #78909c;
+  color: white;
+  border: 2px solid #ffffff;
+  border-radius: 20px;
+  padding: 8px 14px;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+/* Escenario / Cuarto de Juegos */
+.playmatScene, .playmat-scene {
+  flex: 1;
+  position: relative;
+  background: linear-gradient(180deg, #dcedc8 0%, #c5e1a5 65%, #aed581 100%);
+  overflow: hidden;
+  touch-action: none;
+}
+
+/* Elementos ambientales de fondo */
+.scenery-window {
+  position: absolute;
+  top: 30px;
+  left: 60px;
+  font-size: 4.5rem;
+  opacity: 0.85;
+  pointer-events: none;
+}
+
+.scenery-sun {
+  position: absolute;
+  top: 30px;
+  right: 80px;
+  font-size: 4rem;
+  opacity: 0.8;
+  pointer-events: none;
+  animation: floatGentle 4s ease-in-out infinite alternate;
+}
+
+.scenery-shelf {
+  position: absolute;
+  top: 110px;
+  right: 180px;
+  width: 220px;
+  height: 16px;
+  background: #8d6e63;
+  border-radius: 8px;
+  border-bottom: 4px solid #5d4037;
+  pointer-events: none;
+}
+
+.scenery-rug {
+  position: absolute;
+  bottom: 25px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 70%;
+  height: 90px;
+  background: radial-gradient(ellipse at center, #80cbc4 0%, #4db6ac 100%);
+  border-radius: 50%;
+  border: 4px dashed #00796b;
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+/* Props y Personajes Arrastrables */
+.draggable-prop {
+  position: absolute;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+  z-index: 10;
+  transition: transform 0.1s ease;
+}
+
+.draggable-prop.is-dragging {
+  cursor: grabbing;
+  z-index: 999;
+  transform: scale(1.15);
+  filter: drop-shadow(0 14px 18px rgba(0, 0, 0, 0.3));
+}
+
+.draggable-avatar {
+  width: 140px;
+  height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.draggable-avatar img {
+  width: 100%;
+  height: 160px;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.avatar-tag {
+  background: #ff5722;
+  color: white;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.world-item {
+  width: 90px;
+  height: 90px;
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.world-item img {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  pointer-events: none;
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.2));
+}
+
+.remove-prop-btn {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: #ff5252;
+  color: white;
+  border: 1px solid white;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  font-size: 0.7rem;
+  cursor: pointer;
+  display: none;
+}
+
+.world-item:hover .remove-prop-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Cajón Lateral de Inventario */
+.inventory-drawer {
+  position: absolute;
+  top: 10%;
+  right: -360px;
+  width: 340px;
+  height: 90%;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  border-left: 4px solid #ff9800;
+  box-shadow: -8px 0 24px rgba(0, 0, 0, 0.25);
+  z-index: 500;
+  padding: 16px;
+  box-sizing: border-box;
+  transition: right 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  display: flex;
+  flex-direction: column;
+}
+
+.inventory-drawer.open {
+  right: 0;
+}
+
+.drawer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px dashed #ffe082;
+  padding-bottom: 10px;
+}
+
+.drawer-header h3 {
+  margin: 0;
+  color: #e65100;
+  font-size: 1.2rem;
+}
+
+.close-drawer-btn {
+  background: #ff5252;
+  color: white;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+}
+
+.drawer-instruction {
+  font-size: 0.85rem;
+  color: #757575;
+  margin: 8px 0 12px 0;
+}
+
+.inventory-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  overflow-y: auto;
+  padding: 6px;
+}
+
+.inventory-item {
+  background: #fff8e1;
+  border: 2px solid #ffb74d;
+  border-radius: 16px;
+  padding: 10px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+  transition: transform 0.1s ease;
+}
+
+.inventory-item:hover, .inventory-item:active {
+  transform: scale(1.05);
+  background: #ffe082;
+}
+
+.inventory-item img {
+  width: 55px;
+  height: 55px;
+  object-fit: contain;
+  margin-bottom: 6px;
+}
+
+.inventory-item span {
+  font-size: 0.8rem;
+  font-weight: bold;
+  color: #e65100;
+  line-height: 1.1;
+}

@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <radialGradient id="eleBody" cx="40%" cy="30%" r="60%">
+      <stop offset="0%" stop-color="#90caf9"/>
+      <stop offset="100%" stop-color="#42a5f5"/>
+    </radialGradient>
+  </defs>
+  <!-- Sombra -->
+  <ellipse cx="100" cy="180" rx="70" ry="12" fill="rgba(0,0,0,0.15)"/>
+  <!-- Patas -->
+  <rect x="55" y="125" width="22" height="45" rx="10" fill="#42a5f5"/>
+  <rect x="85" y="125" width="22" height="45" rx="10" fill="#42a5f5"/>
+  <rect x="115" y="125" width="22" height="45" rx="10" fill="#42a5f5"/>
+  <rect x="135" y="125" width="20" height="45" rx="10" fill="#1e88e5"/>
+  <!-- Uñitas blancas -->
+  <circle cx="61" cy="168" r="4" fill="#ffffff"/>
+  <circle cx="71" cy="168" r="4" fill="#ffffff"/>
+  <circle cx="91" cy="168" r="4" fill="#ffffff"/>
+  <circle cx="101" cy="168" r="4" fill="#ffffff"/>
+  <circle cx="121" cy="168" r="4" fill="#ffffff"/>
+  <circle cx="131" cy="168" r="4" fill="#ffffff"/>
+  <!-- Cuerpo -->
+  <ellipse cx="105" cy="115" rx="55" ry="45" fill="url(#eleBody)"/>
+  <!-- Cola -->
+  <path d="M 158 115 Q 175 125 170 145" stroke="#1e88e5" stroke-width="4" stroke-linecap="round" fill="none"/>
+  <!-- Cabeza -->
+  <circle cx="70" cy="90" r="38" fill="url(#eleBody)"/>
+  <!-- Gran Oreja -->
+  <ellipse cx="98" cy="85" rx="26" ry="32" fill="#64b5f6"/>
+  <ellipse cx="98" cy="85" rx="18" ry="22" fill="#ffb74d" opacity="0.3"/>
+  <!-- Trompa juguetona levantada -->
+  <path d="M 45 92 Q 20 95 18 70 Q 18 55 30 52 Q 40 55 34 68 Q 30 82 50 82" fill="#42a5f5"/>
+  <!-- Ojo tierno -->
+  <circle cx="58" cy="80" r="7" fill="#ffffff"/>
+  <circle cx="56" cy="80" r="4" fill="#1a237e"/>
+  <circle cx="55" cy="78" r="1.5" fill="#ffffff"/>
+  <!-- Colmillito blanco -->
+  <path d="M 46 100 Q 40 108 34 102 Q 38 96 46 96 Z" fill="#ffffff"/>
+  <!-- Mejilla sonrojada -->
+  <circle cx="66" cy="96" r="6" fill="#ff80ab" opacity="0.6"/>
+</svg>

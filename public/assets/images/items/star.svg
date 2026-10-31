@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Super Golden Star -->
+  <polygon points="50,10 63,36 92,38 70,58 77,86 50,71 23,86 30,58 8,38 37,36" fill="#ffd700" stroke="#ff9800" stroke-width="3"/>
+  <circle cx="42" cy="48" r="4" fill="#3e2723"/>
+  <circle cx="58" cy="48" r="4" fill="#3e2723"/>
+  <circle cx="43" cy="47" r="1.5" fill="#ffffff"/>
+  <circle cx="59" cy="47" r="1.5" fill="#ffffff"/>
+  <path d="M 45 57 Q 50 63 55 57" stroke="#d84315" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+  <circle cx="37" cy="55" r="3" fill="#ff8a80" opacity="0.6"/>
+  <circle cx="63" cy="55" r="3" fill="#ff8a80" opacity="0.6"/>
+</svg>

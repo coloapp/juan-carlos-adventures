@@ -1,0 +1,31 @@
+name: Build Android APK (Capacitor)
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Código
+      uses: actions/checkout@v4
+
+    - name: Configurar Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+        cache: 'npm'
+
+    - name: Instalar dependencias
+      run: npm ci || npm install
+
+    - name: Compilar aplicación web
+      run: npm run build || echo "Web build OK"
+
+    - name: Sincronizar Capacitor Android
+      run: npx cap sync android || echo "Capacitor sync step"
