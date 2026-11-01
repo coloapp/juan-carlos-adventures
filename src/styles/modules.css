@@ -662,3 +662,208 @@
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+/* ==========================================================================
+   6. MENÚ DE SUB-JUEGOS EN CÍRCULOS (EJ: COMPLETA LA PALABRA / ARMA LA SÍLABA)
+   ========================================================================== */
+.subgames-menu-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(8px, 2vh, 16px) clamp(10px, 2vw, 20px);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.subgames-grid {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(16px, 4vw, 38px);
+  max-width: 700px;
+  width: 100%;
+}
+
+.subgame-circle-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  outline: none;
+  padding: 4px;
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.subgame-circle-card:hover {
+  transform: scale(1.08);
+}
+
+.subgame-circle-card:active {
+  transform: scale(0.94);
+}
+
+.subgame-bubble {
+  width: clamp(100px, 22vw, 150px);
+  height: clamp(100px, 22vw, 150px);
+  border-radius: 50%;
+  border: 4px solid #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+  position: relative;
+  overflow: hidden;
+}
+
+.subgame-bubble::before {
+  content: '';
+  position: absolute;
+  top: 5px;
+  left: 15px;
+  width: 75%;
+  height: 35%;
+  border-radius: 50%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.65) 0%, rgba(255,255,255,0) 100%);
+  pointer-events: none;
+}
+
+.subgame-bubble-completa {
+  background: radial-gradient(circle at 35% 35%, #81c784 0%, #4caf50 65%, #2e7d32 100%);
+}
+
+.subgame-bubble-arma {
+  background: radial-gradient(circle at 35% 35%, #ffd54f 0%, #ff9800 65%, #e65100 100%);
+}
+
+.subgame-bubble-icon {
+  font-size: clamp(2.4rem, 5.5vh, 3.8rem);
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.25));
+  line-height: 1;
+}
+
+.subgame-levels-badge {
+  background: #ffffff;
+  color: #2e7d32;
+  font-weight: 900;
+  font-size: clamp(0.72rem, 1.6vh, 0.85rem);
+  padding: 3px 10px;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  margin-top: 6px;
+}
+
+.subgame-levels-badge.badge-orange {
+  color: #e65100;
+}
+
+.subgame-title-label {
+  margin-top: 10px;
+  font-size: clamp(1rem, 2.2vh, 1.35rem);
+  font-weight: 900;
+  color: #1b5e20;
+  text-align: center;
+  text-shadow: 1px 1px 0 #ffffff;
+  max-width: 170px;
+  line-height: 1.2;
+}
+
+/* ==========================================================================
+   7. JUEGO "ARMA LA SÍLABA" (CONSONANTE + VOCAL = SÍLABA)
+   ========================================================================== */
+.arma-silaba-card {
+  background: #ffffff;
+  border: 4px solid #ff9800;
+  border-radius: 28px;
+  padding: clamp(12px, 2.5vh, 24px) clamp(16px, 3.5vw, 32px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.15);
+  max-width: min(92vw, 540px);
+  width: 90%;
+  box-sizing: border-box;
+}
+
+.equation-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(6px, 1.8vw, 14px);
+  margin: 10px 0 16px 0;
+}
+
+.equation-block {
+  width: clamp(52px, 11vw, 75px);
+  height: clamp(52px, 11vw, 75px);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(1.6rem, 3.8vh, 2.4rem);
+  font-weight: 900;
+  border: 3px solid #ffffff;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.18);
+}
+
+.eq-consonant {
+  background: #29b6f6;
+  color: white;
+}
+
+.eq-operator {
+  font-size: clamp(1.5rem, 3.5vh, 2.2rem);
+  font-weight: 900;
+  color: #ff9800;
+}
+
+.eq-vowel-slot {
+  background: #fff9c4;
+  border: 3px dashed #ff9800;
+  color: #e65100;
+}
+
+.eq-vowel-slot.filled {
+  background: #ffb74d;
+  color: white;
+  border-style: solid;
+}
+
+.eq-result {
+  background: #66bb6a;
+  color: white;
+  min-width: clamp(70px, 14vw, 95px);
+}
+
+.vowel-choices-row {
+  display: flex;
+  gap: clamp(8px, 2vw, 16px);
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.vowel-choice-btn {
+  background: radial-gradient(circle, #ff9800 0%, #f57c00 100%);
+  color: white;
+  border: 3px solid #ffffff;
+  border-radius: 50%;
+  width: clamp(50px, 10vw, 68px);
+  height: clamp(50px, 10vw, 68px);
+  font-size: clamp(1.4rem, 3.2vh, 2rem);
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.22);
+  transition: transform 0.12s;
+  font-family: inherit;
+  outline: none;
+}
+
+.vowel-choice-btn:active {
+  transform: scale(0.92);
+}
+

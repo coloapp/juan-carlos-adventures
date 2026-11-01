@@ -52,8 +52,13 @@ export class App {
       }
     });
 
-    // Cargar pantalla inicial
-    this.navigate('home', false);
+    // Cargar pantalla inicial (soporta deep-link por hash ej: #syllables)
+    const hash = window.location.hash.replace('#', '');
+    if (hash && this.screens[hash]) {
+      this.navigate(hash, false);
+    } else {
+      this.navigate('home', false);
+    }
   }
 
   navigate(screenKey, pushHistory = true) {
