@@ -790,6 +790,18 @@
   box-sizing: border-box;
 }
 
+.relation-pill {
+  background: #e8f5e9;
+  border: 2px solid #81c784;
+  border-radius: 16px;
+  padding: 4px 14px;
+  font-size: clamp(0.85rem, 1.8vh, 1.05rem);
+  color: #1b5e20;
+  margin-bottom: 8px;
+  font-weight: bold;
+  text-align: center;
+}
+
 .equation-row {
   display: flex;
   align-items: center;

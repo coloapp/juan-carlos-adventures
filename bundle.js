@@ -2179,14 +2179,20 @@ class LetterTracingScreen {
      ========================================================================== */
 
 /**
- * SyllablesScreen - Módulo "Sílabas" con Arquitectura de Sub-Juegos en Círculos
- * Incluye:
+ * SyllablesScreen - Módulo "Sílabas" con Arquitectura Pedagógica Progresiva
+ * 
+ * Juegos disponibles:
  * 1. "Completa la Palabra" (50 niveles con palabras y sílabas faltantes)
- * 2. "Arma la Sílaba" (50 niveles formando consonante + vocal = sílaba)
- * Fácilmente extensible para añadir futuros juegos silábicos en círculos.
+ * 2. "Arma la Sílaba" (50 niveles en la secuencia fonética pedagógica SEP/Minjares):
+ *    M -> S -> T -> L -> P -> N -> R -> C -> D -> V
+ *    con relacionamiento inmediato de palabras cortas formadas por sílabas ya conocidas.
+ * 
+ * Preparado para extenderse con las fases siguientes:
+ * - Fase 2: F, B, J, Ñ, G, H, CH, LL, Q, Y, K, Z, X, W
+ * - Fase 3 (Trabadas): BL, BR, CL, CR, FL, FR, GL, GR, PL, PR, TR, DR
  */
 // ============================================================================
-// 1. CATÁLOGO DE 50 NIVELES: COMPLETA LA PALABRA
+// 1. JUEGO 1: COMPLETA LA PALABRA (50 NIVELES)
 // ============================================================================
 const SYLLABLES_COMPLETA_50 = [
   { word: 'ELEFANTE', image: 'public/assets/images/educational/elephant.svg', syllables: ['E', 'LE', 'FAN', 'TE'], missingIndex: 1, options: ['LE', 'MA', 'TO'] },
@@ -2242,78 +2248,100 @@ const SYLLABLES_COMPLETA_50 = [
 ];
 
 // ============================================================================
-// 2. CATÁLOGO DE 50 NIVELES: ARMA LA SÍLABA (M, P, S, L, T, D, N, C, B, R)
+// 2. JUEGO 2: ARMA LA SÍLABA - SECUENCIA PEDAGÓGICA INICIAL (50 NIVELES)
+// ORDEN ESTRICTO SEP: M -> S -> T -> L -> P -> N -> R -> C -> D -> V
+// Con relacionamiento directo a palabras que el niño ya puede leer con lo aprendido.
 // ============================================================================
 const ARMA_SILABAS_50_LEVELS = [
-  // 1-5: M (MA, ME, MI, MO, MU)
-  { consonant: 'M', vowel: 'A', syllable: 'MA', example: 'MAMÁ', emoji: '👩' },
-  { consonant: 'M', vowel: 'E', syllable: 'ME', example: 'MESA', emoji: '🪑' },
-  { consonant: 'M', vowel: 'I', syllable: 'MI', example: 'MIEL', emoji: '🍯' },
-  { consonant: 'M', vowel: 'O', syllable: 'MO', example: 'MONO', emoji: '🐒' },
-  { consonant: 'M', vowel: 'U', syllable: 'MU', example: 'MÚSICA', emoji: '🎵' },
+  // --------------------------------------------------------------------------
+  // GRUPO 1: CONSONANTE "M" (Niveles 1 a 5) - Primera consonante
+  // --------------------------------------------------------------------------
+  { consonant: 'M', vowel: 'A', syllable: 'MA', word: 'MAMÁ', relationText: 'MAMÁ y MAMI', emoji: '👩' },
+  { consonant: 'M', vowel: 'E', syllable: 'ME', word: 'MESA', relationText: 'MESA y MEMO', emoji: '🪑' },
+  { consonant: 'M', vowel: 'I', syllable: 'MI', word: 'MIEL', relationText: 'MIEL y MIMÍ', emoji: '🍯' },
+  { consonant: 'M', vowel: 'O', syllable: 'MO', word: 'MONO', relationText: 'MONO y MOMIA', emoji: '🐒' },
+  { consonant: 'M', vowel: 'U', syllable: 'MU', word: 'MÚSICA', relationText: 'MÚSICA y ¡el sonido MUUU!', emoji: '🎵' },
 
-  // 6-10: P (PA, PE, PI, PO, PU)
-  { consonant: 'P', vowel: 'A', syllable: 'PA', example: 'PAPÁ', emoji: '👨' },
-  { consonant: 'P', vowel: 'E', syllable: 'PE', example: 'PELOTA', emoji: '⚽' },
-  { consonant: 'P', vowel: 'I', syllable: 'PI', example: 'PIÑA', emoji: '🍍' },
-  { consonant: 'P', vowel: 'O', syllable: 'PO', example: 'POLLITO', emoji: '🐥' },
-  { consonant: 'P', vowel: 'U', syllable: 'PU', example: 'PUERTA', emoji: '🚪' },
+  // --------------------------------------------------------------------------
+  // GRUPO 2: CONSONANTE "S" (Niveles 6 a 10) - ¡Relaciona con M y Vocales!
+  // --------------------------------------------------------------------------
+  { consonant: 'S', vowel: 'A', syllable: 'SA', word: 'MASA', relationText: 'MASA y SALA (¡con M y S!)', emoji: '🥣' },
+  { consonant: 'S', vowel: 'E', syllable: 'SE', word: 'MESA', relationText: 'MESA y SELLO (¡con M y S!)', emoji: '🪑' },
+  { consonant: 'S', vowel: 'I', syllable: 'SI', word: 'MISA', relationText: 'MISA y SILLA (¡con M y S!)', emoji: '⛪' },
+  { consonant: 'S', vowel: 'O', syllable: 'SO', word: 'OSO', relationText: 'OSO y SOL', emoji: '🐻' },
+  { consonant: 'S', vowel: 'U', syllable: 'SU', word: 'SUMA', relationText: 'SUMA (¡con S y M!)', emoji: '➕' },
 
-  // 11-15: S (SA, SE, SI, SO, SU)
-  { consonant: 'S', vowel: 'A', syllable: 'SA', example: 'SAPO', emoji: '🐸' },
-  { consonant: 'S', vowel: 'E', syllable: 'SE', example: 'SELLO', emoji: '💌' },
-  { consonant: 'S', vowel: 'I', syllable: 'SI', example: 'SILLA', emoji: '🪑' },
-  { consonant: 'S', vowel: 'O', syllable: 'SO', example: 'SOL', emoji: '☀️' },
-  { consonant: 'S', vowel: 'U', syllable: 'SU', example: 'SUEÑO', emoji: '💤' },
+  // --------------------------------------------------------------------------
+  // GRUPO 3: CONSONANTE "T" (Niveles 11 a 15) - ¡Relaciona con M, S y T!
+  // --------------------------------------------------------------------------
+  { consonant: 'T', vowel: 'A', syllable: 'TA', word: 'TAZA', relationText: 'TAZA, TOMA y MATE', emoji: '☕' },
+  { consonant: 'T', vowel: 'E', syllable: 'TE', word: 'TÉ', relationText: 'TÉ y TELA', emoji: '🫖' },
+  { consonant: 'T', vowel: 'I', syllable: 'TI', word: 'TINA', relationText: 'TINA y TÍO', emoji: '🛁' },
+  { consonant: 'T', vowel: 'O', syllable: 'TO', word: 'TOMATE', relationText: 'TOMATE y MOTO (¡con M y T!)', emoji: '🍅' },
+  { consonant: 'T', vowel: 'U', syllable: 'TU', word: 'TULIPÁN', relationText: 'TULIPÁN', emoji: '🌷' },
 
-  // 16-20: L (LA, LE, LI, LO, LU)
-  { consonant: 'L', vowel: 'A', syllable: 'LA', example: 'LÁPIZ', emoji: '✏️' },
-  { consonant: 'L', vowel: 'E', syllable: 'LE', example: 'LEÓN', emoji: '🦁' },
-  { consonant: 'L', vowel: 'I', syllable: 'LI', example: 'LIMÓN', emoji: '🍋' },
-  { consonant: 'L', vowel: 'O', syllable: 'LO', example: 'LOBO', emoji: '🐺' },
-  { consonant: 'L', vowel: 'U', syllable: 'LU', example: 'LUNA', emoji: '🌙' },
+  // --------------------------------------------------------------------------
+  // GRUPO 4: CONSONANTE "L" (Niveles 16 a 20) - ¡Relaciona con M, S, T y L!
+  // --------------------------------------------------------------------------
+  { consonant: 'L', vowel: 'A', syllable: 'LA', word: 'LOMA', relationText: 'LOMA y SALA (¡con M y S!)', emoji: '⛰️' },
+  { consonant: 'L', vowel: 'E', syllable: 'LE', word: 'LECHE', relationText: 'LECHE y LEÓN', emoji: '🥛' },
+  { consonant: 'L', vowel: 'I', syllable: 'LI', word: 'LIMA', relationText: 'LIMA (¡con L y M!)', emoji: '🍋' },
+  { consonant: 'L', vowel: 'O', syllable: 'LO', word: 'LOBO', relationText: 'LOBO y SOLO (¡con S y L!)', emoji: '🐺' },
+  { consonant: 'L', vowel: 'U', syllable: 'LU', word: 'LUNA', relationText: 'LUNA y LUPA', emoji: '🌙' },
 
-  // 21-25: T (TA, TE, TI, TO, TU)
-  { consonant: 'T', vowel: 'A', syllable: 'TA', example: 'TAZA', emoji: '☕' },
-  { consonant: 'T', vowel: 'E', syllable: 'TE', example: 'TELÉFONO', emoji: '☎️' },
-  { consonant: 'T', vowel: 'I', syllable: 'TI', example: 'TIGRE', emoji: '🐯' },
-  { consonant: 'T', vowel: 'O', syllable: 'TO', example: 'TOMATE', emoji: '🍅' },
-  { consonant: 'T', vowel: 'U', syllable: 'TU', example: 'TORTUGA', emoji: '🐢' },
+  // --------------------------------------------------------------------------
+  // GRUPO 5: CONSONANTE "P" (Niveles 21 a 25) - ¡Ahora entra la P!
+  // --------------------------------------------------------------------------
+  { consonant: 'P', vowel: 'A', syllable: 'PA', word: 'PATO', relationText: 'PATO, PAPÁ y MAPA (¡con M y T!)', emoji: '🦆' },
+  { consonant: 'P', vowel: 'E', syllable: 'PE', word: 'PELOTA', relationText: 'PELOTA y PESA (¡con P y S!)', emoji: '⚽' },
+  { consonant: 'P', vowel: 'I', syllable: 'PI', word: 'PIÑA', relationText: 'PIÑA y PITO (¡con P y T!)', emoji: '🍍' },
+  { consonant: 'P', vowel: 'O', syllable: 'PO', word: 'POLLITO', relationText: 'POLLITO y POMO (¡con P y M!)', emoji: '🐥' },
+  { consonant: 'P', vowel: 'U', syllable: 'PU', word: 'PUMA', relationText: 'PUMA (¡con P y M!)', emoji: '🐆' },
 
-  // 26-30: D (DA, DE, DI, DO, DU)
-  { consonant: 'D', vowel: 'A', syllable: 'DA', example: 'DADO', emoji: '🎲' },
-  { consonant: 'D', vowel: 'E', syllable: 'DE', example: 'DEDO', emoji: '👆' },
-  { consonant: 'D', vowel: 'I', syllable: 'DI', example: 'DIENTE', emoji: '🦷' },
-  { consonant: 'D', vowel: 'O', syllable: 'DO', example: 'DONA', emoji: '🍩' },
-  { consonant: 'D', vowel: 'U', syllable: 'DU', example: 'DULCE', emoji: '🍬' },
+  // --------------------------------------------------------------------------
+  // GRUPO 6: CONSONANTE "N" (Niveles 26 a 30) - ¡Relaciona con M, S, T, L, P, N!
+  // --------------------------------------------------------------------------
+  { consonant: 'N', vowel: 'A', syllable: 'NA', word: 'LANA', relationText: 'LANA (¡con L y N!) y NATA', emoji: '🧶' },
+  { consonant: 'N', vowel: 'E', syllable: 'NE', word: 'NENE', relationText: 'NENE (¡dos sílabas NE!)', emoji: '👶' },
+  { consonant: 'N', vowel: 'I', syllable: 'NI', word: 'NIDO', relationText: 'NIDO y PINO (¡con P y N!)', emoji: '🪺' },
+  { consonant: 'N', vowel: 'O', syllable: 'NO', word: 'MANO', relationText: 'MANO (¡con M y N!) y NOCHE', emoji: '✋' },
+  { consonant: 'N', vowel: 'U', syllable: 'NU', word: 'NUBE', relationText: 'NUBE', emoji: '☁️' },
 
-  // 31-35: N (NA, NE, NI, NO, NU)
-  { consonant: 'N', vowel: 'A', syllable: 'NA', example: 'NARANJA', emoji: '🍊' },
-  { consonant: 'N', vowel: 'E', syllable: 'NE', example: 'NENE', emoji: '👶' },
-  { consonant: 'N', vowel: 'I', syllable: 'NI', example: 'NIDO', emoji: '🪺' },
-  { consonant: 'N', vowel: 'O', syllable: 'NO', example: 'NOCHE', emoji: '🌃' },
-  { consonant: 'N', vowel: 'U', syllable: 'NU', example: 'NUBE', emoji: '☁️' },
+  // --------------------------------------------------------------------------
+  // GRUPO 7: CONSONANTE "R" (Niveles 31 a 35)
+  // --------------------------------------------------------------------------
+  { consonant: 'R', vowel: 'A', syllable: 'RA', word: 'RAMA', relationText: 'RAMA (¡con R y M!) y RANA', emoji: '🌿' },
+  { consonant: 'R', vowel: 'E', syllable: 'RE', word: 'REMO', relationText: 'REMO (¡con R y M!) y RELOJ', emoji: '🚣' },
+  { consonant: 'R', vowel: 'I', syllable: 'RI', word: 'RISA', relationText: 'RISA (¡con R y S!) y RIMA', emoji: '😄' },
+  { consonant: 'R', vowel: 'O', syllable: 'RO', word: 'ROPA', relationText: 'ROPA (¡con R y P!) y ROSA', emoji: '👕' },
+  { consonant: 'R', vowel: 'U', syllable: 'RU', word: 'RUEDA', relationText: 'RUEDA', emoji: '🛞' },
 
-  // 36-40: C (CA, CE, CI, CO, CU)
-  { consonant: 'C', vowel: 'A', syllable: 'CA', example: 'CASA', emoji: '🏠' },
-  { consonant: 'C', vowel: 'E', syllable: 'CE', example: 'CEBRA', emoji: '🦓' },
-  { consonant: 'C', vowel: 'I', syllable: 'CI', example: 'CIELO', emoji: '🌤️' },
-  { consonant: 'C', vowel: 'O', syllable: 'CO', example: 'COCHE', emoji: '🚗' },
-  { consonant: 'C', vowel: 'U', syllable: 'CU', example: 'CUNA', emoji: '🛏️' },
+  // --------------------------------------------------------------------------
+  // GRUPO 8: CONSONANTE "C" (Niveles 36 a 40)
+  // --------------------------------------------------------------------------
+  { consonant: 'C', vowel: 'A', syllable: 'CA', word: 'CASA', relationText: 'CASA (¡con C y S!) y CAMA', emoji: '🏠' },
+  { consonant: 'C', vowel: 'E', syllable: 'CE', word: 'CERO', relationText: 'CERO (¡con C y R!) y CEBRA', emoji: '0️⃣' },
+  { consonant: 'C', vowel: 'I', syllable: 'CI', word: 'CIELO', relationText: 'CIELO y CINE', emoji: '🌤️' },
+  { consonant: 'C', vowel: 'O', syllable: 'CO', word: 'COPA', relationText: 'COPA (¡con C y P!) y COLA', emoji: '🏆' },
+  { consonant: 'C', vowel: 'U', syllable: 'CU', word: 'CUNA', relationText: 'CUNA (¡con C y N!)', emoji: '🛏️' },
 
-  // 41-45: B (BA, BE, BI, BO, BU)
-  { consonant: 'B', vowel: 'A', syllable: 'BA', example: 'BARCO', emoji: '⛵' },
-  { consonant: 'B', vowel: 'E', syllable: 'BE', example: 'BEBÉ', emoji: '🍼' },
-  { consonant: 'B', vowel: 'I', syllable: 'BI', example: 'BICI', emoji: '🚲' },
-  { consonant: 'B', vowel: 'O', syllable: 'BO', example: 'BOTA', emoji: '👢' },
-  { consonant: 'B', vowel: 'U', syllable: 'BU', example: 'BÚHO', emoji: '🦉' },
+  // --------------------------------------------------------------------------
+  // GRUPO 9: CONSONANTE "D" (Niveles 41 a 45)
+  // --------------------------------------------------------------------------
+  { consonant: 'D', vowel: 'A', syllable: 'DA', word: 'DAMA', relationText: 'DAMA (¡con D y M!) y DADO', emoji: '👸' },
+  { consonant: 'D', vowel: 'E', syllable: 'DE', word: 'DEDO', relationText: 'DEDO (¡dos sílabas DE!)', emoji: '👆' },
+  { consonant: 'D', vowel: 'I', syllable: 'DI', word: 'DIENTE', relationText: 'DIENTE', emoji: '🦷' },
+  { consonant: 'D', vowel: 'O', syllable: 'DO', word: 'DOMA', relationText: 'DOMA y DONA', emoji: '🍩' },
+  { consonant: 'D', vowel: 'U', syllable: 'DU', word: 'DUDA', relationText: 'DUDA y DULCE', emoji: '🍬' },
 
-  // 46-50: R (RA, RE, RI, RO, RU)
-  { consonant: 'R', vowel: 'A', syllable: 'RA', example: 'RANA', emoji: '🐸' },
-  { consonant: 'R', vowel: 'E', syllable: 'RE', example: 'RELOJ', emoji: '⏰' },
-  { consonant: 'R', vowel: 'I', syllable: 'RI', example: 'RISA', emoji: '😄' },
-  { consonant: 'R', vowel: 'O', syllable: 'RO', example: 'ROSA', emoji: '🌹' },
-  { consonant: 'R', vowel: 'U', syllable: 'RU', example: 'RUEDA', emoji: '🛞' }
+  // --------------------------------------------------------------------------
+  // GRUPO 10: CONSONANTE "V" (Niveles 46 a 50)
+  // --------------------------------------------------------------------------
+  { consonant: 'V', vowel: 'A', syllable: 'VA', word: 'VASO', relationText: 'VASO (¡con V y S!) y VACA', emoji: '🥛' },
+  { consonant: 'V', vowel: 'E', syllable: 'VE', word: 'VELA', relationText: 'VELA (¡con V y L!) y VENA', emoji: '🕯️' },
+  { consonant: 'V', vowel: 'I', syllable: 'VI', word: 'VINO', relationText: 'VINO (¡con V y N!) y VIDA', emoji: '🍇' },
+  { consonant: 'V', vowel: 'O', syllable: 'VO', word: 'VOTO', relationText: 'VOTO (¡con V y T!)', emoji: '🗳️' },
+  { consonant: 'V', vowel: 'U', syllable: 'VU', word: 'VUELO', relationText: 'VUELO', emoji: '✈️' }
 ];
 class SyllablesScreen {
   constructor(appNavigator) {
@@ -2431,7 +2459,7 @@ class SyllablesScreen {
   renderLevelSelector(container) {
     const isCompleta = (this.activeSubgame === 'completa');
     const moduleKey = isCompleta ? 'syllables_completa' : 'syllables_arma';
-    const title = isCompleta ? 'Completa la Palabra' : 'Arma la Sílaba';
+    const title = isCompleta ? 'Completa la Palabra' : 'Arma la Sílaba (M - S - T - L - P - N - R - C - D - V)';
     const icon = isCompleta ? '🧩' : '🔤';
 
     LevelSelector.render({
@@ -2559,7 +2587,8 @@ class SyllablesScreen {
   }
 
   // ==========================================================================
-  // VISTA 3B: JUEGO "ARMA LA SÍLABA" (50 NIVELES: CONSONANTE + VOCAL = SÍLABA)
+  // VISTA 3B: JUEGO "ARMA LA SÍLABA" (50 NIVELES: ORDEN PEDAGÓGICO M, S, T, L, P, N, R, C, D, V)
+  // Con relacionamiento didáctico de palabras cortas ya conocidas
   // ==========================================================================
   renderArmaSilaba(container) {
     const student = StorageManager.getActiveStudent();
@@ -2578,7 +2607,7 @@ class SyllablesScreen {
           <div style="text-align:center;">
             <h2>ARMA LA SÍLABA: ${item.syllable}</h2>
             <div style="font-size:0.8rem; font-weight:bold; color:#e65100;">
-              Juego 2: Nivel ${this.currentLevel} de 50
+              Consonante "${item.consonant}" • Nivel ${this.currentLevel} de 50
             </div>
           </div>
           <div class="score-box">⭐ ${student.stars || 0}</div>
@@ -2586,12 +2615,17 @@ class SyllablesScreen {
 
         <main class="game-board">
           <div class="arma-silaba-card">
-            <div style="font-size: clamp(2.8rem, 6.5vh, 4.2rem); margin-bottom: 4px;">
+            <div style="font-size: clamp(2.8rem, 6.5vh, 4.2rem); margin-bottom: 2px;">
               ${item.emoji}
             </div>
 
-            <p style="font-size:clamp(0.95rem, 2.2vh, 1.25rem); font-weight:bold; color:#37474f; margin:0 0 10px 0;">
-              Junta la <strong>${item.consonant}</strong> con su vocal para formar <strong>${item.syllable}</strong> (${item.example})
+            <!-- Cintillo de Relacionamiento Didáctico -->
+            <div class="relation-pill">
+              📖 ¡Aprende a leer: <strong>${item.relationText}</strong>!
+            </div>
+
+            <p style="font-size:clamp(0.95rem, 2.2vh, 1.25rem); font-weight:bold; color:#37474f; margin:0 0 10px 0; text-align:center;">
+              Junta la letra <strong>${item.consonant}</strong> con su vocal para formar <strong>${item.syllable}</strong>
             </p>
 
             <!-- Ecuación de la sílaba: [Consonante] + [Vocal ?] = [Sílaba] -->
@@ -2603,7 +2637,7 @@ class SyllablesScreen {
               <div class="equation-block eq-result" id="syllableResult">...</div>
             </div>
 
-            <p class="instruction-text">¿Qué vocal necesitas?</p>
+            <p class="instruction-text">¿Qué vocal necesitas para formar <strong>${item.syllable}</strong>?</p>
 
             <div class="vowel-choices-row" id="vowelChoicesRow">
               ${vowelOptions.map(v => `
@@ -2625,7 +2659,7 @@ class SyllablesScreen {
       this.render(container);
     });
 
-    const instructionText = `Junta la letra ${item.consonant} con su vocal para formar ${item.syllable}, como en ${item.example}`;
+    const instructionText = `Junta la letra ${item.consonant} con su vocal para formar ${item.syllable}, como en ${item.relationText}`;
     container.querySelector('#btnListenInstruction')?.addEventListener('click', () => {
       audio.speak(instructionText);
     });
@@ -2649,7 +2683,7 @@ class SyllablesScreen {
           StorageManager.completeModuleLevel('syllables_arma', this.currentLevel, 3);
           Confetti.shoot(2500);
 
-          audio.speak(`¡La ${item.consonant} con la ${chosen} suena... ${item.syllable}! Como en ${item.example}. ¡Excelente!`);
+          audio.speak(`¡La ${item.consonant} con la ${chosen} suena... ${item.syllable}! ¡Muy bien! Ahora ya sabes leer ${item.relationText}.`);
 
           setTimeout(() => {
             if (this.currentLevel < 50) {
@@ -2662,7 +2696,7 @@ class SyllablesScreen {
             }
             this.currentLevel = null;
             this.render(container);
-          }, 1100);
+          }, 1200);
 
         } else {
           audio.playError();
