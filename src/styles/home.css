@@ -2,7 +2,7 @@
  * home.css - Pantalla Principal Fullscreen UX/UI
  * Toma el 100% de la pantalla sin marcos exteriores.
  * Réplica fiel del diseño didáctico con paisaje natural a la izquierda
- * y galaxia de módulos circulares a la derecha.
+ * y galaxia de módulos circulares a la derecha. Totalmente responsivo para tablets y móviles.
  */
 
 .main-dashboard {
@@ -24,42 +24,42 @@
    1. BARRA SUPERIOR (HEADER)
    ========================================================================== */
 .top-bar {
-  height: 9%;
-  min-height: 48px;
-  max-height: 60px;
+  height: clamp(44px, 8.5vh, 56px);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 16px;
-  background: rgba(10, 25, 50, 0.75);
+  padding: 0 clamp(8px, 2vw, 16px);
+  background: rgba(10, 25, 50, 0.85);
   backdrop-filter: blur(8px);
   border-bottom: 2px solid rgba(255, 255, 255, 0.15);
   z-index: 100;
   box-sizing: border-box;
+  flex-shrink: 0;
 }
 
 /* Indicador de Nivel (Izquierda) */
 .level-badge {
   background: #173b64;
   border: 2px solid #29b6f6;
-  border-radius: 20px;
-  padding: 4px 14px;
+  border-radius: 18px;
+  padding: 3px clamp(8px, 1.5vw, 12px);
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   color: #ffffff;
   font-weight: 900;
-  font-size: 0.95rem;
+  font-size: clamp(0.8rem, 1.8vh, 0.95rem);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  white-space: nowrap;
 }
 
 .level-stars-mini {
   display: flex;
-  gap: 3px;
+  gap: 2px;
 }
 
 .mini-star {
-  font-size: 1rem;
+  font-size: clamp(0.85rem, 1.8vh, 1rem);
   color: #455a64;
 }
 
@@ -78,7 +78,7 @@
 }
 
 .title-line-1 {
-  font-size: 1.15rem;
+  font-size: clamp(0.95rem, 2.2vh, 1.25rem);
   font-weight: 900;
   color: #ffd54f;
   text-shadow: 
@@ -86,12 +86,13 @@
     1.5px -1.5px 0 #5d2e08,
     -1.5px 1.5px 0 #5d2e08,
     1.5px 1.5px 0 #5d2e08,
-    0 3px 0 #3e1f05;
-  letter-spacing: 1px;
+    0 2.5px 0 #3e1f05;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
 }
 
 .title-line-2 {
-  font-size: 0.95rem;
+  font-size: clamp(0.8rem, 1.8vh, 1rem);
   font-weight: 900;
   color: #ff5252;
   text-shadow: 
@@ -99,19 +100,20 @@
     1.5px -1.5px 0 #5c0e0e,
     -1.5px 1.5px 0 #5c0e0e,
     1.5px 1.5px 0 #5c0e0e,
-    0 2.5px 0 #3e0a0a;
-  letter-spacing: 1px;
+    0 2px 0 #3e0a0a;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
 }
 
 /* Iconos de Sistema y Ajustes (Derecha) */
 .system-status-group {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: clamp(6px, 1vw, 10px);
 }
 
 .status-icon {
-  font-size: 1.1rem;
+  font-size: clamp(0.9rem, 2vh, 1.1rem);
   color: #ffffff;
   opacity: 0.9;
 }
@@ -121,9 +123,9 @@
   color: white;
   border: 2px solid #ffffff;
   border-radius: 50%;
-  width: 36px;
-  height: 36px;
-  font-size: 1rem;
+  width: clamp(30px, 5vh, 36px);
+  height: clamp(30px, 5vh, 36px);
+  font-size: clamp(0.85rem, 1.8vh, 1rem);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -139,11 +141,11 @@
 .btn-settings-red {
   background: radial-gradient(circle, #ff5252 0%, #d32f2f 100%);
   color: white;
-  border: 3px solid #ffffff;
+  border: 2px solid #ffffff;
   border-radius: 50%;
-  width: 38px;
-  height: 38px;
-  font-size: 1.15rem;
+  width: clamp(32px, 5.5vh, 38px);
+  height: clamp(32px, 5.5vh, 38px);
+  font-size: clamp(0.95rem, 2vh, 1.15rem);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -161,19 +163,18 @@
 }
 
 /* ==========================================================================
-   2. CONTENIDO PRINCIPAL DIVIDIDO EN 2 SECCIONES
+   2. CONTENIDO PRINCIPAL (2 SECCIONES)
    ========================================================================== */
 .dashboard-content {
   flex: 1;
   display: flex;
-  height: 80%;
   width: 100%;
   overflow: hidden;
   position: relative;
 }
 
 /* --------------------------------------------------------------------------
-   LADO IZQUIERDO: PAISAJE NATURAL DIDÁCTICO (55% ancho)
+   LADO IZQUIERDO: PAISAJE DIDÁCTICO
    -------------------------------------------------------------------------- */
 .landscape-section {
   flex: 1.15;
@@ -184,10 +185,9 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  border-right: 4px solid #0288d1;
+  border-right: 3px solid #0288d1;
 }
 
-/* Montañas y Cielo al Fondo */
 .scenery-sky-decor {
   position: absolute;
   top: 0;
@@ -200,16 +200,16 @@
 
 .sun-smiling {
   position: absolute;
-  top: 15px;
+  top: clamp(8px, 2vh, 18px);
   left: 55%;
-  font-size: 3.5rem;
-  filter: drop-shadow(0 0 12px #ffeb3b);
+  font-size: clamp(2.4rem, 6vh, 3.5rem);
+  filter: drop-shadow(0 0 10px #ffeb3b);
   animation: floatSun 4s ease-in-out infinite alternate;
 }
 
 @keyframes floatSun {
   from { transform: translateY(0) scale(1); }
-  to { transform: translateY(-6px) scale(1.04); }
+  to { transform: translateY(-5px) scale(1.04); }
 }
 
 .cloud-puffy {
@@ -219,26 +219,24 @@
   filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
 }
 
-.cloud-1 { top: 20px; left: 10%; font-size: 2.8rem; }
-.cloud-2 { top: 50px; left: 40%; font-size: 2rem; opacity: 0.7; }
+.cloud-1 { top: 15px; left: 8%; font-size: clamp(2rem, 5vh, 2.8rem); }
+.cloud-2 { top: 40px; left: 38%; font-size: clamp(1.4rem, 3.5vh, 2rem); opacity: 0.7; }
 
-/* Montañas Nevadas */
 .mountains-bg {
   position: absolute;
   bottom: 25%;
   left: 0;
   width: 100%;
-  height: 140px;
+  height: clamp(80px, 20vh, 140px);
   background: 
     linear-gradient(135deg, transparent 40%, #b0bec5 40%, #cfd8dc 60%, transparent 60%),
     linear-gradient(225deg, transparent 45%, #90a4ae 45%, #b0bec5 65%, transparent 65%);
-  background-size: 160px 140px, 200px 140px;
+  background-size: 140px 100%, 180px 100%;
   background-repeat: repeat-x;
-  opacity: 0.8;
+  opacity: 0.75;
   z-index: 2;
 }
 
-/* Colinas Verdes y Pinos */
 .hills-fg {
   position: absolute;
   bottom: 0;
@@ -248,43 +246,43 @@
   background: radial-gradient(ellipse at 50% 100%, #66bb6a 0%, #43a047 60%, #2e7d32 100%);
   border-radius: 50% 50% 0 0;
   z-index: 3;
-  box-shadow: inset 0 8px 16px rgba(255,255,255,0.3);
+  box-shadow: inset 0 6px 12px rgba(255,255,255,0.3);
 }
 
 .pine-tree {
   position: absolute;
-  bottom: 30%;
-  font-size: 2.2rem;
+  bottom: 28%;
+  font-size: clamp(1.4rem, 3.5vh, 2.2rem);
   z-index: 3;
 }
-.tree-1 { left: 8%; font-size: 3rem; }
-.tree-2 { left: 22%; font-size: 2.2rem; }
-.tree-3 { left: 75%; font-size: 2.6rem; }
-.tree-4 { left: 85%; font-size: 1.8rem; }
+.tree-1 { left: 6%; font-size: clamp(1.8rem, 4.5vh, 2.8rem); }
+.tree-2 { left: 18%; font-size: clamp(1.4rem, 3.5vh, 2.2rem); }
+.tree-3 { left: 75%; font-size: clamp(1.6rem, 4vh, 2.5rem); }
+.tree-4 { left: 86%; font-size: clamp(1.2rem, 3vh, 1.8rem); }
 
 /* Título Bienvenido */
 .welcome-badge-group {
   position: relative;
   z-index: 10;
-  padding: 16px 0 0 24px;
+  padding: clamp(8px, 1.8vh, 16px) 0 0 clamp(12px, 2vw, 24px);
 }
 
 .welcome-title-cyan {
-  font-size: 1.5rem;
+  font-size: clamp(1.1rem, 2.6vh, 1.45rem);
   font-weight: 900;
   color: #00e5ff;
   text-shadow: 
-    -2px -2px 0 #ffffff,
-    2px -2px 0 #ffffff,
-    -2px 2px 0 #ffffff,
-    2px 2px 0 #ffffff,
-    0 3px 6px rgba(0,0,0,0.25);
+    -1.5px -1.5px 0 #ffffff,
+    1.5px -1.5px 0 #ffffff,
+    -1.5px 1.5px 0 #ffffff,
+    1.5px 1.5px 0 #ffffff,
+    0 2px 4px rgba(0,0,0,0.25);
   margin: 0;
   line-height: 1.1;
 }
 
 .student-name-split {
-  font-size: 2.1rem;
+  font-size: clamp(1.5rem, 3.8vh, 2rem);
   font-weight: 900;
   margin: 2px 0 0 0;
   line-height: 1;
@@ -293,21 +291,21 @@
 .name-part-1 {
   color: #ffca28;
   text-shadow: 
-    -2px -2px 0 #ffffff,
-    2px -2px 0 #ffffff,
-    -2px 2px 0 #ffffff,
-    2px 2px 0 #ffffff,
-    0 3px 6px rgba(0,0,0,0.25);
+    -1.5px -1.5px 0 #ffffff,
+    1.5px -1.5px 0 #ffffff,
+    -1.5px 1.5px 0 #ffffff,
+    1.5px 1.5px 0 #ffffff,
+    0 2px 4px rgba(0,0,0,0.25);
 }
 
 .name-part-2 {
   color: #ff5252;
   text-shadow: 
-    -2px -2px 0 #ffffff,
-    2px -2px 0 #ffffff,
-    -2px 2px 0 #ffffff,
-    2px 2px 0 #ffffff,
-    0 3px 6px rgba(0,0,0,0.25);
+    -1.5px -1.5px 0 #ffffff,
+    1.5px -1.5px 0 #ffffff,
+    -1.5px 1.5px 0 #ffffff,
+    1.5px 1.5px 0 #ffffff,
+    0 2px 4px rgba(0,0,0,0.25);
 }
 
 /* Personaje de Juan Carlos */
@@ -318,7 +316,7 @@
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  padding-bottom: 8px;
+  padding-bottom: 4px;
 }
 
 .character-clickable-wrapper {
@@ -330,29 +328,27 @@
 }
 
 .character-img-sprite {
-  height: 52vh;
-  max-height: 380px;
-  min-height: 220px;
+  height: clamp(180px, 48vh, 340px);
   object-fit: contain;
-  filter: drop-shadow(0 10px 14px rgba(0,0,0,0.3));
+  filter: drop-shadow(0 8px 12px rgba(0,0,0,0.3));
   transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .character-clickable-wrapper:active .character-img-sprite {
-  transform: scale(1.08) rotate(2deg);
+  transform: scale(1.06) rotate(2deg);
 }
 
 .character-speech-bubble {
   position: absolute;
-  top: -20px;
+  top: -18px;
   background: #ffffff;
   color: #0277bd;
   border: 3px solid #ff9800;
-  padding: 8px 16px;
-  border-radius: 20px;
-  font-size: 0.95rem;
+  padding: 6px 14px;
+  border-radius: 18px;
+  font-size: clamp(0.8rem, 1.8vh, 0.95rem);
   font-weight: 900;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
   white-space: nowrap;
   animation: popInBubble 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   z-index: 50;
@@ -362,16 +358,16 @@
 .character-speech-bubble::after {
   content: '';
   position: absolute;
-  bottom: -9px;
+  bottom: -8px;
   left: 50%;
   transform: translateX(-50%);
-  border-width: 9px 8px 0 8px;
+  border-width: 8px 7px 0 7px;
   border-style: solid;
   border-color: #ff9800 transparent transparent transparent;
 }
 
 /* --------------------------------------------------------------------------
-   LADO DERECHO: GALAXIA DE LOS 6 MÓDULOS (45% ancho)
+   LADO DERECHO: GALAXIA DE LOS 6 MÓDULOS
    -------------------------------------------------------------------------- */
 .modules-section {
   flex: 0.85;
@@ -381,11 +377,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 8px 16px;
+  padding: clamp(4px, 1vh, 8px) clamp(6px, 1.5vw, 14px);
   box-sizing: border-box;
 }
 
-/* Estrellitas centelleantes decorativas en el fondo */
 .sparkle-star {
   position: absolute;
   color: #fff9c4;
@@ -399,26 +394,25 @@
   to { opacity: 1; transform: scale(1.2); }
 }
 
-.sp-1 { top: 12%; left: 10%; font-size: 1.4rem; color: #ffeb3b; }
-.sp-2 { top: 25%; right: 8%; font-size: 1.1rem; color: #00e5ff; }
-.sp-3 { bottom: 20%; left: 8%; font-size: 1.2rem; color: #ff80ab; }
-.sp-4 { bottom: 15%; right: 12%; font-size: 1.5rem; color: #76ff03; }
-.sp-5 { top: 50%; left: 48%; font-size: 0.9rem; color: #ffffff; }
+.sp-1 { top: 10%; left: 8%; font-size: 1.2rem; color: #ffeb3b; }
+.sp-2 { top: 22%; right: 6%; font-size: 1rem; color: #00e5ff; }
+.sp-3 { bottom: 18%; left: 6%; font-size: 1.1rem; color: #ff80ab; }
+.sp-4 { bottom: 12%; right: 10%; font-size: 1.3rem; color: #76ff03; }
+.sp-5 { top: 48%; left: 48%; font-size: 0.8rem; color: #ffffff; }
 
-/* Grid de los 6 Botones Circulares */
+/* Grid de los 6 Botones */
 .circle-modules-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   grid-template-rows: repeat(3, 1fr);
-  gap: 12px 16px;
+  gap: clamp(4px, 1.2vh, 10px) clamp(8px, 1.6vw, 16px);
   width: 100%;
-  max-width: 440px;
-  height: 94%;
+  max-width: 420px;
+  height: 96%;
   align-items: center;
   justify-items: center;
 }
 
-/* Estructura de cada botón circular */
 .circle-module-card {
   display: flex;
   flex-direction: column;
@@ -427,12 +421,12 @@
   background: transparent;
   border: none;
   outline: none;
-  padding: 4px;
+  padding: 2px;
   transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .circle-module-card:hover {
-  transform: scale(1.08);
+  transform: scale(1.07);
 }
 
 .circle-module-card:active {
@@ -441,34 +435,32 @@
 
 /* La Burbuja Circular Brillante */
 .circle-bubble {
-  width: 76px;
-  height: 76px;
+  width: clamp(54px, 10.5vh, 74px);
+  height: clamp(54px, 10.5vh, 74px);
   border-radius: 50%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border: 4px solid #ffffff;
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.4);
+  border: 3px solid #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
   position: relative;
   overflow: hidden;
   transition: box-shadow 0.2s;
 }
 
-/* Efecto reflejo de cristal */
 .circle-bubble::before {
   content: '';
   position: absolute;
-  top: 4px;
-  left: 8px;
-  width: 60px;
-  height: 24px;
+  top: 3px;
+  left: 6px;
+  width: 80%;
+  height: 35%;
   border-radius: 50%;
   background: linear-gradient(180deg, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 100%);
   pointer-events: none;
 }
 
-/* Iconos o contenido dentro de cada círculo */
 .bubble-inner-content {
   display: flex;
   flex-direction: column;
@@ -477,137 +469,136 @@
   text-align: center;
 }
 
-/* 1. Letter Tracing (Amarillo / Naranja) */
+/* 1. Letter Tracing */
 .bubble-letter {
   background: radial-gradient(circle, #fff8e1 15%, #ffd54f 60%, #ff9800 100%);
   border-color: #ff9800;
-  box-shadow: 0 0 16px rgba(255, 152, 0, 0.6);
+  box-shadow: 0 0 14px rgba(255, 152, 0, 0.6);
 }
 .letter-big-a {
-  font-size: 2.2rem;
+  font-size: clamp(1.7rem, 3.5vh, 2.2rem);
   font-weight: 900;
   color: #ff6f00;
   line-height: 1;
 }
 .pencil-mini {
   position: absolute;
-  top: 12px;
-  right: 12px;
-  font-size: 1.1rem;
+  top: 8px;
+  right: 8px;
+  font-size: clamp(0.85rem, 1.8vh, 1.1rem);
 }
 
-/* 2. Syllables (Verde) */
+/* 2. Syllables */
 .bubble-syllables {
   background: radial-gradient(circle, #e8f5e9 15%, #81c784 60%, #4caf50 100%);
   border-color: #4caf50;
-  box-shadow: 0 0 16px rgba(76, 175, 80, 0.6);
+  box-shadow: 0 0 14px rgba(76, 175, 80, 0.6);
 }
 .syl-pill-1 {
   background: #ffffff;
   color: #00796b;
-  font-size: 0.8rem;
+  font-size: clamp(0.68rem, 1.5vh, 0.8rem);
   font-weight: 900;
-  padding: 1px 6px;
-  border-radius: 6px;
+  padding: 1px 5px;
+  border-radius: 5px;
   margin-bottom: 2px;
 }
 .syl-pill-2 {
   background: #ffffff;
   color: #d32f2f;
-  font-size: 0.7rem;
+  font-size: clamp(0.58rem, 1.3vh, 0.7rem);
   font-weight: 900;
-  padding: 1px 6px;
-  border-radius: 6px;
+  padding: 1px 5px;
+  border-radius: 5px;
 }
 
-/* 3. Numbers (Celeste / Azul) */
+/* 3. Numbers */
 .bubble-numbers {
   background: radial-gradient(circle, #e0f7fa 15%, #4dd0e1 60%, #00bcd4 100%);
   border-color: #00bcd4;
-  box-shadow: 0 0 16px rgba(0, 188, 212, 0.6);
+  box-shadow: 0 0 14px rgba(0, 188, 212, 0.6);
 }
 .numbers-3d-text {
-  font-size: 1.5rem;
+  font-size: clamp(1.2rem, 2.6vh, 1.5rem);
   font-weight: 900;
-  letter-spacing: 1px;
 }
 .num-orange { color: #ff5722; }
 .num-cyan { color: #00e5ff; }
 .num-blue { color: #1e88e5; }
 .blocks-row-mini {
   display: flex;
-  gap: 3px;
-  font-size: 0.65rem;
+  gap: 2px;
+  font-size: 0.6rem;
   font-weight: bold;
 }
 .b-mini {
   background: #ffffff;
   color: #006064;
-  padding: 0 3px;
+  padding: 0 2px;
   border-radius: 3px;
 }
 
-/* 4. Vowels (Magenta / Morado) */
+/* 4. Vowels */
 .bubble-vowels {
   background: radial-gradient(circle, #f3e5f5 15%, #ba68c8 60%, #9c27b0 100%);
   border-color: #9c27b0;
-  box-shadow: 0 0 16px rgba(156, 39, 176, 0.6);
+  box-shadow: 0 0 14px rgba(156, 39, 176, 0.6);
 }
 .vowels-row-1 {
-  font-size: 1.1rem;
+  font-size: clamp(0.9rem, 1.8vh, 1.1rem);
   font-weight: 900;
-  letter-spacing: 4px;
+  letter-spacing: 2px;
 }
 .v-a { color: #ff5252; }
 .v-e { color: #76ff03; }
 .vowels-row-2 {
-  font-size: 0.95rem;
+  font-size: clamp(0.78rem, 1.6vh, 0.95rem);
   font-weight: 900;
-  letter-spacing: 2px;
+  letter-spacing: 1px;
 }
 .v-i { color: #ffffff; }
 .v-o { color: #ff80ab; }
 .v-u { color: #ffeb3b; }
-.audio-mini-speaker { font-size: 0.65rem; color: #ffffff; }
+.audio-mini-speaker { font-size: 0.6rem; color: #ffffff; }
 
-/* 5. Shapes (Rojo Coral) */
+/* 5. Shapes */
 .bubble-shapes {
   background: radial-gradient(circle, #ffebee 15%, #ef5350 60%, #e53935 100%);
   border-color: #f44336;
-  box-shadow: 0 0 16px rgba(244, 67, 54, 0.6);
+  box-shadow: 0 0 14px rgba(244, 67, 54, 0.6);
 }
 .shapes-cluster-mini {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 3px;
-  font-size: 1.1rem;
+  gap: 2px;
+  font-size: clamp(0.85rem, 1.8vh, 1.1rem);
 }
 
-/* 6. Name Tracing (Verde Azulado / Teal) */
+/* 6. Name Tracing */
 .bubble-name-tracing {
   background: radial-gradient(circle, #e0f2f1 15%, #4db6ac 60%, #009688 100%);
   border-color: #009688;
-  box-shadow: 0 0 16px rgba(0, 150, 136, 0.6);
+  box-shadow: 0 0 14px rgba(0, 150, 136, 0.6);
 }
 .name-tracing-inner-text {
-  font-size: 0.72rem;
+  font-size: clamp(0.58rem, 1.3vh, 0.72rem);
   font-weight: 900;
   color: #ffffff;
   line-height: 1.1;
   text-shadow: 0 1px 2px rgba(0,0,0,0.5);
   border-bottom: 2px dashed #ffeb3b;
-  padding-bottom: 2px;
+  padding-bottom: 1px;
 }
 
-/* Texto debajo de cada círculo */
 .circle-module-label {
-  font-size: 0.85rem;
+  font-size: clamp(0.68rem, 1.5vh, 0.82rem);
   font-weight: 900;
   color: #ffffff;
-  margin-top: 5px;
+  margin-top: 4px;
   text-align: center;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.4px;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+  white-space: nowrap;
 }
 
 .label-highlight {
@@ -618,38 +609,36 @@
    3. BARRA INFERIOR (FOOTER)
    ========================================================================== */
 .bottom-bar {
-  height: 11%;
-  min-height: 52px;
-  max-height: 68px;
+  height: clamp(46px, 9vh, 62px);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 16px;
+  padding: 0 clamp(8px, 2vw, 16px);
   background: rgba(10, 25, 50, 0.85);
   backdrop-filter: blur(8px);
   border-top: 2px solid rgba(255, 255, 255, 0.15);
   z-index: 100;
   box-sizing: border-box;
+  flex-shrink: 0;
 }
 
-/* Repisa de Estrellas (Izquierda) */
 .stars-shelf-container {
   display: flex;
   align-items: center;
   background: #ffb74d;
-  border: 3px solid #ffe082;
-  border-radius: 20px;
-  padding: 6px 14px;
-  box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), 0 3px 6px rgba(0,0,0,0.3);
+  border: 2px solid #ffe082;
+  border-radius: 18px;
+  padding: 4px clamp(8px, 1.5vw, 14px);
+  box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), 0 2px 5px rgba(0,0,0,0.3);
 }
 
 .shelf-stars-row {
   display: flex;
-  gap: 6px;
+  gap: clamp(3px, 0.8vw, 6px);
 }
 
 .shelf-star {
-  font-size: 1.3rem;
+  font-size: clamp(1rem, 2vh, 1.3rem);
   color: #ffffff;
   text-shadow: 0 1px 3px rgba(0,0,0,0.3);
 }
@@ -659,45 +648,43 @@
   text-shadow: 0 0 6px #ff9800;
 }
 
-/* Botón Home Central en Arco (Naranja) */
 .home-arch-button {
   background: radial-gradient(circle, #ff9800 0%, #f57c00 100%);
-  border: 4px solid #ffffff;
+  border: 3px solid #ffffff;
   border-radius: 50%;
-  width: 56px;
-  height: 56px;
-  font-size: 1.6rem;
+  width: clamp(46px, 8.5vh, 54px);
+  height: clamp(46px, 8.5vh, 54px);
+  font-size: clamp(1.3rem, 2.5vh, 1.6rem);
   color: #ffffff;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.6);
-  margin-top: -16px;
+  box-shadow: 0 4px 10px rgba(255, 152, 0, 0.6);
+  margin-top: -14px;
   transition: transform 0.15s ease;
   z-index: 110;
 }
 
 .home-arch-button:hover {
-  transform: scale(1.12);
+  transform: scale(1.1);
 }
 
 .home-arch-button:active {
   transform: scale(0.92);
 }
 
-/* Cápsulas de Inventario (Derecha) */
 .inventory-pills-row {
   display: flex;
-  gap: 8px;
+  gap: clamp(4px, 1vw, 8px);
 }
 
 .reward-pill {
-  width: 42px;
-  height: 28px;
-  border-radius: 14px;
+  width: clamp(32px, 6.5vw, 40px);
+  height: clamp(22px, 3.8vh, 26px);
+  border-radius: 13px;
   border: 2px solid #ffffff;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -715,7 +702,32 @@
 .pill-cyan { background: linear-gradient(135deg, #40c4ff, #0091ea); }
 
 .reward-pill img {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   object-fit: contain;
+}
+
+/* Adaptación para pantallas estrechas / móvil vertical */
+@media (max-width: 650px) {
+  .dashboard-content {
+    flex-direction: column;
+  }
+  .landscape-section {
+    flex: 1;
+    border-right: none;
+    border-bottom: 3px solid #0288d1;
+  }
+  .character-img-sprite {
+    height: 32vh;
+  }
+  .modules-section {
+    flex: 1.2;
+  }
+  .circle-bubble {
+    width: 48px;
+    height: 48px;
+  }
+  .app-title-3d {
+    display: none;
+  }
 }

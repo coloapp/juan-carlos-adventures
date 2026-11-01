@@ -1,7 +1,8 @@
 /**
- * tracing.css - Estilos del módulo de Trazado de Nombre y Abecedario
- * Adaptado según las especificaciones del diseño didáctico.
+ * tracing.css - Estilos responsivos para Trazado de Nombre y Abecedario
+ * Adaptado con clamp() y porcentajes fluidos para tablets y móviles Android.
  */
+
 .tracing-module {
   width: 100vw;
   height: 100vh;
@@ -10,47 +11,54 @@
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 20px;
+  padding: 8px 14px;
   box-sizing: border-box;
   overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .tracing-module.letter-bg {
   background: #fff8e1;
 }
 
+/* Encabezado */
 .tracing-header {
   width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  height: 10%;
+  height: clamp(42px, 8vh, 52px);
+  padding: 0 4px;
+  box-sizing: border-box;
 }
 
 .back-btn, .clear-btn, .sound-btn, .check-btn, .nav-arrow-btn {
-  border: 3px solid #fff;
-  border-radius: 20px;
-  padding: 8px 18px;
+  border: 2px solid #ffffff;
+  border-radius: 18px;
+  padding: clamp(6px, 1.2vh, 10px) clamp(10px, 2vw, 16px);
   font-weight: bold;
-  font-size: 1.1rem;
+  font-size: clamp(0.85rem, 2vh, 1.05rem);
   font-family: inherit;
   cursor: pointer;
-  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.2);
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.2);
   transition: transform 0.1s;
+  white-space: nowrap;
 }
 
-.back-btn:active, .clear-btn:active, .sound-btn:active, .check-btn:active {
+.back-btn:active, .clear-btn:active, .sound-btn:active, .check-btn:active, .nav-arrow-btn:active {
   transform: translateY(2px);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
 }
 
 .back-btn { background: #ff5722; color: white; }
-.clear-btn { background: #ffc107; color: #333; }
+.clear-btn { background: #ffc107; color: #333333; }
 .sound-btn { background: #4caf50; color: white; }
 .check-btn { background: #00bcd4; color: white; }
 .nav-arrow-btn { background: #7e57c2; color: white; }
 
 .module-title {
-  font-size: 1.8rem;
+  font-size: clamp(1.1rem, 3vh, 1.6rem);
   color: #00796b;
   margin: 0;
   text-align: center;
@@ -58,11 +66,11 @@
 
 .letter-highlight {
   color: #e91e63;
-  font-size: 2.2rem;
+  font-size: clamp(1.4rem, 3.8vh, 2rem);
   font-weight: 900;
 }
 
-/* Lienzo de Trazo */
+/* Contenedor del Lienzo */
 .canvas-container {
   display: flex;
   flex-direction: column;
@@ -70,18 +78,18 @@
   justify-content: center;
   flex: 1;
   width: 100%;
+  overflow: hidden;
+  padding: 4px 0;
 }
 
 .canvas-wrapper {
   position: relative;
-  width: 600px;
-  height: 380px;
-  max-width: 90vw;
-  max-height: 52vh;
+  width: min(92vw, 560px);
+  height: min(46vh, 340px);
   background: #ffffff;
-  border: 6px dashed #00bcd4;
-  border-radius: 28px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  border: 5px dashed #00bcd4;
+  border-radius: 24px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -90,53 +98,63 @@
 
 .letter-guide-bg {
   position: absolute;
-  font-size: 260px;
+  font-size: min(36vh, 230px);
   font-weight: 900;
-  color: #e0e0e0;
+  color: #ebebeb;
   font-family: 'Comic Sans MS', sans-serif;
   pointer-events: none;
   line-height: 1;
   user-select: none;
 }
 
-#tracingCanvas, #letterCanvas {
+#tracingCanvas, #letterCanvas, #waypointsCanvas {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  touch-action: none; /* Evita scroll al dibujar en tablets Android */
+}
+
+#waypointsCanvas {
+  pointer-events: none; /* Permite que el niño dibuje directamente en tracingCanvas */
+  z-index: 2;
+}
+
+#tracingCanvas, #letterCanvas {
+  z-index: 3;
+  touch-action: none; /* Evita que el navegador haga scroll en tablets y móviles */
   cursor: crosshair;
 }
 
 /* Barra de Progreso del Nombre */
 .name-progress-bar {
   display: flex;
-  gap: 8px;
-  margin-top: 14px;
-  max-width: 95vw;
-  overflow-x: auto;
-  padding: 4px;
+  gap: clamp(4px, 1vw, 8px);
+  margin-top: 8px;
+  max-width: 96vw;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 2px;
 }
 
 .letter-slot {
-  width: 44px;
-  height: 54px;
+  width: clamp(30px, 6vw, 42px);
+  height: clamp(38px, 7vh, 50px);
   background: #ffffff;
-  border: 3px solid #b2dfdb;
-  border-radius: 12px;
+  border: 2px solid #b2dfdb;
+  border-radius: 10px;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 1.6rem;
+  font-size: clamp(1.1rem, 2.5vh, 1.5rem);
   font-weight: bold;
   color: #00796b;
   transition: all 0.2s ease;
 }
 
 .letter-slot-space {
-  width: 20px;
-  height: 54px;
+  width: clamp(10px, 2vw, 16px);
+  height: clamp(38px, 7vh, 50px);
   background: transparent;
 }
 
@@ -151,28 +169,41 @@
   border-color: #ff9800;
   background: #fff8e1;
   color: #e65100;
-  transform: scale(1.15);
-  box-shadow: 0 0 12px rgba(255, 152, 0, 0.6);
+  transform: scale(1.12);
+  box-shadow: 0 0 10px rgba(255, 152, 0, 0.6);
 }
 
-/* Barra de Abecedario A-Z */
+/* Indicador de Paso Actual */
+.waypoint-status-pill {
+  background: #ffffff;
+  border: 2px solid #00bcd4;
+  border-radius: 16px;
+  padding: 4px 12px;
+  font-size: clamp(0.8rem, 1.8vh, 0.95rem);
+  font-weight: bold;
+  color: #00838f;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Selector Rápido del Abecedario */
 .alphabet-scroll-bar {
   display: flex;
-  gap: 6px;
-  margin-top: 12px;
-  max-width: 92vw;
+  gap: 5px;
+  margin-top: 8px;
+  max-width: 94vw;
   overflow-x: auto;
-  padding: 6px 2px;
+  padding: 4px 2px;
+  -webkit-overflow-scrolling: touch;
 }
 
 .alpha-pill {
-  width: 38px;
-  height: 42px;
+  width: clamp(32px, 6vw, 38px);
+  height: clamp(36px, 6vh, 42px);
   background: #ffffff;
   border: 2px solid #ffb74d;
   border-radius: 10px;
   font-weight: bold;
-  font-size: 1.1rem;
+  font-size: 1rem;
   color: #e65100;
   cursor: pointer;
   flex-shrink: 0;
@@ -181,16 +212,16 @@
 .alpha-pill.active {
   background: #ff9800;
   color: white;
-  transform: scale(1.12);
+  transform: scale(1.1);
 }
 
-/* Barra Inferior del Módulo */
+/* Pie de Página */
 .tracing-footer {
   width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  height: 12%;
-  padding: 0 10px;
+  height: clamp(44px, 8.5vh, 56px);
+  padding: 0 4px;
+  box-sizing: border-box;
 }
-

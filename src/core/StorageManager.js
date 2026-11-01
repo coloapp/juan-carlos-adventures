@@ -119,5 +119,28 @@ export class StorageManager {
   static setAudioMuted(isMuted) {
     localStorage.setItem(this.KEYS.AUDIO_MUTED, isMuted ? 'true' : 'false');
   }
+
+  static getModuleLevels(moduleKey) {
+    try {
+      const saved = localStorage.getItem('jc_mod_lvl_' + moduleKey);
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    // El nivel 1 siempre está desbloqueado por defecto
+    return { maxUnlocked: 1, completed: {} };
+  }
+
+  static completeModuleLevel(moduleKey, levelNum, starsEarned = 3) {
+    const data = this.getModuleLevels(moduleKey);
+    data.completed = data.completed || {};
+    data.completed[levelNum] = Math.max(data.completed[levelNum] || 0, starsEarned);
+    if (levelNum >= data.maxUnlocked && data.maxUnlocked < 50) {
+      data.maxUnlocked = levelNum + 1;
+    }
+    try {
+      localStorage.setItem('jc_mod_lvl_' + moduleKey, JSON.stringify(data));
+    } catch (e) {}
+    this.addStars(starsEarned);
+    return data;
+  }
 }
 

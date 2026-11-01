@@ -1,54 +1,103 @@
 /**
- * NumbersScreen - Módulo de Números y Secuencias Numéricas
- * Trencito matemático y ejercicios de conteo para preescolar.
+ * NumbersScreen - Módulo "Números" con 50 Juegos en Círculos ("Circulitos")
+ * Trencito numérico didáctico y secuencias progresivas para kínder.
  */
 import { StorageManager } from '../core/StorageManager.js';
 import { audio } from '../core/AudioManager.js';
 import { rewards } from '../core/RewardManager.js';
 import { Confetti } from '../components/Confetti.js';
 import { Modal } from '../components/Modal.js';
+import { LevelSelector } from '../components/LevelSelector.js';
+
+export function getNumberPuzzleForLevel(levelNum) {
+  // Nivel 1: El clásico default [1, 2, '?', 4, 5]
+  if (levelNum === 1) {
+    return {
+      sequence: [1, 2, '?', 4, 5],
+      correct: 3,
+      options: [3, 6, 2],
+      helperText: '¿Qué número falta en el trencito?'
+    };
+  }
+
+  // Generador didáctico para los niveles 2 al 50
+  const start = ((levelNum - 1) % 15) + 1;
+  const missingOffset = ((levelNum * 2) % 4) + 1; // 1, 2 o 3
+  const seq = [];
+  let correctVal = 0;
+
+  for (let i = 0; i < 5; i++) {
+    const val = start + i;
+    if (i === missingOffset) {
+      seq.push('?');
+      correctVal = val;
+    } else {
+      seq.push(val);
+    }
+  }
+
+  const wrong1 = correctVal + 1;
+  const wrong2 = Math.max(1, correctVal - 2);
+  const options = [correctVal, wrong1, wrong2].sort(() => 0.5 - Math.random());
+
+  return {
+    sequence: seq,
+    correct: correctVal,
+    options: options,
+    helperText: `Nivel ${levelNum}: ¿Qué número completa el trencito?`
+  };
+}
 
 export class NumbersScreen {
   constructor(appNavigator) {
     this.navigator = appNavigator;
-    this.trainPuzzles = [
-      {
-        sequence: [3, 4, 5, '?', 7],
-        correct: 6,
-        options: [6, 8, 4],
-        helperText: '¿Qué número viene después del 5?'
-      },
-      {
-        sequence: [1, 2, '?', 4, 5],
-        correct: 3,
-        options: [6, 3, 7],
-        helperText: '¿Qué número falta en el trencito?'
-      },
-      {
-        sequence: [6, 7, 8, '?', 10],
-        correct: 9,
-        options: [5, 9, 11],
-        helperText: '¿Qué número va antes del 10?'
-      }
-    ];
-    this.currentIndex = 0;
+    this.currentLevel = null;
   }
 
   render(container) {
-    const puzzle = this.trainPuzzles[this.currentIndex];
+    if (this.currentLevel === null) {
+      LevelSelector.render({
+        container,
+        moduleKey: 'numbers',
+        moduleTitle: 'Números',
+        moduleIcon: '🚂',
+        bgClass: 'numbers-bg',
+        totalLevels: 50,
+        onSelectLevel: (lvl) => {
+          this.currentLevel = lvl;
+          this.renderGame(container);
+        },
+        onBackHome: () => {
+          this.navigator.navigate('home');
+        }
+      });
+      return;
+    }
+
+    this.renderGame(container);
+  }
+
+  renderGame(container) {
+    const student = StorageManager.getActiveStudent();
+    const puzzle = getNumberPuzzleForLevel(this.currentLevel);
 
     container.innerHTML = `
       <div class="module-container numbers-bg fade-in">
         <header class="module-header">
-          <button class="back-btn" id="btnBack">⬅️ Menú</button>
-          <h2>NÚMEROS - EL TREN MATEMÁTICO</h2>
-          <div class="score-box">🚂 Vagón ${this.currentIndex + 1} de ${this.trainPuzzles.length}</div>
+          <button class="back-btn" id="btnBackToLevels">⬅️ Niveles</button>
+          <div style="text-align:center;">
+            <h2>NÚMEROS - EL TREN MATEMÁTICO</h2>
+            <div style="font-size:0.8rem; font-weight:bold; color:#00838f;">
+              Juego ${this.currentLevel} de 50
+            </div>
+          </div>
+          <div class="score-box">⭐ ${student.stars || 0}</div>
         </header>
 
         <main class="game-board numbers-board">
           <!-- Monito ayudante -->
           <div class="character-helper bounce-gentle">
-            <img src="public/assets/images/educational/monkey.svg" alt="Monito" class="helper-avatar">
+            <img src="public/assets/images/educational/monkey.svg" alt="Monito" class="helper-avatar" onerror="this.innerText='🐒'">
             <div class="speech-bubble">${puzzle.helperText}</div>
           </div>
 
@@ -66,18 +115,18 @@ export class NumbersScreen {
           </div>
 
           <!-- Opciones numéricas -->
-          <div class="number-options-container">
-            <p class="select-hint">Toca el número correcto:</p>
+          <div class="number-options-container" style="display:flex; flex-direction:column; align-items:center;">
+            <p class="select-hint" style="font-weight:bold; color:#006064; margin-bottom:8px;">Toca el número correcto:</p>
             <div class="number-options">
-              ${puzzle.options.map(opt => `
-                <button class="num-btn" data-num="${opt}">${opt}</button>
+              ${puzzle.options.map((opt) => `
+                <button class="num-btn" data-val="${opt}">${opt}</button>
               `).join('')}
             </div>
           </div>
         </main>
 
         <footer class="module-footer">
-          <button class="sound-btn" id="btnRepeatQuestion">🔊 Repetir Pregunta</button>
+          <button class="sound-btn" id="btnPlayHelperAudio">🔊 Repetir Pregunta</button>
         </footer>
       </div>
     `;
@@ -87,52 +136,53 @@ export class NumbersScreen {
   }
 
   bindEvents(container, puzzle) {
-    container.querySelector('#btnBack')?.addEventListener('click', () => {
+    container.querySelector('#btnBackToLevels')?.addEventListener('click', () => {
       audio.playClick();
-      this.navigator.navigate('home');
+      this.currentLevel = null;
+      this.render(container);
     });
 
-    container.querySelector('#btnRepeatQuestion')?.addEventListener('click', () => {
+    container.querySelector('#btnPlayHelperAudio')?.addEventListener('click', () => {
       audio.speak(puzzle.helperText);
     });
 
-    container.querySelectorAll('.num-btn').forEach(btn => {
+    const missingCar = container.querySelector('#missingCar');
+    const buttons = container.querySelectorAll('.num-btn');
+
+    buttons.forEach((btn) => {
       btn.addEventListener('click', (e) => {
-        const val = parseInt(e.currentTarget.dataset.num, 10);
+        const val = parseInt(e.target.dataset.val, 10);
+
         if (val === puzzle.correct) {
           audio.playSuccess();
-          e.currentTarget.classList.add('correct');
-          const missingCar = container.querySelector('#missingCar');
-          if (missingCar) {
-            missingCar.innerText = val.toString();
-            missingCar.classList.add('filled-train');
-          }
+          e.target.classList.add('correct');
+          missingCar.innerText = val.toString();
+          missingCar.classList.remove('missing');
+          missingCar.classList.add('filled-train');
 
-          StorageManager.addStars(2);
-          Confetti.shoot(2000);
-          audio.speak(`¡Muy bien! El número es ${val}`);
+          StorageManager.completeModuleLevel('numbers', this.currentLevel, 3);
+          Confetti.shoot(2500);
 
           setTimeout(() => {
-            if (this.currentIndex < this.trainPuzzles.length - 1) {
-              this.currentIndex++;
-              this.render(container);
-            } else {
-              const unlocked = rewards.unlockReward('honor_medal');
-              if (unlocked) {
-                Modal.showReward(unlocked, () => this.navigator.navigate('home'));
-              } else {
-                this.navigator.navigate('home');
+            if (this.currentLevel < 50) {
+              const next = this.currentLevel + 1;
+              if (confirm(`¡Excelente! El trencito está completo ⭐\n\n¿Quieres jugar el Nivel ${next}?`)) {
+                this.currentLevel = next;
+                this.renderGame(container);
+                return;
               }
             }
-          }, 1500);
+            this.currentLevel = null;
+            this.render(container);
+          }, 800);
+
         } else {
           audio.playError();
-          e.currentTarget.classList.add('wrong');
-          setTimeout(() => e.currentTarget.classList.remove('wrong'), 600);
-          audio.speak('Ese no es, ¡prueba con otro!');
+          e.target.classList.add('wrong');
+          setTimeout(() => e.target.classList.remove('wrong'), 500);
+          audio.speak('Ese número no va ahí, ¡intenta de nuevo!');
         }
       });
     });
   }
 }
-

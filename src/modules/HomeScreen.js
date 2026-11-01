@@ -107,7 +107,7 @@ export class HomeScreen {
 
             <div class="circle-modules-grid">
               
-              <!-- 1. LETTER TRACING -->
+              <!-- 1. TRAZANDO LETRAS -->
               <button class="circle-module-card" id="btnLetterTracing">
                 <div class="circle-bubble bubble-letter">
                   <div class="bubble-inner-content">
@@ -115,10 +115,10 @@ export class HomeScreen {
                     <span class="pencil-mini">✏️</span>
                   </div>
                 </div>
-                <span class="circle-module-label">LETTER <span class="label-highlight">TRACING</span></span>
+                <span class="circle-module-label">TRAZANDO <span class="label-highlight">LETRAS</span></span>
               </button>
 
-              <!-- 2. SYLLABLES -->
+              <!-- 2. SÍLABAS -->
               <button class="circle-module-card" id="btnSyllables">
                 <div class="circle-bubble bubble-syllables">
                   <div class="bubble-inner-content">
@@ -126,10 +126,10 @@ export class HomeScreen {
                     <div class="syl-pill-2">MA-MA</div>
                   </div>
                 </div>
-                <span class="circle-module-label">SYLLABLES</span>
+                <span class="circle-module-label">SÍLABAS</span>
               </button>
 
-              <!-- 3. NUMBERS -->
+              <!-- 3. NÚMEROS -->
               <button class="circle-module-card" id="btnNumbers">
                 <div class="circle-bubble bubble-numbers">
                   <div class="bubble-inner-content">
@@ -141,10 +141,10 @@ export class HomeScreen {
                     </div>
                   </div>
                 </div>
-                <span class="circle-module-label">NUMBERS</span>
+                <span class="circle-module-label">NÚMEROS</span>
               </button>
 
-              <!-- 4. VOWELS -->
+              <!-- 4. VOCALES -->
               <button class="circle-module-card" id="btnVowels">
                 <div class="circle-bubble bubble-vowels">
                   <div class="bubble-inner-content">
@@ -153,10 +153,10 @@ export class HomeScreen {
                     <span class="audio-mini-speaker">🔊</span>
                   </div>
                 </div>
-                <span class="circle-module-label">VOWELS</span>
+                <span class="circle-module-label">VOCALES</span>
               </button>
 
-              <!-- 5. SHAPES -->
+              <!-- 5. FIGURAS -->
               <button class="circle-module-card" id="btnShapes">
                 <div class="circle-bubble bubble-shapes">
                   <div class="bubble-inner-content">
@@ -166,10 +166,10 @@ export class HomeScreen {
                     </div>
                   </div>
                 </div>
-                <span class="circle-module-label">SHAPES</span>
+                <span class="circle-module-label">FIGURAS</span>
               </button>
 
-              <!-- 6. NAME TRACING -->
+              <!-- 6. TRAZA TU NOMBRE -->
               <button class="circle-module-card" id="btnNameTracing">
                 <div class="circle-bubble bubble-name-tracing">
                   <div class="bubble-inner-content">
@@ -177,7 +177,7 @@ export class HomeScreen {
                     <span class="pencil-mini">✏️</span>
                   </div>
                 </div>
-                <span class="circle-module-label">NAME TRACING</span>
+                <span class="circle-module-label">TRAZA TU <span class="label-highlight">NOMBRE</span></span>
               </button>
 
             </div>
