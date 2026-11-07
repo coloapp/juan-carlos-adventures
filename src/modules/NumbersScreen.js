@@ -165,16 +165,13 @@ export class NumbersScreen {
 
           setTimeout(() => {
             if (this.currentLevel < 50) {
-              const next = this.currentLevel + 1;
-              if (confirm(`¡Excelente! El trencito está completo ⭐\n\n¿Quieres jugar el Nivel ${next}?`)) {
-                this.currentLevel = next;
-                this.renderGame(container);
-                return;
-              }
+              this.currentLevel = this.currentLevel + 1;
+              this.renderGame(container);
+            } else {
+              this.currentLevel = null;
+              this.render(container);
             }
-            this.currentLevel = null;
-            this.render(container);
-          }, 800);
+          }, 1400);
 
         } else {
           audio.playError();

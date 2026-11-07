@@ -288,6 +288,33 @@ class AudioManager {
     this.playTone(400, 'sine', 0.04, 0.05);
   }
 
+  playArabotBlip() {
+    if (this.isMuted) return;
+    this.ensureContext();
+    this.playTone(660, 'sine', 0.08, 0.18);
+    setTimeout(() => {
+      this.playTone(990, 'triangle', 0.12, 0.2);
+    }, 80);
+  }
+
+  playMagicSparkle() {
+    if (this.isMuted) return;
+    this.ensureContext();
+    const notes = [587.33, 659.25, 783.99, 880, 1046.50, 1174.66, 1318.51, 1567.98];
+    notes.forEach((freq, i) => {
+      setTimeout(() => {
+        this.playTone(freq, 'sine', 0.18, 0.15);
+      }, i * 45);
+    });
+  }
+
+  playCelebration() {
+    this.playFanfare();
+    setTimeout(() => {
+      this.playMagicSparkle();
+    }, 450);
+  }
+
   playError() {
     this.playTone(220, 'sawtooth', 0.2, 0.15);
   }
@@ -787,6 +814,283 @@ class LevelSelector {
 
 
   /* ==========================================================================
+     FILE: src/components/ArabotAssistant.js
+     ========================================================================== */
+
+/**
+ * ArabotAssistant.js - Asistente pedagógico interactivo "ARABOT"
+ * Diseñado para ubicarse en la zona central superior (sin estorbar botones)
+ * con tutorial animado demostrativo y botón de ayuda para niños de preescolar.
+ */
+class ArabotAssistant {
+  constructor(options = {}) {
+    this.container = null;
+    this.rootElement = null;
+    this.speechBubble = null;
+    this.pointerElement = null;
+    this.isMinimized = false;
+    this.isTutorialRunning = false;
+    this.speechTimeout = null;
+    this.onHelpClickCallback = options.onHelpClick || null;
+  }
+
+  /**
+   * Monta a ARABOT en el contenedor ancla (ej. #arabotAnchor en el centro del header)
+   */
+  mount(parentContainer) {
+    this.container = parentContainer;
+    this.destroy();
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'arabot-header-component';
+    wrapper.id = 'arabotAssistant';
+    wrapper.innerHTML = `
+      <div class="arabot-top-pill" id="arabotHead" role="button" aria-label="ARABOT Asistente de Ayuda" title="¡Toca a ARABOT para recibir ayuda!">
+        <div class="arabot-avatar-box">
+          <div class="arabot-pulse-ring"></div>
+          <svg class="arabot-svg" viewBox="0 0 100 100" width="100%" height="100%">
+            <!-- Antena con luz pulsante -->
+            <line x1="50" y1="20" x2="50" y2="7" stroke="#78909c" stroke-width="4" stroke-linecap="round"/>
+            <circle cx="50" cy="7" r="6" class="arabot-antenna-light" fill="#ffeb3b" stroke="#fbc02d" stroke-width="2"/>
+
+            <!-- Orejas / Conectores -->
+            <rect x="12" y="44" width="8" height="20" rx="4" fill="#ff9800"/>
+            <rect x="80" y="44" width="8" height="20" rx="4" fill="#ff9800"/>
+            <circle cx="16" cy="54" r="2.5" fill="#ffffff"/>
+            <circle cx="84" cy="54" r="2.5" fill="#ffffff"/>
+
+            <!-- Cabeza Robótica -->
+            <rect x="18" y="20" width="64" height="62" rx="20" fill="url(#arabotHeadGrad)" stroke="#546e7a" stroke-width="3"/>
+
+            <!-- Visor Digital Azul Intenso -->
+            <rect x="25" y="30" width="50" height="34" rx="12" fill="#0d1b2a" stroke="#00e5ff" stroke-width="2.5"/>
+
+            <!-- Ojos Expresivos Normales -->
+            <g class="arabot-eyes-normal" id="arabotEyesNormal">
+              <ellipse cx="38" cy="46" rx="5.5" ry="7.5" fill="#00e5ff" class="arabot-eye"/>
+              <ellipse cx="62" cy="46" rx="5.5" ry="7.5" fill="#00e5ff" class="arabot-eye"/>
+              <circle cx="39.5" cy="44" r="2.2" fill="#ffffff"/>
+              <circle cx="63.5" cy="44" r="2.2" fill="#ffffff"/>
+            </g>
+
+            <!-- Ojos de Estrella para Celebración -->
+            <g class="arabot-eyes-celebrate" id="arabotEyesCelebrate" style="display:none;">
+              <polygon points="38,40 40.5,45 45,46 41.5,49 42.5,54 38,51 33.5,54 34.5,49 31,46 35.5,45" fill="#ffeb3b"/>
+              <polygon points="62,40 64.5,45 69,46 65.5,49 66.5,54 62,51 57.5,54 58.5,49 55,46 59.5,45" fill="#ffeb3b"/>
+            </g>
+
+            <!-- Mejillas Sonrojadas -->
+            <ellipse cx="28" cy="61" rx="4.5" ry="2.2" fill="#ff4081" opacity="0.65"/>
+            <ellipse cx="72" cy="61" rx="4.5" ry="2.2" fill="#ff4081" opacity="0.65"/>
+
+            <!-- Sonrisa simpática -->
+            <path id="arabotMouth" d="M 43 67 Q 50 74 57 67" stroke="#00bcd4" stroke-width="3" stroke-linecap="round" fill="none"/>
+
+            <defs>
+              <linearGradient id="arabotHeadGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#ffffff"/>
+                <stop offset="50%" stop-color="#f0f4f8"/>
+                <stop offset="100%" stop-color="#b0bec5"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+
+        <div class="arabot-pill-label">
+          <span class="arabot-name-tag">ARABOT</span>
+          <span class="arabot-help-tag">💡 Ayuda</span>
+        </div>
+      </div>
+
+      <!-- Burbuja de diálogo centrada que se abre hacia abajo -->
+      <div class="arabot-speech-bubble-anchor" id="arabotSpeechBubble" style="display:none;">
+        <div class="arabot-bubble-arrow-top"></div>
+        <div class="arabot-speech-text" id="arabotSpeechText">¡Hola! Soy ARABOT 🤖</div>
+      </div>
+    `;
+
+    this.container.appendChild(wrapper);
+    this.rootElement = wrapper;
+    this.speechBubble = wrapper.querySelector('#arabotSpeechBubble');
+
+    // El puntero mágico se monta en body para no ser recortado por overflow
+    let pointer = document.getElementById('arabotMagicPointer');
+    if (!pointer) {
+      pointer = document.createElement('div');
+      pointer.className = 'arabot-magic-pointer';
+      pointer.id = 'arabotMagicPointer';
+      pointer.style.display = 'none';
+      pointer.innerHTML = `
+        <span class="pointer-icon">✏️</span>
+        <span class="pointer-sparkle">✨</span>
+      `;
+      document.body.appendChild(pointer);
+    }
+    this.pointerElement = pointer;
+
+    this.bindEvents();
+    return wrapper;
+  }
+
+  bindEvents() {
+    const head = this.rootElement?.querySelector('#arabotHead');
+    if (!head) return;
+
+    head.addEventListener('click', () => {
+      if (this.isTutorialRunning) return;
+      if (audio.playArabotBlip) audio.playArabotBlip();
+      else audio.playPop();
+
+      this.bounceHead();
+
+      if (this.onHelpClickCallback) {
+        this.onHelpClickCallback();
+      } else {
+        this.speak('¡Aquí estoy! ¡Sigue las flechas en la cuadrícula!');
+      }
+    });
+  }
+
+  speak(text, durationMs = 3200, callback = null) {
+    if (!this.speechBubble || !this.rootElement) return;
+
+    if (this.speechTimeout) {
+      clearTimeout(this.speechTimeout);
+    }
+
+    const textEl = this.rootElement.querySelector('#arabotSpeechText');
+    if (textEl) {
+      textEl.innerHTML = text;
+    }
+
+    this.speechBubble.style.display = 'block';
+    this.speechBubble.classList.remove('bubble-exit');
+    this.speechBubble.classList.add('bubble-enter');
+
+    // Reproducir audio fonético
+    audio.speak(text.replace(/<[^>]*>/g, ''));
+    if (audio.playArabotBlip) audio.playArabotBlip();
+
+    this.speechTimeout = setTimeout(() => {
+      this.closeSpeech();
+      if (callback) callback();
+    }, durationMs);
+  }
+
+  closeSpeech() {
+    if (!this.speechBubble) return;
+    this.speechBubble.classList.remove('bubble-enter');
+    this.speechBubble.classList.add('bubble-exit');
+    setTimeout(() => {
+      if (this.speechBubble) {
+        this.speechBubble.style.display = 'none';
+        this.speechBubble.classList.remove('bubble-exit');
+      }
+    }, 250);
+  }
+
+  bounceHead() {
+    const head = this.rootElement?.querySelector('#arabotHead');
+    if (!head) return;
+    head.classList.remove('arabot-jump');
+    void head.offsetWidth;
+    head.classList.add('arabot-jump');
+  }
+
+  celebrate(text = '¡Excelente! ¡A de Árbol! 🌳⭐', durationMs = 3000) {
+    const normalEyes = this.rootElement?.querySelector('#arabotEyesNormal');
+    const celebrateEyes = this.rootElement?.querySelector('#arabotEyesCelebrate');
+
+    if (normalEyes) normalEyes.style.display = 'none';
+    if (celebrateEyes) celebrateEyes.style.display = 'block';
+
+    this.bounceHead();
+
+    this.speak(text, durationMs, () => {
+      if (normalEyes) normalEyes.style.display = 'block';
+      if (celebrateEyes) celebrateEyes.style.display = 'none';
+    });
+  }
+
+  playTutorial(canvasElement, strokes, onComplete = null) {
+    if (this.isTutorialRunning) return;
+    this.isTutorialRunning = true;
+
+    const pointer = this.pointerElement;
+    if (!pointer || !canvasElement) {
+      this.isTutorialRunning = false;
+      return;
+    }
+
+    this.speak('¡Mira cómo lo hago! Sigue la dirección de las flechas...', 2400);
+
+    const rect = canvasElement.getBoundingClientRect();
+    pointer.style.display = 'flex';
+    pointer.style.opacity = '1';
+
+    let strokeIndex = 0;
+
+    const runStroke = () => {
+      if (strokeIndex >= strokes.length) {
+        pointer.style.opacity = '0';
+        setTimeout(() => {
+          pointer.style.display = 'none';
+          this.isTutorialRunning = false;
+
+          this.speak('¡Ahora te toca a ti, mira la sorpresa! ⭐', 2800, () => {
+            if (onComplete) onComplete();
+          });
+        }, 300);
+        return;
+      }
+
+      const current = strokes[strokeIndex];
+      const startX = rect.left + current.from.x * rect.width;
+      const startY = rect.top + current.from.y * rect.height;
+      const endX = rect.left + current.to.x * rect.width;
+      const endY = rect.top + current.to.y * rect.height;
+
+      pointer.style.transition = 'none';
+      pointer.style.transform = `translate(${startX}px, ${startY}px) scale(1.15)`;
+
+      if (audio.playBrush) audio.playBrush();
+
+      setTimeout(() => {
+        pointer.style.transition = 'transform 0.95s cubic-bezier(0.25, 1, 0.5, 1)';
+        pointer.style.transform = `translate(${endX}px, ${endY}px) scale(1)`;
+
+        setTimeout(() => {
+          if (audio.playPop) audio.playPop();
+          strokeIndex++;
+          setTimeout(runStroke, 220);
+        }, 1000);
+      }, 100);
+    };
+
+    setTimeout(runStroke, 1200);
+  }
+
+  destroy() {
+    if (this.speechTimeout) {
+      clearTimeout(this.speechTimeout);
+      this.speechTimeout = null;
+    }
+    if (this.rootElement && this.rootElement.parentElement) {
+      this.rootElement.parentElement.removeChild(this.rootElement);
+    }
+    const pointer = document.getElementById('arabotMagicPointer');
+    if (pointer && pointer.parentElement) {
+      pointer.parentElement.removeChild(pointer);
+    }
+    this.rootElement = null;
+    this.speechBubble = null;
+    this.pointerElement = null;
+    this.isTutorialRunning = false;
+  }
+}
+
+
+  /* ==========================================================================
      FILE: src/core/LetterWaypoints.js
      ========================================================================== */
 
@@ -1089,6 +1393,534 @@ function getWaypointsForLetter(letter) {
     { x: 0.70, y: 0.52, label: '4' },
     { x: 0.70, y: 0.22, label: '5' }
   ];
+}
+
+/**
+ * Catálogo pedagógico completo de letras con mayúscula, minúscula,
+ * trazos direccionales, flechas numeradas y objeto sorpresa ilustrado.
+ * Todas las coordenadas están exactamente normalizadas para el lienzo 760x420
+ * garantizando cero desfases entre contorno hueco, líneas punteadas y waypoints.
+ */
+const PEDAGOGICAL_LETTERS = {
+  'A': {
+    letter: 'A',
+    lowercase: 'a',
+    word: 'ÁRBOL',
+    phonetic: 'A de Árbol',
+    icon: '🌳',
+    tutorialStrokes: [
+      { name: 'Paso 1: Diagonal Izquierda', from: { x: 0.1974, y: 0.1786 }, to: { x: 0.1026, y: 0.7738 } },
+      { name: 'Paso 2: Diagonal Derecha', from: { x: 0.1974, y: 0.1786 }, to: { x: 0.2921, y: 0.7738 } },
+      { name: 'Paso 3: Barra Central', from: { x: 0.1382, y: 0.5476 }, to: { x: 0.2566, y: 0.5476 } }
+    ],
+    uppercaseStrokes: [
+      {
+        id: 'A1',
+        step: 1,
+        arrow: '↙',
+        label: '1',
+        description: 'Diagonal izquierda de arriba a abajo',
+        points: [
+          { x: 0.1974, y: 0.1786 },
+          { x: 0.1500, y: 0.4762 },
+          { x: 0.1026, y: 0.7738 }
+        ]
+      },
+      {
+        id: 'A2',
+        step: 2,
+        arrow: '↘',
+        label: '2',
+        description: 'Diagonal derecha de arriba a abajo',
+        points: [
+          { x: 0.1974, y: 0.1786 },
+          { x: 0.2447, y: 0.4762 },
+          { x: 0.2921, y: 0.7738 }
+        ]
+      },
+      {
+        id: 'A3',
+        step: 3,
+        arrow: '➔',
+        label: '3',
+        description: 'Barra central de izquierda a derecha',
+        points: [
+          { x: 0.1382, y: 0.5476 },
+          { x: 0.1974, y: 0.5476 },
+          { x: 0.2566, y: 0.5476 }
+        ]
+      }
+    ],
+    lowercaseStrokes: [
+      {
+        id: 'a1',
+        step: 1,
+        arrow: '↺',
+        label: '1',
+        description: 'Círculo redondito antihorario',
+        points: [
+          { x: 0.5447, y: 0.5238 },
+          { x: 0.4868, y: 0.4905 },
+          { x: 0.4289, y: 0.5952 },
+          { x: 0.4868, y: 0.7000 },
+          { x: 0.5447, y: 0.6310 }
+        ]
+      },
+      {
+        id: 'a2',
+        step: 2,
+        arrow: '↓',
+        label: '2',
+        description: 'Poste vertical hacia abajo',
+        points: [
+          { x: 0.5447, y: 0.4167 },
+          { x: 0.5447, y: 0.5952 },
+          { x: 0.5447, y: 0.7738 }
+        ]
+      }
+    ],
+    getSurpriseSvg: () => `
+      <svg class="notebook-tree-svg" viewBox="0 0 240 280" width="100%" height="100%">
+        <!-- Copa frondosa estilo nube con espirales interiores (idéntica a la imagen del cuadernillo) -->
+        <g class="tree-canopy-art">
+          <path class="tree-canopy-outline"
+                d="M 50 145 
+                   C 32 140 22 120 28 100 
+                   C 22 85 30 65 48 58 
+                   C 45 42 60 25 78 24 
+                   C 90 12 115 10 130 20 
+                   C 145 10 170 14 182 28 
+                   C 198 25 215 38 218 55 
+                   C 230 70 228 92 218 108 
+                   C 226 125 218 145 200 152 
+                   C 205 168 192 185 175 188 
+                   C 160 190 148 182 142 172 
+                   C 135 178 122 180 115 174 
+                   C 108 182 92 182 82 174 
+                   C 75 185 58 185 48 172 
+                   C 38 165 42 152 50 145 Z" />
+
+          <!-- Espirales decorativos dentro de los lóbulos de la copa -->
+          <path class="tree-spiral" d="M 72 45 C 65 45 62 52 66 58 C 72 62 78 55 75 48 C 72 44 65 46 63 50" />
+          <path class="tree-spiral" d="M 125 32 C 118 32 114 38 118 45 C 124 50 132 42 128 35 C 124 30 116 32 113 38" />
+          <path class="tree-spiral" d="M 185 48 C 178 48 174 55 178 62 C 185 68 194 58 190 50 C 185 45 176 48 174 54" />
+          <path class="tree-spiral" d="M 45 105 C 38 105 35 112 39 118 C 45 122 52 115 48 108" />
+          <path class="tree-spiral" d="M 198 115 C 205 115 208 122 204 128 C 198 132 191 125 195 118" />
+        </g>
+
+        <!-- Tronco con ramas bifurcadas y vetas de madera -->
+        <g class="tree-trunk-art">
+          <path class="tree-trunk-outline"
+                d="M 100 270 
+                   C 105 240 102 210 95 180 
+                   C 90 160 75 145 60 135 
+                   C 68 140 76 150 82 165
+                   C 86 150 94 130 96 110
+                   C 102 125 106 142 108 160
+                   C 112 165 116 168 122 170
+                   C 128 150 136 125 152 105
+                   C 150 125 148 145 142 165
+                   C 152 148 165 138 180 132
+                   C 168 145 155 162 148 180
+                   C 138 210 135 240 140 270 
+                   Z" />
+
+          <!-- Nudo de madera con espiral en la base izquierda -->
+          <ellipse class="tree-wood-knot" cx="112" cy="225" rx="8" ry="14" />
+          <path class="tree-wood-spiral" d="M 112 218 C 117 218 118 228 113 232 C 109 235 107 226 111 224" />
+
+          <!-- Vetas onduladas de la corteza -->
+          <path class="tree-grain" d="M 103 265 C 106 245 105 210 101 190" />
+          <path class="tree-grain" d="M 125 265 C 126 235 125 200 128 185" />
+          <path class="tree-grain" d="M 134 265 C 132 245 130 220 135 195" />
+          <path class="tree-grain" d="M 98 155 C 96 140 92 125 88 118" />
+          <path class="tree-grain" d="M 140 155 C 144 140 148 125 154 115" />
+        </g>
+
+        <!-- Gradientes para cuando se colorea -->
+        <defs>
+          <linearGradient id="notebookWoodGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#5d4037"/>
+            <stop offset="50%" stop-color="#795548"/>
+            <stop offset="100%" stop-color="#4e342e"/>
+          </linearGradient>
+          <linearGradient id="notebookCanopyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#66bb6a"/>
+            <stop offset="50%" stop-color="#43a047"/>
+            <stop offset="100%" stop-color="#2e7d32"/>
+          </linearGradient>
+        </defs>
+      </svg>
+    `
+  },
+  'E': {
+    letter: 'E',
+    lowercase: 'e',
+    word: 'ELEFANTE',
+    phonetic: 'E de Elefante',
+    icon: '🐘',
+    tutorialStrokes: [
+      { name: 'Paso 1: Poste Vertical', from: { x: 0.1184, y: 0.1786 }, to: { x: 0.1184, y: 0.7738 } },
+      { name: 'Paso 2: Barra Superior', from: { x: 0.1184, y: 0.1786 }, to: { x: 0.2829, y: 0.1786 } },
+      { name: 'Paso 3: Barra Central', from: { x: 0.1184, y: 0.4762 }, to: { x: 0.2566, y: 0.4762 } },
+      { name: 'Paso 4: Barra Inferior', from: { x: 0.1184, y: 0.7738 }, to: { x: 0.2829, y: 0.7738 } }
+    ],
+    uppercaseStrokes: [
+      {
+        id: 'E1',
+        step: 1,
+        arrow: '↓',
+        label: '1',
+        description: 'Poste vertical hacia abajo',
+        points: [
+          { x: 0.1184, y: 0.1786 },
+          { x: 0.1184, y: 0.4762 },
+          { x: 0.1184, y: 0.7738 }
+        ]
+      },
+      {
+        id: 'E2',
+        step: 2,
+        arrow: '➔',
+        label: '2',
+        description: 'Barra superior de izquierda a derecha',
+        points: [
+          { x: 0.1184, y: 0.1786 },
+          { x: 0.2000, y: 0.1786 },
+          { x: 0.2829, y: 0.1786 }
+        ]
+      },
+      {
+        id: 'E3',
+        step: 3,
+        arrow: '➔',
+        label: '3',
+        description: 'Barra central de izquierda a derecha',
+        points: [
+          { x: 0.1184, y: 0.4762 },
+          { x: 0.1868, y: 0.4762 },
+          { x: 0.2566, y: 0.4762 }
+        ]
+      },
+      {
+        id: 'E4',
+        step: 4,
+        arrow: '➔',
+        label: '4',
+        description: 'Barra inferior de izquierda a derecha',
+        points: [
+          { x: 0.1184, y: 0.7738 },
+          { x: 0.2000, y: 0.7738 },
+          { x: 0.2829, y: 0.7738 }
+        ]
+      }
+    ],
+    lowercaseStrokes: [
+      {
+        id: 'e1',
+        step: 1,
+        arrow: '➔',
+        label: '1',
+        description: 'Barra horizontal central',
+        points: [
+          { x: 0.4342, y: 0.5952 },
+          { x: 0.4895, y: 0.5952 },
+          { x: 0.5447, y: 0.5952 }
+        ]
+      },
+      {
+        id: 'e2',
+        step: 2,
+        arrow: '↺',
+        label: '2',
+        description: 'Arco y curva redonda de la e',
+        points: [
+          { x: 0.5447, y: 0.5952 },
+          { x: 0.4868, y: 0.4905 },
+          { x: 0.4289, y: 0.5952 },
+          { x: 0.4868, y: 0.7000 },
+          { x: 0.5395, y: 0.6548 }
+        ]
+      }
+    ],
+    getSurpriseSvg: () => `
+      <svg class="surprise-svg elephant-illustration" viewBox="0 0 200 220" width="100%" height="100%">
+        <ellipse cx="100" cy="205" rx="55" ry="10" fill="#cfd8dc"/>
+        <ellipse cx="95" cy="140" rx="50" ry="42" fill="#78909c" stroke="#455a64" stroke-width="3"/>
+        <circle cx="135" cy="110" r="32" fill="#78909c" stroke="#455a64" stroke-width="3"/>
+        <ellipse cx="118" cy="115" rx="20" ry="26" fill="#90a4ae" stroke="#455a64" stroke-width="2.5"/>
+        <path d="M 155 125 C 175 145 170 175 155 180 C 145 185 142 170 152 165 C 160 160 162 145 150 135 Z" fill="#78909c" stroke="#455a64" stroke-width="2.5"/>
+        <circle cx="145" cy="102" r="4" fill="#263238"/>
+        <circle cx="146.5" cy="100.5" r="1.5" fill="#ffffff"/>
+        <rect x="65" y="165" width="16" height="38" rx="6" fill="#607d8b"/>
+        <rect x="95" y="165" width="16" height="38" rx="6" fill="#607d8b"/>
+        <rect x="120" y="165" width="16" height="38" rx="6" fill="#607d8b"/>
+      </svg>
+    `
+  },
+  'I': {
+    letter: 'I',
+    lowercase: 'i',
+    word: 'ISLA',
+    phonetic: 'I de Isla',
+    icon: '🏝️',
+    tutorialStrokes: [
+      { name: 'Paso 1: Barra Superior', from: { x: 0.1250, y: 0.1786 }, to: { x: 0.2697, y: 0.1786 } },
+      { name: 'Paso 2: Poste Central', from: { x: 0.1974, y: 0.1786 }, to: { x: 0.1974, y: 0.7738 } },
+      { name: 'Paso 3: Barra Inferior', from: { x: 0.1250, y: 0.7738 }, to: { x: 0.2697, y: 0.7738 } }
+    ],
+    uppercaseStrokes: [
+      {
+        id: 'I1',
+        step: 1,
+        arrow: '➔',
+        label: '1',
+        description: 'Barra superior de izquierda a derecha',
+        points: [
+          { x: 0.1250, y: 0.1786 },
+          { x: 0.1974, y: 0.1786 },
+          { x: 0.2697, y: 0.1786 }
+        ]
+      },
+      {
+        id: 'I2',
+        step: 2,
+        arrow: '↓',
+        label: '2',
+        description: 'Poste central vertical hacia abajo',
+        points: [
+          { x: 0.1974, y: 0.1786 },
+          { x: 0.1974, y: 0.4762 },
+          { x: 0.1974, y: 0.7738 }
+        ]
+      },
+      {
+        id: 'I3',
+        step: 3,
+        arrow: '➔',
+        label: '3',
+        description: 'Barra inferior de izquierda a derecha',
+        points: [
+          { x: 0.1250, y: 0.7738 },
+          { x: 0.1974, y: 0.7738 },
+          { x: 0.2697, y: 0.7738 }
+        ]
+      }
+    ],
+    lowercaseStrokes: [
+      {
+        id: 'i1',
+        step: 1,
+        arrow: '↓',
+        label: '1',
+        description: 'Poste vertical minúscula hacia abajo',
+        points: [
+          { x: 0.4868, y: 0.4524 },
+          { x: 0.4868, y: 0.6143 },
+          { x: 0.4868, y: 0.7738 }
+        ]
+      },
+      {
+        id: 'i2',
+        step: 2,
+        arrow: '●',
+        label: '2',
+        isDot: true,
+        description: 'Puntito de la i',
+        points: [
+          { x: 0.4868, y: 0.3214 },
+          { x: 0.4868, y: 0.3250 }
+        ]
+      }
+    ],
+    getSurpriseSvg: () => `
+      <svg class="surprise-svg island-illustration" viewBox="0 0 200 220" width="100%" height="100%">
+        <ellipse cx="100" cy="180" rx="75" ry="25" fill="#ffe082" stroke="#ffb300" stroke-width="3"/>
+        <path d="M 100 170 Q 110 110 90 70" stroke="#795548" stroke-width="8" stroke-linecap="round" fill="none"/>
+        <ellipse cx="75" cy="55" rx="26" ry="10" fill="#4caf50" transform="rotate(-30 75 55)"/>
+        <ellipse cx="105" cy="50" rx="26" ry="10" fill="#4caf50" transform="rotate(15 105 50)"/>
+        <ellipse cx="80" cy="75" rx="22" ry="9" fill="#388e3c" transform="rotate(-65 80 75)"/>
+        <ellipse cx="115" cy="70" rx="22" ry="9" fill="#388e3c" transform="rotate(45 115 70)"/>
+      </svg>
+    `
+  },
+  'O': {
+    letter: 'O',
+    lowercase: 'o',
+    word: 'OSO',
+    phonetic: 'O de Oso',
+    icon: '🐻',
+    tutorialStrokes: [
+      { name: 'Paso 1: Círculo Completo', from: { x: 0.1974, y: 0.2143 }, to: { x: 0.1974, y: 0.7381 } }
+    ],
+    uppercaseStrokes: [
+      {
+        id: 'O1',
+        step: 1,
+        arrow: '↺',
+        label: '1',
+        description: 'Círculo grande completo antihorario',
+        points: [
+          { x: 0.1974, y: 0.2143 },
+          { x: 0.1118, y: 0.4762 },
+          { x: 0.1974, y: 0.7381 },
+          { x: 0.2829, y: 0.4762 },
+          { x: 0.1974, y: 0.2143 }
+        ]
+      }
+    ],
+    lowercaseStrokes: [
+      {
+        id: 'o1',
+        step: 1,
+        arrow: '↺',
+        label: '1',
+        description: 'Círculo pequeño completo antihorario',
+        points: [
+          { x: 0.4868, y: 0.4905 },
+          { x: 0.4289, y: 0.5952 },
+          { x: 0.4868, y: 0.7000 },
+          { x: 0.5447, y: 0.5952 },
+          { x: 0.4868, y: 0.4905 }
+        ]
+      }
+    ],
+    getSurpriseSvg: () => `
+      <svg class="surprise-svg bear-illustration" viewBox="0 0 200 220" width="100%" height="100%">
+        <circle cx="65" cy="75" r="16" fill="#6d4c41"/>
+        <circle cx="65" cy="75" r="9" fill="#d7ccc8"/>
+        <circle cx="135" cy="75" r="16" fill="#6d4c41"/>
+        <circle cx="135" cy="75" r="9" fill="#d7ccc8"/>
+        <circle cx="100" cy="115" r="48" fill="#795548" stroke="#4e342e" stroke-width="3"/>
+        <ellipse cx="100" cy="128" rx="22" ry="16" fill="#d7ccc8"/>
+        <ellipse cx="100" cy="120" rx="9" ry="6" fill="#3e2723"/>
+        <circle cx="82" cy="105" r="4" fill="#212121"/>
+        <circle cx="118" cy="105" r="4" fill="#212121"/>
+      </svg>
+    `
+  },
+  'U': {
+    letter: 'U',
+    lowercase: 'u',
+    word: 'UVA',
+    phonetic: 'U de Uva',
+    icon: '🍇',
+    tutorialStrokes: [
+      { name: 'Paso 1: Curva de U', from: { x: 0.1184, y: 0.1786 }, to: { x: 0.2763, y: 0.1786 } }
+    ],
+    uppercaseStrokes: [
+      {
+        id: 'U1',
+        step: 1,
+        arrow: '↷',
+        label: '1',
+        description: 'Curva amplia de la U mayúscula',
+        points: [
+          { x: 0.1184, y: 0.1786 },
+          { x: 0.1184, y: 0.5476 },
+          { x: 0.1974, y: 0.7619 },
+          { x: 0.2763, y: 0.5476 },
+          { x: 0.2763, y: 0.1786 }
+        ]
+      }
+    ],
+    lowercaseStrokes: [
+      {
+        id: 'u1',
+        step: 1,
+        arrow: '↷',
+        label: '1',
+        description: 'Curva pequeña de la u minúscula',
+        points: [
+          { x: 0.4342, y: 0.4405 },
+          { x: 0.4342, y: 0.6429 },
+          { x: 0.4868, y: 0.7524 },
+          { x: 0.5395, y: 0.6429 },
+          { x: 0.5395, y: 0.4405 }
+        ]
+      },
+      {
+        id: 'u2',
+        step: 2,
+        arrow: '↓',
+        label: '2',
+        description: 'Poste vertical derecho de la u',
+        points: [
+          { x: 0.5395, y: 0.4405 },
+          { x: 0.5395, y: 0.6000 },
+          { x: 0.5395, y: 0.7619 }
+        ]
+      }
+    ],
+    getSurpriseSvg: () => `
+      <svg class="surprise-svg grapes-illustration" viewBox="0 0 200 220" width="100%" height="100%">
+        <path d="M 100 45 Q 105 25 125 20" stroke="#5d4037" stroke-width="4" stroke-linecap="round" fill="none"/>
+        <ellipse cx="85" cy="40" rx="18" ry="10" fill="#4caf50" transform="rotate(-20 85 40)"/>
+        <g fill="#7b1fa2" stroke="#4a148c" stroke-width="2">
+          <circle cx="80" cy="70" r="14"/>
+          <circle cx="102" cy="68" r="14"/>
+          <circle cx="124" cy="70" r="14"/>
+          <circle cx="91" cy="94" r="14"/>
+          <circle cx="113" cy="94" r="14"/>
+          <circle cx="102" cy="118" r="14"/>
+        </g>
+      </svg>
+    `
+  }
+};
+
+/**
+ * Obtiene los datos pedagógicos completos para una letra
+ */
+function getPedagogicalLetter(letter) {
+  const char = (letter || 'A').toUpperCase();
+  if (PEDAGOGICAL_LETTERS[char]) {
+    return PEDAGOGICAL_LETTERS[char];
+  }
+
+  // Generador dinámico para cualquier otra letra del abecedario
+  const wp = getWaypointsForLetter(char);
+  return {
+    letter: char,
+    lowercase: char.toLowerCase(),
+    word: `${char}`,
+    phonetic: `Letra ${char}`,
+    icon: '⭐',
+    tutorialStrokes: [
+      { name: `Paso 1: Trazo de la ${char}`, from: { x: wp[0].x * 0.6, y: wp[0].y }, to: { x: wp[wp.length - 1].x * 0.6, y: wp[wp.length - 1].y } }
+    ],
+    uppercaseStrokes: [
+      {
+        id: `${char}1`,
+        step: 1,
+        arrow: '➔',
+        label: '1',
+        description: `Trazo de la letra ${char}`,
+        points: wp.map(p => ({ x: p.x * 0.55 + 0.05, y: p.y }))
+      }
+    ],
+    lowercaseStrokes: [
+      {
+        id: `${char.toLowerCase()}1`,
+        step: 1,
+        arrow: '↓',
+        label: '1',
+        description: `Minúscula ${char.toLowerCase()}`,
+        points: [
+          { x: 0.75, y: 0.40 },
+          { x: 0.65, y: 0.60 },
+          { x: 0.75, y: 0.80 },
+          { x: 0.85, y: 0.60 }
+        ]
+      }
+    ],
+    getSurpriseSvg: () => `
+      <svg class="surprise-svg generic-illustration" viewBox="0 0 200 220" width="100%" height="100%">
+        <circle cx="100" cy="110" r="50" fill="#ffb74d" stroke="#f57c00" stroke-width="4"/>
+        <text x="100" y="130" font-size="64" font-weight="900" fill="#ffffff" text-anchor="middle">${char}</text>
+      </svg>
+    `
+  };
 }
 
 
@@ -1813,11 +2645,10 @@ class NameTracingScreen {
           this.render(container);
         });
       } else {
-        alert(`¡Felicidades ${this.student.name}! Has completado el nivel ${this.currentLevel}: ${this.targetName} 🎉`);
         this.currentLevel = null;
         this.render(container);
       }
-    }, 700);
+    }, 1200);
 
     audio.speak(`¡Excelente trabajo ${this.student.name}! ¡Nivel ${this.currentLevel} completado!`);
   }
@@ -1829,248 +2660,761 @@ class NameTracingScreen {
      ========================================================================== */
 
 /**
- * LetterTracingScreen - Módulo "Trazando Letras" con 50 Juegos en Círculos ("Circulitos")
- * Validación pedagógica por waypoints secuenciales para asegurar trazos completos.
+ * LetterTracingScreen.js - Módulo de Trazado de Letras y Caligrafía
+ * Arquitectura modular con Menú de 10 Juegos en Círculos (50 niveles cada uno),
+ * selector de 50 circulitos por juego y motor de cuadernillo interactivo con cuadrícula escolar,
+ * doble trazo hueco idéntico al cuaderno físico escolar (Mayúscula y Minúscula),
+ * flechas numeradas, dibujo sorpresa para colorear, asistente ARABOT centrado,
+ * cero trazos duplicados o desfasados, y transición automática de niveles sin alertas.
  */
-const LETTER_LEVELS = [
-  'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
-  'K', 'L', 'M', 'N', 'Ñ', 'O', 'P', 'Q', 'R', 'S',
-  'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
-  // Retos 28 a 50 (Combinaciones y letras didácticas)
-  'A', 'E', 'I', 'O', 'U', 'M', 'P', 'S', 'L', 'T',
-  'D', 'N', 'C', 'R', 'B', 'V', 'G', 'F', 'J', 'Z',
-  'CH', 'LL', 'RR'
+// ============================================================================
+// CATÁLOGO DE LOS 10 JUEGOS EN CÍRCULOS DEL MÓDULO DE TRAZOS (50 NIVELES C/U)
+// ============================================================================
+const TRACING_SUBGAMES = [
+  {
+    id: 'vocales',
+    moduleKey: 'tracing_game_vocales',
+    title: 'LAS 5 VOCALES',
+    subtitle: 'A, E, I, O, U • Renglones del Cuadernillo',
+    icon: '🔤',
+    totalLevels: 50,
+    bubbleClass: 'subgame-bubble-vocales',
+    themeColor: '#e91e63',
+    description: 'Aprende a trazar A, E, I, O, U en mayúscula y minúscula con cuadrícula escolar.'
+  },
+  {
+    id: 'm',
+    moduleKey: 'tracing_game_m',
+    title: 'LETRA M',
+    subtitle: 'Mamá • Ma, Me, Mi, Mo, Mu',
+    icon: '🍎',
+    totalLevels: 50,
+    bubbleClass: 'subgame-bubble-m',
+    themeColor: '#e53935',
+    description: 'Trazos de la letra M y sus sílabas con la Manzana.'
+  },
+  {
+    id: 's',
+    moduleKey: 'tracing_game_s',
+    title: 'LETRA S',
+    subtitle: 'Sol, Sapo • Sa, Se, Si, So, Su',
+    icon: '☀️',
+    totalLevels: 50,
+    bubbleClass: 'subgame-bubble-s',
+    themeColor: '#ff9800',
+    description: 'Trazos ondulados y divertidos de la letra S con el Sol.'
+  },
+  {
+    id: 't',
+    moduleKey: 'tracing_game_t',
+    title: 'LETRA T',
+    subtitle: 'Tortuga • Ta, Te, Ti, To, Tu',
+    icon: '🐢',
+    totalLevels: 50,
+    bubbleClass: 'subgame-bubble-t',
+    themeColor: '#00bcd4',
+    description: 'Poste vertical y barra horizontal de la letra T.'
+  },
+  {
+    id: 'l',
+    moduleKey: 'tracing_game_l',
+    title: 'LETRA L',
+    subtitle: 'León, Luna • La, Le, Li, Lo, Lu',
+    icon: '🦁',
+    totalLevels: 50,
+    bubbleClass: 'subgame-bubble-l',
+    themeColor: '#9c27b0',
+    description: 'Trazo recto elegante de la letra L con el León.'
+  },
+  {
+    id: 'p',
+    moduleKey: 'tracing_game_p',
+    title: 'LETRA P',
+    subtitle: 'Papá, Pelota • Pa, Pe, Pi, Po, Pu',
+    icon: '⚽',
+    totalLevels: 50,
+    bubbleClass: 'subgame-bubble-p',
+    themeColor: '#1976d2',
+    description: 'Poste y pancita superior de la letra P con la Pelota.'
+  },
+  {
+    id: 'n',
+    moduleKey: 'tracing_game_n',
+    title: 'LETRA N',
+    subtitle: 'Nube, Nido • Na, Ne, Ni, No, Nu',
+    icon: '☁️',
+    totalLevels: 50,
+    bubbleClass: 'subgame-bubble-n',
+    themeColor: '#009688',
+    description: 'Arcos y líneas verticales de la letra N con la Nube.'
+  },
+  {
+    id: 'r',
+    moduleKey: 'tracing_game_r',
+    title: 'LETRA R',
+    subtitle: 'Ratón, Rana • Ra, Re, Ri, Ro, Ru',
+    icon: '🐭',
+    totalLevels: 50,
+    bubbleClass: 'subgame-bubble-r',
+    themeColor: '#d84315',
+    description: 'Línea recta, pancita y patita diagonal de la R.'
+  },
+  {
+    id: 'cd',
+    moduleKey: 'tracing_game_cd',
+    title: 'LETRAS C Y D',
+    subtitle: 'Casa y Dado • Caligrafía Curva',
+    icon: '🏠',
+    totalLevels: 50,
+    bubbleClass: 'subgame-bubble-cd',
+    themeColor: '#5e35b1',
+    description: 'Curvas circulares de la C y panza grande de la D.'
+  },
+  {
+    id: 'reto',
+    moduleKey: 'tracing_game_reto',
+    title: 'GRAN RETO A-Z',
+    subtitle: 'Palabras y Enunciados del Abecedario',
+    icon: '🏆',
+    totalLevels: 50,
+    bubbleClass: 'subgame-bubble-reto',
+    themeColor: '#fbc02d',
+    description: 'Retos completos de caligrafía sobre cuadrícula.'
+  }
 ];
 class LetterTracingScreen {
   constructor(appNavigator) {
     this.navigator = appNavigator;
     this.student = StorageManager.getActiveStudent();
-    this.currentLevel = null; // null = mapa de 50 circulitos, número = nivel activo
+
+    // Estado de navegación
+    this.activeSubgame = null; // null = menú de los 10 juegos en círculos
+    this.currentLevel = null;  // null = selector de 50 niveles del juego activo
+
+    // Estado del juego activo
     this.currentLetter = 'A';
-    this.canvas = null;
-    this.ctx = null;
-    this.wpCanvas = null;
-    this.wpCtx = null;
+    this.letterData = null;
+
+    // Asistente ARABOT
+    this.arabot = null;
+
+    // Canvases y contextos
+    this.bgCanvas = null;
+    this.bgCtx = null;
+    this.colorCanvas = null;
+    this.colorCtx = null;
+    this.guideCanvas = null;
+    this.guideCtx = null;
+
+    // Estado del trazo interactivo (Cero duplicados)
     this.isDrawing = false;
-    this.waypoints = [];
+    this.allStrokes = [];
+    this.currentStrokeIndex = 0;
     this.currentWaypointIndex = 0;
+    this.completedStrokeIds = new Set();
+    this.completedStrokes = [];
+    this.currentProgressPoints = [];
     this.isLetterCompleted = false;
+
+    // Animación de destello / luz viajera
+    this.animFrameId = null;
+    this.sparkleParticles = [];
+
+    // Limpieza de eventos
+    this.activePointerId = null;
+    this.boundPointerUp = null;
   }
 
+  // ==========================================================================
+  // ORQUESTADOR PRINCIPAL DE RENDERIZADO
+  // ==========================================================================
   render(container) {
     this.student = StorageManager.getActiveStudent();
+    this.cleanup();
 
-    // Si no hay nivel seleccionado, mostrar el selector de 50 circulitos
-    if (this.currentLevel === null) {
-      LevelSelector.render({
-        container,
-        moduleKey: 'letter-tracing',
-        moduleTitle: 'Trazando Letras',
-        moduleIcon: '✏️',
-        bgClass: 'letter-bg',
-        totalLevels: 50,
-        onSelectLevel: (lvl) => {
-          this.currentLevel = lvl;
-          this.renderGame(container);
-        },
-        onBackHome: () => {
-          this.navigator.navigate('home');
-        }
-      });
+    // 1. VISTA 1: Si no se ha elegido juego, mostrar los 10 Círculos de Juegos
+    if (this.activeSubgame === null) {
+      this.renderSubgamesMenu(container);
       return;
     }
 
+    // 2. VISTA 2: Si se eligió juego pero no nivel, mostrar el selector de 50 circulitos
+    if (this.currentLevel === null) {
+      this.renderLevelSelector(container);
+      return;
+    }
+
+    // 3. VISTA 3: Nivel activo del juego seleccionado
     this.renderGame(container);
   }
 
-  renderGame(container) {
-    const idx = (this.currentLevel - 1) % LETTER_LEVELS.length;
-    this.currentLetter = LETTER_LEVELS[idx];
-    this.waypoints = getWaypointsForLetter(this.currentLetter);
-    this.currentWaypointIndex = 0;
-    this.isLetterCompleted = false;
+  // ==========================================================================
+  // VISTA 1: MENÚ DE 10 JUEGOS EN CÍRCULOS (COMO EN SÍLABAS)
+  // ==========================================================================
+  renderSubgamesMenu(container) {
+    const student = StorageManager.getActiveStudent();
 
     container.innerHTML = `
-      <div class="tracing-module letter-bg fade-in">
-        <!-- Encabezado del Módulo -->
-        <header class="tracing-header">
-          <button class="back-btn" id="btnBackToLevels">⬅️ Niveles</button>
+      <div class="module-container notebook-grid-bg fade-in" id="tracingSubgamesMenu">
+        <!-- Encabezado del Menú -->
+        <header class="module-header">
+          <button class="back-btn" id="btnBackToHome">⬅️ Menú Principal</button>
+          
           <div style="text-align:center;">
-            <h2 class="module-title">TRAZANDO: <span id="currentLetterDisplay" class="letter-highlight">${this.currentLetter}</span></h2>
-            <div style="font-size:0.8rem; font-weight:bold; color:#e65100;">
-              Juego ${this.currentLevel} de 50
+            <h2 style="color:#0d47a1; margin:0;">MÓDULO DE TRAZOS Y CALIGRAFÍA</h2>
+            <div style="font-size:0.85rem; font-weight:bold; color:#e65100;">
+              10 Juegos Didácticos en Círculos • Elige tu favorito
             </div>
           </div>
-          <button class="clear-btn" id="btnClearCanvas">🧹 Limpiar</button>
+
+          <div class="score-box">⭐ ${student.stars || 0}</div>
         </header>
 
-        <!-- Contenedor Principal del Lienzo con Doble Capa -->
-        <main class="canvas-container">
-          <div class="canvas-wrapper">
-            <!-- Guía de Fondo (Letra punteada grande) -->
-            <div class="letter-guide-bg" id="letterGuideText">${this.currentLetter}</div>
-
-            <!-- Capa de Waypoints (checkpoints pedagógicos) -->
-            <canvas id="waypointsCanvas" width="600" height="380"></canvas>
-
-            <!-- Capa interactiva de trazo del niño -->
-            <canvas id="letterCanvas" width="600" height="380"></canvas>
+        <!-- Cuadrícula con los 10 Juegos en Círculos -->
+        <main class="subgames-menu-container">
+          <div class="subgames-grid-10" id="subgamesGrid10">
+            ${TRACING_SUBGAMES.map(game => {
+              const prog = StorageManager.getModuleLevels(game.moduleKey);
+              const completedCount = Object.keys(prog.completed || {}).length;
+              return `
+                <button class="subgame-circle-card" data-game="${game.id}">
+                  <div class="subgame-bubble ${game.bubbleClass} pulse-glow">
+                    <span class="subgame-bubble-icon">${game.icon}</span>
+                    <span class="subgame-levels-badge">${game.totalLevels} Niveles</span>
+                  </div>
+                  <span class="subgame-title-label" style="color:${game.themeColor};">${game.title}</span>
+                  <span style="font-size:0.75rem; color:#455a64; font-weight:bold; margin-top:2px;">
+                    ⭐ ${completedCount}/50 completados
+                  </span>
+                </button>
+              `;
+            }).join('')}
           </div>
         </main>
 
-        <!-- Barra Inferior de Audio y Validar -->
-        <footer class="tracing-footer">
-          <button class="sound-btn" id="btnPlayLetterAudio">🔊 Sonido de la ${this.currentLetter}</button>
-          <div class="waypoint-status-pill" id="waypointStatus">
-            Paso <strong id="currentStepNum">1</strong> de <span id="totalStepsNum">${this.waypoints.length}</span>
-          </div>
-          <button class="check-btn" id="btnCheckLetter">⭐ ¡Siguiente!</button>
+        <!-- Pie Informativo -->
+        <footer class="module-footer">
+          <span class="tip-text">💡 Toca cualquiera de los <strong>10 círculos</strong> para jugar sus 50 niveles caligráficos.</span>
         </footer>
       </div>
     `;
 
-    this.setupCanvases(container);
-    this.bindEvents(container);
-    this.clearForeground();
-    this.drawWaypointsOverlay();
-    audio.speak(`Traza la letra ${this.currentLetter}`);
-  }
+    // Botón volver al Home
+    container.querySelector('#btnBackToHome')?.addEventListener('click', () => {
+      audio.playClick();
+      this.cleanup();
+      this.navigator.navigate('home');
+    });
 
-  setupCanvases(container) {
-    this.canvas = container.querySelector('#letterCanvas');
-    this.wpCanvas = container.querySelector('#waypointsCanvas');
-    if (!this.canvas || !this.wpCanvas) return;
-
-    this.ctx = this.canvas.getContext('2d');
-    this.wpCtx = this.wpCanvas.getContext('2d');
-
-    // Configuración del pincel mágico
-    this.ctx.lineWidth = 26;
-    this.ctx.lineCap = 'round';
-    this.ctx.lineJoin = 'round';
-    this.ctx.strokeStyle = '#ff9800'; // Naranja vibrante
-  }
-
-  clearForeground() {
-    if (!this.canvas || !this.ctx) return;
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-  }
-
-  drawWaypointsOverlay() {
-    if (!this.wpCtx || !this.wpCanvas) return;
-    const W = this.wpCanvas.width;
-    const H = this.wpCanvas.height;
-
-    this.wpCtx.clearRect(0, 0, W, H);
-
-    // 1. Línea guía punteada
-    if (this.waypoints.length > 1) {
-      this.wpCtx.save();
-      this.wpCtx.beginPath();
-      this.wpCtx.strokeStyle = 'rgba(255, 152, 0, 0.35)';
-      this.wpCtx.lineWidth = 4;
-      this.wpCtx.setLineDash([8, 8]);
-      this.waypoints.forEach((wp, i) => {
-        const x = wp.x * W;
-        const y = wp.y * H;
-        if (i === 0) this.wpCtx.moveTo(x, y);
-        else this.wpCtx.lineTo(x, y);
+    // Clic en cualquiera de los 10 círculos
+    container.querySelectorAll('.subgame-circle-card').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        audio.playClick();
+        const gameId = e.currentTarget.dataset.game;
+        this.activeSubgame = gameId;
+        this.currentLevel = null;
+        this.render(container);
       });
-      this.wpCtx.stroke();
-      this.wpCtx.restore();
-    }
+    });
 
-    // 2. Waypoints circulares
-    this.waypoints.forEach((wp, idx) => {
-      const cx = wp.x * W;
-      const cy = wp.y * H;
+    audio.speak('Elige un juego de trazos en círculos');
+  }
 
-      this.wpCtx.save();
-      if (idx < this.currentWaypointIndex) {
-        // Superado: verde con palomita
-        this.wpCtx.fillStyle = '#4caf50';
-        this.wpCtx.beginPath();
-        this.wpCtx.arc(cx, cy, 15, 0, Math.PI * 2);
-        this.wpCtx.fill();
-        this.wpCtx.strokeStyle = '#ffffff';
-        this.wpCtx.lineWidth = 2.5;
-        this.wpCtx.stroke();
+  // ==========================================================================
+  // VISTA 2: SELECTOR DE 50 NIVELES EN CÍRCULOS PARA EL JUEGO SELECCIONADO
+  // ==========================================================================
+  renderLevelSelector(container) {
+    const game = TRACING_SUBGAMES.find(g => g.id === this.activeSubgame) || TRACING_SUBGAMES[0];
 
-        this.wpCtx.fillStyle = '#ffffff';
-        this.wpCtx.font = 'bold 15px sans-serif';
-        this.wpCtx.textAlign = 'center';
-        this.wpCtx.textBaseline = 'middle';
-        this.wpCtx.fillText('✓', cx, cy);
-      } else if (idx === this.currentWaypointIndex) {
-        // Activo: círculo brillante pulsante
-        this.wpCtx.fillStyle = 'rgba(255, 152, 0, 0.35)';
-        this.wpCtx.beginPath();
-        this.wpCtx.arc(cx, cy, 26, 0, Math.PI * 2);
-        this.wpCtx.fill();
-
-        this.wpCtx.fillStyle = '#ff9800';
-        this.wpCtx.beginPath();
-        this.wpCtx.arc(cx, cy, 17, 0, Math.PI * 2);
-        this.wpCtx.fill();
-        this.wpCtx.strokeStyle = '#ffffff';
-        this.wpCtx.lineWidth = 3;
-        this.wpCtx.stroke();
-
-        this.wpCtx.fillStyle = '#ffffff';
-        this.wpCtx.font = 'bold 15px sans-serif';
-        this.wpCtx.textAlign = 'center';
-        this.wpCtx.textBaseline = 'middle';
-        this.wpCtx.fillText(wp.label || (idx + 1).toString(), cx, cy);
-      } else {
-        // Futuro: guía translúcida suave
-        this.wpCtx.fillStyle = 'rgba(0, 188, 212, 0.4)';
-        this.wpCtx.beginPath();
-        this.wpCtx.arc(cx, cy, 12, 0, Math.PI * 2);
-        this.wpCtx.fill();
-        this.wpCtx.strokeStyle = '#ffffff';
-        this.wpCtx.lineWidth = 2;
-        this.wpCtx.stroke();
-
-        this.wpCtx.fillStyle = '#ffffff';
-        this.wpCtx.font = 'bold 11px sans-serif';
-        this.wpCtx.textAlign = 'center';
-        this.wpCtx.textBaseline = 'middle';
-        this.wpCtx.fillText((idx + 1).toString(), cx, cy);
+    LevelSelector.render({
+      container,
+      moduleKey: game.moduleKey,
+      moduleTitle: game.title,
+      moduleIcon: game.icon,
+      bgClass: 'notebook-grid-bg',
+      totalLevels: game.totalLevels,
+      onSelectLevel: (lvl) => {
+        this.currentLevel = lvl;
+        this.render(container);
+      },
+      onBackHome: () => {
+        // Regresa al menú de los 10 círculos
+        this.activeSubgame = null;
+        this.currentLevel = null;
+        this.render(container);
       }
-      this.wpCtx.restore();
     });
   }
 
-  checkWaypointHit(x, y, container) {
-    if (this.isLetterCompleted) return;
-    if (this.currentWaypointIndex >= this.waypoints.length) return;
+  // ==========================================================================
+  // VISTA 3: JUEGO ACTIVO CON CUADERNILLO, CUADRÍCULA ESCOLAR, ARABOT Y DIBUJO
+  // ==========================================================================
+  renderGame(container) {
+    this.cleanup();
 
-    const targetWp = this.waypoints[this.currentWaypointIndex];
-    const targetX = targetWp.x * this.canvas.width;
-    const targetY = targetWp.y * this.canvas.height;
+    const game = TRACING_SUBGAMES.find(g => g.id === this.activeSubgame) || TRACING_SUBGAMES[0];
 
-    const distance = Math.hypot(x - targetX, y - targetY);
-
-    if (distance <= 46) {
-      this.currentWaypointIndex++;
-      audio.playPop();
-
-      const curElem = container.querySelector('#currentStepNum');
-      if (curElem) curElem.innerText = Math.min(this.currentWaypointIndex + 1, this.waypoints.length);
-
-      this.drawWaypointsOverlay();
-
-      // Validación completa del trazo
-      if (this.currentWaypointIndex >= this.waypoints.length) {
-        this.isLetterCompleted = true;
-        this.stopDrawing();
-        audio.playSuccess();
-        Confetti.shoot(1800);
-        setTimeout(() => {
-          this.onLetterCompleted(container);
-        }, 550);
-      }
+    // Obtener la letra según el juego y el nivel:
+    // En Juego 1 (Las 5 Vocales):
+    // Niveles 1-10: A (Árbol)
+    // Niveles 11-20: E (Elefante)
+    // Niveles 21-30: I (Isla)
+    // Niveles 31-40: O (Oso)
+    // Niveles 41-50: U (Uva)
+    if (game.id === 'vocales') {
+      const vowelList = ['A', 'E', 'I', 'O', 'U'];
+      const vIndex = Math.min(Math.floor((this.currentLevel - 1) / 10), 4);
+      this.currentLetter = vowelList[vIndex];
+    } else if (game.id === 'm') {
+      this.currentLetter = 'M';
+    } else if (game.id === 's') {
+      this.currentLetter = 'S';
+    } else if (game.id === 't') {
+      this.currentLetter = 'T';
+    } else if (game.id === 'l') {
+      this.currentLetter = 'L';
+    } else if (game.id === 'p') {
+      this.currentLetter = 'P';
+    } else if (game.id === 'n') {
+      this.currentLetter = 'N';
+    } else if (game.id === 'r') {
+      this.currentLetter = 'R';
+    } else if (game.id === 'cd') {
+      this.currentLetter = (this.currentLevel % 2 === 1) ? 'C' : 'D';
+    } else {
+      const alpha = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','Ñ','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
+      this.currentLetter = alpha[(this.currentLevel - 1) % alpha.length];
     }
+
+    this.letterData = getPedagogicalLetter(this.currentLetter);
+
+    // Preparar lista secuencial de trazos (Mayúscula primero, luego Minúscula)
+    const upperStrokes = (this.letterData.uppercaseStrokes || []).map(s => ({ ...s, isUpper: true }));
+    const lowerStrokes = (this.letterData.lowercaseStrokes || []).map(s => ({ ...s, isUpper: false }));
+    this.allStrokes = [...upperStrokes, ...lowerStrokes];
+
+    this.currentStrokeIndex = 0;
+    this.currentWaypointIndex = 0;
+    this.completedStrokeIds.clear();
+    this.completedStrokes = [];
+    this.currentProgressPoints = [];
+    this.isLetterCompleted = false;
+
+    container.innerHTML = `
+      <div class="tracing-module notebook-grid-bg fade-in" id="tracingModule">
+        <!-- Encabezado con ARABOT centrado para no estorbar ningún botón -->
+        <header class="tracing-header">
+          <button class="back-btn" id="btnBackToLevels">⬅️ Niveles</button>
+          
+          <div class="arabot-top-anchor" id="arabotAnchor">
+            <!-- ARABOT se monta aquí limpiamente -->
+          </div>
+
+          <div class="header-actions">
+            <button class="sound-btn" id="btnPlayLetterAudio">🔊 Escuchar</button>
+            <button class="clear-btn" id="btnClearCanvas">🧹 Borrar</button>
+          </div>
+        </header>
+
+        <!-- Cuadernillo Caligráfico interactivo estilo renglones del libro -->
+        <main class="notebook-workspace">
+          <div class="notebook-page-header">
+            <h2>RENGLÓN DE TRAZO: <span class="letter-highlight">${this.letterData.letter} - ${this.letterData.lowercase}</span></h2>
+            <p class="notebook-instruction">✏️ Sigue la dirección de las flechas y realiza los trazos.</p>
+          </div>
+
+          <div class="notebook-grid-container" id="notebookGridContainer">
+            <!-- Lienzos superpuestos alineados con resolución fija 760x420 -->
+            <canvas id="bgCanvas" width="760" height="420"></canvas>
+            <canvas id="colorCanvas" width="760" height="420"></canvas>
+            <canvas id="guideCanvas" width="760" height="420"></canvas>
+
+            <!-- Zona de la Sorpresa ilustrada (Árbol, Elefante, Isla, Oso, Uva) -->
+            <div class="notebook-tree-zone" id="notebookTreeZone">
+              ${this.letterData.getSurpriseSvg()}
+              <div class="tree-caption" id="treeCaption">${this.letterData.phonetic} ${this.letterData.icon}</div>
+            </div>
+          </div>
+        </main>
+
+        <!-- Banner de transición automática de nivel (cero alertas) -->
+        <div class="auto-transition-banner" id="autoTransitionBanner" style="display:none;">
+          <div class="transition-card bounce-in">
+            <div class="transition-stars">⭐⭐⭐</div>
+            <div class="transition-title">¡EXCELENTE!</div>
+            <div class="transition-msg" id="transitionMsg">¡${this.letterData.phonetic} completado! Pasando al siguiente renglón...</div>
+            <div class="transition-progress-bar">
+              <div class="progress-fill" id="transitionProgressFill"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    this.setupArabot(container);
+    this.setupCanvases(container);
+    this.drawNotebookGridGuides();
+    this.startShimmerAnimationLoop();
+    this.bindEvents(container);
+
+    // Demostración didáctica de Arabot al iniciar
+    setTimeout(() => {
+      this.playArabotTutorial();
+    }, 450);
+  }
+
+  setupArabot(container) {
+    const anchor = container.querySelector('#arabotAnchor');
+    if (!anchor) return;
+
+    this.arabot = new ArabotAssistant({
+      onHelpClick: () => {
+        this.playArabotTutorial();
+      }
+    });
+
+    this.arabot.mount(anchor);
+  }
+
+  playArabotTutorial() {
+    if (!this.arabot || !this.guideCanvas) return;
+
+    const strokes = this.letterData.tutorialStrokes || [
+      { name: 'Paso 1', from: { x: 0.1974, y: 0.1786 }, to: { x: 0.1026, y: 0.7738 } }
+    ];
+
+    this.arabot.playTutorial(this.guideCanvas, strokes);
+  }
+
+  setupCanvases(container) {
+    this.bgCanvas = container.querySelector('#bgCanvas');
+    this.colorCanvas = container.querySelector('#colorCanvas');
+    this.guideCanvas = container.querySelector('#guideCanvas');
+
+    if (!this.bgCanvas || !this.colorCanvas || !this.guideCanvas) return;
+
+    this.bgCtx = this.bgCanvas.getContext('2d');
+    this.colorCtx = this.colorCanvas.getContext('2d');
+    this.guideCtx = this.guideCanvas.getContext('2d');
+  }
+
+  /**
+   * Dibuja la cuadrícula escolar auténtica (Image 2), las letras huecas
+   * con flechas numeradas idénticas a Aa (Image 1) y el renglón caligráfico.
+   */
+  drawNotebookGridGuides() {
+    if (!this.bgCtx || !this.bgCanvas) return;
+    const ctx = this.bgCtx;
+    const W = this.bgCanvas.width;
+    const H = this.bgCanvas.height;
+
+    ctx.clearRect(0, 0, W, H);
+
+    // 1. Cuadrícula escolar con líneas azules suaves (38px x 38px)
+    const gridSize = 38;
+    ctx.save();
+    ctx.strokeStyle = 'rgba(33, 150, 243, 0.22)';
+    ctx.lineWidth = 1;
+
+    for (let x = 0; x <= W; x += gridSize) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, H);
+      ctx.stroke();
+    }
+    for (let y = 0; y <= H; y += gridSize) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(W, y);
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    // 2. Letras huecas estilo libro de texto con flechas numeradas
+    this.drawHollowLetters(ctx, W, H);
+
+    // 3. Renglón caligráfico escolar en la parte inferior
+    this.drawPracticeRenglon(ctx, W, H);
+  }
+
+  /**
+   * Renderiza el doble contorno hueco unificado (como en la Aa del cuadernillo)
+   * exactamente sobre las mismas coordenadas que los waypoints para evitar desfases.
+   */
+  drawHollowLetters(ctx, W, H) {
+    // Paso A: Contorno exterior negro (46px grosor, extremos y uniones redondeadas)
+    ctx.save();
+    ctx.strokeStyle = '#212121';
+    ctx.lineWidth = 46;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    this.renderStrokesPath(ctx, this.allStrokes, W, H);
+    ctx.restore();
+
+    // Paso B: Canal interior blanco hueco (38px grosor, centrado con 4px de borde)
+    ctx.save();
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 38;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    this.renderStrokesPath(ctx, this.allStrokes, W, H);
+    ctx.restore();
+
+    // Dibujo del punto especial si la letra lo tiene (ej. minúscula 'i')
+    this.allStrokes.forEach(stroke => {
+      if (stroke.isDot) {
+        const p = stroke.points[0];
+        const cx = p.x * W;
+        const cy = p.y * H;
+        ctx.save();
+        ctx.fillStyle = '#212121';
+        ctx.beginPath();
+        ctx.arc(cx, cy, 21, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(cx, cy, 17, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    });
+
+    // Paso C: Líneas punteadas pedagógicas a lo largo del centro del canal
+    this.allStrokes.forEach((stroke) => {
+      if (stroke.isDot) return;
+      const points = stroke.points;
+      if (!points || points.length < 2) return;
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.strokeStyle = '#546e7a';
+      ctx.lineWidth = 3.5;
+      ctx.setLineDash([7, 6]);
+      points.forEach((p, i) => {
+        const x = p.x * W;
+        const y = p.y * H;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+      ctx.restore();
+    });
+
+    // Paso D: Insignias circulares numeradas (1, 2, 3...) y flechas direccionales
+    this.allStrokes.forEach((stroke) => {
+      const points = stroke.points;
+      if (!points || points.length === 0) return;
+
+      const startP = points[0];
+      const sx = startP.x * W;
+      const sy = startP.y * H;
+
+      // Círculo blanco con borde oscuro
+      ctx.save();
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(sx, sy, 14, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#212121';
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+
+      // Número de orden
+      ctx.fillStyle = '#111111';
+      ctx.font = '900 13px "Comic Sans MS", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(`${stroke.label}`, sx, sy);
+
+      // Flecha de dirección a lo largo del trazo
+      if (!stroke.isDot && points.length >= 2) {
+        const nextP = points[1];
+        const nx = nextP.x * W;
+        const ny = nextP.y * H;
+        const midX = sx + (nx - sx) * 0.42;
+        const midY = sy + (ny - sy) * 0.42;
+        this.drawArrowHead(ctx, sx, sy, midX, midY);
+      }
+      ctx.restore();
+    });
+  }
+
+  renderStrokesPath(ctx, strokes, W, H) {
+    strokes.forEach(stroke => {
+      if (stroke.isDot) return;
+      const pts = stroke.points;
+      if (!pts || pts.length < 2) return;
+
+      ctx.beginPath();
+      pts.forEach((p, idx) => {
+        const x = p.x * W;
+        const y = p.y * H;
+        if (idx === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+    });
+  }
+
+  drawArrowHead(ctx, fromX, fromY, toX, toY) {
+    const angle = Math.atan2(toY - fromY, toX - fromX);
+    ctx.save();
+    ctx.fillStyle = '#212121';
+    ctx.translate(toX, toY);
+    ctx.rotate(angle);
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(-11, -6);
+    ctx.lineTo(-11, 6);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  }
+
+  drawPracticeRenglon(ctx, W, H) {
+    const topY = 352;
+    const bottomY = 412;
+
+    ctx.save();
+    ctx.strokeStyle = '#212121';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(0, topY);
+    ctx.lineTo(W, topY);
+    ctx.moveTo(0, bottomY);
+    ctx.lineTo(W, bottomY);
+    ctx.stroke();
+
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+    ctx.fillRect(0, topY, W, bottomY - topY);
+
+    const char = this.letterData.letter;
+    const lower = this.letterData.lowercase;
+    const lettersPattern = [char, lower, char, lower, char, lower, char, lower, char, lower, char, lower];
+    const stepX = W / lettersPattern.length;
+
+    ctx.fillStyle = '#78909c';
+    ctx.font = 'bold 28px "Comic Sans MS", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    lettersPattern.forEach((c, i) => {
+      const cx = stepX * (i + 0.5);
+      const cy = (topY + bottomY) / 2;
+      ctx.fillText(c, cx, cy);
+    });
+
+    ctx.restore();
+  }
+
+  // ==========================================================================
+  // ANIMACIÓN DE LUZ GUÍA VIAJERA (SHIMMER)
+  // ==========================================================================
+  startShimmerAnimationLoop() {
+    const loop = (timestamp) => {
+      this.drawShimmerFrame(timestamp);
+      this.animFrameId = requestAnimationFrame(loop);
+    };
+    this.animFrameId = requestAnimationFrame(loop);
+  }
+
+  drawShimmerFrame(timestamp) {
+    if (!this.guideCtx || !this.guideCanvas) return;
+    const ctx = this.guideCtx;
+    const W = this.guideCanvas.width;
+    const H = this.guideCanvas.height;
+
+    ctx.clearRect(0, 0, W, H);
+
+    if (this.isLetterCompleted) return;
+    if (this.currentStrokeIndex >= this.allStrokes.length) return;
+
+    const currentStroke = this.allStrokes[this.currentStrokeIndex];
+    const points = currentStroke.points;
+    if (!points || points.length < 2) return;
+
+    const cycleDuration = 1400;
+    const t = ((timestamp || performance.now()) % cycleDuration) / cycleDuration;
+
+    const totalSegments = points.length - 1;
+    const segmentIndex = Math.min(Math.floor(t * totalSegments), totalSegments - 1);
+    const segmentT = (t * totalSegments) - segmentIndex;
+
+    const pA = points[segmentIndex];
+    const pB = points[segmentIndex + 1];
+
+    const curX = (pA.x + (pB.x - pA.x) * segmentT) * W;
+    const curY = (pA.y + (pB.y - pA.y) * segmentT) * H;
+
+    ctx.save();
+    const grad = ctx.createRadialGradient(curX, curY, 0, curX, curY, 30);
+    grad.addColorStop(0, 'rgba(255, 255, 255, 0.95)');
+    grad.addColorStop(0.25, 'rgba(255, 235, 59, 0.85)');
+    grad.addColorStop(0.6, 'rgba(255, 152, 0, 0.45)');
+    grad.addColorStop(1, 'rgba(255, 152, 0, 0)');
+
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(curX, curY, 30, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.arc(curX, curY, 6, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+
+    this.renderSparkleParticles(ctx);
+  }
+
+  addSparkle(x, y) {
+    for (let i = 0; i < 3; i++) {
+      this.sparkleParticles.push({
+        x: x + (Math.random() - 0.5) * 16,
+        y: y + (Math.random() - 0.5) * 16,
+        vx: (Math.random() - 0.5) * 3,
+        vy: (Math.random() - 0.5) * 3,
+        life: 1.0,
+        color: ['#ffeb3b', '#ff9800', '#00e5ff', '#4caf50'][Math.floor(Math.random() * 4)]
+      });
+    }
+  }
+
+  renderSparkleParticles(ctx) {
+    for (let i = this.sparkleParticles.length - 1; i >= 0; i--) {
+      const p = this.sparkleParticles[i];
+      p.x += p.vx;
+      p.y += p.vy;
+      p.life -= 0.04;
+
+      if (p.life <= 0) {
+        this.sparkleParticles.splice(i, 1);
+        continue;
+      }
+
+      ctx.save();
+      ctx.globalAlpha = p.life;
+      ctx.fillStyle = p.color;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 4 * p.life, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+  }
+
+  // ==========================================================================
+  // MANEJO DE EVENTOS TÁCTILES Y DE RATÓN UNIFICADOS (CERO DESFASES)
+  // ==========================================================================
+  getCanvasPoint(e) {
+    const canvas = this.guideCanvas;
+    if (!canvas) return { x: 0, y: 0 };
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    return {
+      x: (e.clientX - rect.left) * scaleX,
+      y: (e.clientY - rect.top) * scaleY
+    };
   }
 
   bindEvents(container) {
@@ -2082,94 +3426,308 @@ class LetterTracingScreen {
 
     container.querySelector('#btnClearCanvas')?.addEventListener('click', () => {
       audio.playClick();
-      this.clearForeground();
-      this.currentWaypointIndex = 0;
-      this.isLetterCompleted = false;
-      const curElem = container.querySelector('#currentStepNum');
-      if (curElem) curElem.innerText = '1';
-      this.drawWaypointsOverlay();
+      this.resetCanvas();
     });
 
     container.querySelector('#btnPlayLetterAudio')?.addEventListener('click', () => {
-      audio.speak(`Esta es la letra ${this.currentLetter}`);
+      audio.speak(`Esta es la letra ${this.letterData.letter}, ${this.letterData.phonetic}`);
+      if (this.arabot) {
+        this.arabot.speak(`¡La ${this.letterData.letter} de ${this.letterData.word}! ${this.letterData.icon}`);
+      }
     });
 
-    container.querySelector('#btnCheckLetter')?.addEventListener('click', () => {
-      this.onLetterCompleted(container);
-    });
+    const canvas = this.guideCanvas;
+    if (!canvas) return;
 
-    // Ratón
-    this.canvas.addEventListener('mousedown', (e) => this.startDrawing(e.offsetX, e.offsetY, container));
-    this.canvas.addEventListener('mousemove', (e) => this.draw(e.offsetX, e.offsetY, container));
-    this.canvas.addEventListener('mouseup', () => this.stopDrawing());
-    this.canvas.addEventListener('mouseleave', () => this.stopDrawing());
-
-    // Táctil
-    this.canvas.addEventListener('touchstart', (e) => {
+    // Manejo unificado Pointer Events (Soporta ratón, dedos táctiles y lápiz)
+    canvas.addEventListener('pointerdown', (e) => {
       e.preventDefault();
-      const rect = this.canvas.getBoundingClientRect();
-      const touch = e.touches[0];
-      const scaleX = this.canvas.width / rect.width;
-      const scaleY = this.canvas.height / rect.height;
-      this.startDrawing((touch.clientX - rect.left) * scaleX, (touch.clientY - rect.top) * scaleY, container);
+      try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
+      this.activePointerId = e.pointerId;
+      const pt = this.getCanvasPoint(e);
+      this.handlePointerDown(pt.x, pt.y);
     }, { passive: false });
 
-    this.canvas.addEventListener('touchmove', (e) => {
+    canvas.addEventListener('pointermove', (e) => {
       e.preventDefault();
-      const rect = this.canvas.getBoundingClientRect();
-      const touch = e.touches[0];
-      const scaleX = this.canvas.width / rect.width;
-      const scaleY = this.canvas.height / rect.height;
-      this.draw((touch.clientX - rect.left) * scaleX, (touch.clientY - rect.top) * scaleY, container);
+      if (!this.isDrawing || (this.activePointerId !== null && e.pointerId !== this.activePointerId)) return;
+      const pt = this.getCanvasPoint(e);
+      this.handlePointerMove(pt.x, pt.y);
     }, { passive: false });
 
-    this.canvas.addEventListener('touchend', (e) => {
-      e.preventDefault();
-      this.stopDrawing();
-    }, { passive: false });
+    this.boundPointerUp = (e) => {
+      if (this.activePointerId !== null && e.pointerId !== undefined && e.pointerId !== this.activePointerId) return;
+      this.activePointerId = null;
+      this.handlePointerUp();
+    };
+
+    canvas.addEventListener('pointerup', this.boundPointerUp, { passive: false });
+    canvas.addEventListener('pointercancel', this.boundPointerUp, { passive: false });
   }
 
-  startDrawing(x, y, container) {
+  handlePointerDown(x, y) {
     if (this.isLetterCompleted) return;
     this.isDrawing = true;
-    this.ctx.beginPath();
-    this.ctx.moveTo(x, y);
+    this.currentProgressPoints = [{ x, y }];
+
+    this.checkWaypointHit(x, y);
+    this.addSparkle(x, y);
     audio.playBrush();
-    this.checkWaypointHit(x, y, container);
   }
 
-  draw(x, y, container) {
+  handlePointerMove(x, y) {
     if (!this.isDrawing || this.isLetterCompleted) return;
-    this.ctx.lineTo(x, y);
-    this.ctx.stroke();
-    this.checkWaypointHit(x, y, container);
+
+    this.currentProgressPoints.push({ x, y });
+    this.checkWaypointHit(x, y);
+    this.addSparkle(x, y);
+    this.redrawColorCanvas();
   }
 
-  stopDrawing() {
+  handlePointerUp() {
     if (!this.isDrawing) return;
     this.isDrawing = false;
-    this.ctx.closePath();
+    this.currentProgressPoints = [];
+    this.redrawColorCanvas();
   }
 
-  onLetterCompleted(container) {
-    audio.playFanfare();
-    Confetti.shoot(2500);
+  checkWaypointHit(x, y) {
+    if (this.isLetterCompleted) return;
+    if (this.currentStrokeIndex >= this.allStrokes.length) return;
 
-    // Guardar progreso del nivel
-    StorageManager.completeModuleLevel('letter-tracing', this.currentLevel, 3);
+    const currentStroke = this.allStrokes[this.currentStrokeIndex];
+    const points = currentStroke.points;
+    if (!points || this.currentWaypointIndex >= points.length) return;
+
+    const targetWp = points[this.currentWaypointIndex];
+    const targetX = targetWp.x * this.guideCanvas.width;
+    const targetY = targetWp.y * this.guideCanvas.height;
+
+    const distance = Math.hypot(x - targetX, y - targetY);
+
+    if (distance <= 54) {
+      this.currentWaypointIndex++;
+      audio.playPop();
+
+      if (this.currentWaypointIndex >= points.length) {
+        this.onStrokeCompleted(currentStroke);
+      }
+    }
+  }
+
+  onStrokeCompleted(stroke) {
+    this.completedStrokeIds.add(stroke.id);
+    this.completedStrokes.push(stroke);
+    this.currentProgressPoints = [];
+
+    this.currentStrokeIndex++;
+    this.currentWaypointIndex = 0;
+    audio.playStar();
+
+    // Redibujar inmediatamente el lienzo de color con el trazo perfecto consolidado
+    this.redrawColorCanvas();
+
+    const upperStrokes = this.allStrokes.filter(s => s.isUpper);
+    const upperCompleted = upperStrokes.every(s => this.completedStrokeIds.has(s.id));
+
+    if (upperCompleted && stroke.isUpper && this.currentStrokeIndex === upperStrokes.length) {
+      if (this.arabot) {
+        this.arabot.speak(`¡Genial! Ahora traza la pequeña <strong>${this.letterData.lowercase}</strong> ⭐`);
+      }
+    }
+
+    if (this.currentStrokeIndex >= this.allStrokes.length) {
+      this.onAllStrokesCompleted();
+    }
+  }
+
+  /**
+   * Redibuja la capa de color:
+   * Solo dibuja los trazos consolidados perfectamente alineados
+   * y el trazo activo actual, eliminando por completo cualquier trazo duplicado o desfasado.
+   */
+  redrawColorCanvas() {
+    if (!this.colorCtx || !this.colorCanvas) return;
+    const ctx = this.colorCtx;
+    const W = this.colorCanvas.width;
+    const H = this.colorCanvas.height;
+
+    ctx.clearRect(0, 0, W, H);
+
+    // 1. Dibujar trazos consolidados (completados con éxito)
+    this.completedStrokes.forEach(stroke => {
+      ctx.save();
+      ctx.lineWidth = 30;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+
+      if (stroke.isUpper) {
+        ctx.strokeStyle = '#ff9800';
+        ctx.shadowColor = 'rgba(255, 152, 0, 0.6)';
+      } else {
+        ctx.strokeStyle = '#00bcd4';
+        ctx.shadowColor = 'rgba(0, 188, 212, 0.6)';
+      }
+      ctx.shadowBlur = 10;
+
+      if (stroke.isDot) {
+        const p = stroke.points[0];
+        ctx.fillStyle = '#00bcd4';
+        ctx.beginPath();
+        ctx.arc(p.x * W, p.y * H, 15, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        ctx.beginPath();
+        stroke.points.forEach((p, idx) => {
+          const x = p.x * W;
+          const y = p.y * H;
+          if (idx === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+      }
+      ctx.restore();
+    });
+
+    // 2. Dibujar trazo activo en curso guiado por el dedo
+    if (this.isDrawing && this.currentProgressPoints.length > 1) {
+      ctx.save();
+      const current = this.allStrokes[this.currentStrokeIndex];
+      const isUpper = current ? current.isUpper : true;
+      ctx.strokeStyle = isUpper ? 'rgba(255, 152, 0, 0.85)' : 'rgba(0, 188, 212, 0.85)';
+      ctx.lineWidth = 26;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+
+      ctx.beginPath();
+      this.currentProgressPoints.forEach((pt, i) => {
+        if (i === 0) ctx.moveTo(pt.x, pt.y);
+        else ctx.lineTo(pt.x, pt.y);
+      });
+      ctx.stroke();
+      ctx.restore();
+    }
+  }
+
+  /**
+   * Logro pedagógico: al completar el trazo de la mayúscula y minúscula
+   */
+  onAllStrokesCompleted() {
+    this.isLetterCompleted = true;
+    this.isDrawing = false;
+    this.currentProgressPoints = [];
+    this.redrawColorCanvas();
+
+    // 1. Sonido festivo Web Audio API + Confeti
+    audio.playCelebration();
+    Confetti.shoot(2800);
+
+    // 2. Coloreado automático del dibujo sorpresa (Árbol, Elefante, Isla, Oso, Uva)
+    const treeZone = document.getElementById('notebookTreeZone');
+    if (treeZone) {
+      treeZone.classList.add('colored');
+    }
+    const treeCaption = document.getElementById('treeCaption');
+    if (treeCaption) {
+      treeCaption.innerHTML = `🎉 ¡${this.letterData.word} COLOREADO! ${this.letterData.icon}`;
+      treeCaption.classList.add('celebration-glow');
+    }
+
+    // 3. ARABOT celebra y pronuncia el fonema
+    if (this.arabot) {
+      this.arabot.celebrate(`¡Excelente! ¡${this.letterData.letter} de ${this.letterData.word}! ${this.letterData.icon}⭐`, 2800);
+    }
+
+    // 4. Guardar progreso en el juego activo
+    const game = TRACING_SUBGAMES.find(g => g.id === this.activeSubgame) || TRACING_SUBGAMES[0];
+    StorageManager.completeModuleLevel(game.moduleKey, this.currentLevel, 3);
+    rewards.unlockReward('star_badge');
+
+    // 5. Transición automática suave al siguiente renglón / nivel (cero pop-ups molestos)
+    setTimeout(() => {
+      this.showAutoTransitionBanner();
+    }, 2000);
+  }
+
+  showAutoTransitionBanner() {
+    const banner = document.getElementById('autoTransitionBanner');
+    const msg = document.getElementById('transitionMsg');
+    const fill = document.getElementById('transitionProgressFill');
+
+    if (!banner) {
+      this.advanceToNextLevel();
+      return;
+    }
+
+    banner.style.display = 'flex';
+    if (msg) {
+      msg.innerText = `¡Renglón de la ${this.letterData.letter} completado! Pasando al siguiente reto...`;
+    }
+
+    if (fill) {
+      fill.style.width = '0%';
+      setTimeout(() => { fill.style.width = '100%'; }, 50);
+    }
 
     setTimeout(() => {
-      if (this.currentLevel < 50) {
-        const next = this.currentLevel + 1;
-        if (confirm(`¡Excelente! Has completado la letra ${this.currentLetter} ⭐\n\n¿Quieres pasar al Nivel ${next}?`)) {
-          this.currentLevel = next;
-          this.renderGame(container);
-          return;
-        }
-      }
+      this.advanceToNextLevel();
+    }, 1300);
+  }
+
+  advanceToNextLevel() {
+    this.cleanup();
+    const container = document.getElementById('app');
+    if (!container) return;
+
+    const game = TRACING_SUBGAMES.find(g => g.id === this.activeSubgame) || TRACING_SUBGAMES[0];
+
+    if (this.currentLevel < game.totalLevels) {
+      this.currentLevel = this.currentLevel + 1;
+      this.renderGame(container);
+    } else {
+      // Al terminar los 50 niveles, regresar al selector de niveles
       this.currentLevel = null;
       this.render(container);
-    }, 600);
+    }
+  }
+
+  resetCanvas() {
+    this.completedStrokeIds.clear();
+    this.completedStrokes = [];
+    this.currentProgressPoints = [];
+    this.currentStrokeIndex = 0;
+    this.currentWaypointIndex = 0;
+    this.isLetterCompleted = false;
+
+    if (this.colorCtx && this.colorCanvas) {
+      this.colorCtx.clearRect(0, 0, this.colorCanvas.width, this.colorCanvas.height);
+    }
+
+    const treeZone = document.getElementById('notebookTreeZone');
+    if (treeZone) {
+      treeZone.classList.remove('colored');
+    }
+    const treeCaption = document.getElementById('treeCaption');
+    if (treeCaption) {
+      treeCaption.innerHTML = `${this.letterData.phonetic} ${this.letterData.icon}`;
+      treeCaption.classList.remove('celebration-glow');
+    }
+  }
+
+  cleanup() {
+    if (this.animFrameId) {
+      cancelAnimationFrame(this.animFrameId);
+      this.animFrameId = null;
+    }
+    if (this.guideCanvas && this.boundPointerUp) {
+      this.guideCanvas.removeEventListener('pointerup', this.boundPointerUp);
+      this.guideCanvas.removeEventListener('pointercancel', this.boundPointerUp);
+      this.boundPointerUp = null;
+    }
+    if (this.arabot) {
+      this.arabot.destroy();
+      this.arabot = null;
+    }
   }
 }
 
@@ -2563,16 +4121,13 @@ class SyllablesScreen {
 
           setTimeout(() => {
             if (this.currentLevel < 50) {
-              const next = this.currentLevel + 1;
-              if (confirm(`¡Excelente! Completaste ${item.word} ⭐\n\n¿Quieres jugar el Nivel ${next}?`)) {
-                this.currentLevel = next;
-                this.render(container);
-                return;
-              }
+              this.currentLevel = this.currentLevel + 1;
+              this.render(container);
+            } else {
+              this.currentLevel = null;
+              this.render(container);
             }
-            this.currentLevel = null;
-            this.render(container);
-          }, 800);
+          }, 1400);
 
         } else {
           audio.playError();
@@ -2687,16 +4242,13 @@ class SyllablesScreen {
 
           setTimeout(() => {
             if (this.currentLevel < 50) {
-              const next = this.currentLevel + 1;
-              if (confirm(`¡Muy bien! Formaste ${item.syllable} ⭐\n\n¿Quieres jugar el Nivel ${next}?`)) {
-                this.currentLevel = next;
-                this.render(container);
-                return;
-              }
+              this.currentLevel = this.currentLevel + 1;
+              this.render(container);
+            } else {
+              this.currentLevel = null;
+              this.render(container);
             }
-            this.currentLevel = null;
-            this.render(container);
-          }, 1200);
+          }, 1400);
 
         } else {
           audio.playError();
@@ -2891,16 +4443,13 @@ class NumbersScreen {
 
           setTimeout(() => {
             if (this.currentLevel < 50) {
-              const next = this.currentLevel + 1;
-              if (confirm(`¡Excelente! El trencito está completo ⭐\n\n¿Quieres jugar el Nivel ${next}?`)) {
-                this.currentLevel = next;
-                this.renderGame(container);
-                return;
-              }
+              this.currentLevel = this.currentLevel + 1;
+              this.renderGame(container);
+            } else {
+              this.currentLevel = null;
+              this.render(container);
             }
-            this.currentLevel = null;
-            this.render(container);
-          }, 800);
+          }, 1400);
 
         } else {
           audio.playError();
@@ -3064,14 +4613,9 @@ class VowelsScreen {
       Confetti.shoot(2500);
       StorageManager.completeModuleLevel('vowels', 1, 3);
       setTimeout(() => {
-        if (confirm('¡Felicidades! Has completado el repaso de vocales ⭐\n\n¿Quieres jugar el Nivel 2?')) {
-          this.currentLevel = 2;
-          this.renderGame(container);
-        } else {
-          this.currentLevel = null;
-          this.render(container);
-        }
-      }, 700);
+        this.currentLevel = 2;
+        this.renderGame(container);
+      }, 1200);
     });
   }
 
@@ -3096,16 +4640,13 @@ class VowelsScreen {
           StorageManager.completeModuleLevel('vowels', this.currentLevel, 3);
           setTimeout(() => {
             if (this.currentLevel < 50) {
-              const next = this.currentLevel + 1;
-              if (confirm(`¡Correcto! ${targetVowel.letter} de ${targetVowel.word} ⭐\n\n¿Quieres pasar al Nivel ${next}?`)) {
-                this.currentLevel = next;
-                this.renderGame(container);
-                return;
-              }
+              this.currentLevel = this.currentLevel + 1;
+              this.renderGame(container);
+            } else {
+              this.currentLevel = null;
+              this.render(container);
             }
-            this.currentLevel = null;
-            this.render(container);
-          }, 800);
+          }, 1400);
         } else {
           audio.playError();
           e.target.classList.add('wrong');
@@ -3294,14 +4835,9 @@ class ShapesScreen {
       Confetti.shoot(2500);
       StorageManager.completeModuleLevel('shapes', 1, 3);
       setTimeout(() => {
-        if (confirm('¡Felicidades! Has pintado todas las figuras ⭐\n\n¿Quieres jugar el Nivel 2?')) {
-          this.currentLevel = 2;
-          this.renderGame(container);
-        } else {
-          this.currentLevel = null;
-          this.render(container);
-        }
-      }, 700);
+        this.currentLevel = 2;
+        this.renderGame(container);
+      }, 1200);
     });
   }
 
@@ -3327,16 +4863,13 @@ class ShapesScreen {
           StorageManager.completeModuleLevel('shapes', this.currentLevel, 3);
           setTimeout(() => {
             if (this.currentLevel < 50) {
-              const next = this.currentLevel + 1;
-              if (confirm(`¡Correcto! Es el ${target.name} ⭐\n\n¿Quieres pasar al Nivel ${next}?`)) {
-                this.currentLevel = next;
-                this.renderGame(container);
-                return;
-              }
+              this.currentLevel = this.currentLevel + 1;
+              this.renderGame(container);
+            } else {
+              this.currentLevel = null;
+              this.render(container);
             }
-            this.currentLevel = null;
-            this.render(container);
-          }, 800);
+          }, 1400);
         } else {
           audio.playError();
           audio.speak(`Ese es un ${chosen}, ¡intenta de nuevo!`);

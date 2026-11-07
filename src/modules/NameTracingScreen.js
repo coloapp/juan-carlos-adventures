@@ -428,11 +428,10 @@ export class NameTracingScreen {
           this.render(container);
         });
       } else {
-        alert(`¡Felicidades ${this.student.name}! Has completado el nivel ${this.currentLevel}: ${this.targetName} 🎉`);
         this.currentLevel = null;
         this.render(container);
       }
-    }, 700);
+    }, 1200);
 
     audio.speak(`¡Excelente trabajo ${this.student.name}! ¡Nivel ${this.currentLevel} completado!`);
   }

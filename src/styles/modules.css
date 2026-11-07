@@ -741,6 +741,61 @@
   background: radial-gradient(circle at 35% 35%, #ffd54f 0%, #ff9800 65%, #e65100 100%);
 }
 
+/* Burbujas temáticas de los 10 Juegos del Módulo de Trazos */
+.subgame-bubble-vocales {
+  background: radial-gradient(circle at 35% 35%, #ff80ab 0%, #e91e63 65%, #880e4f 100%);
+}
+
+.subgame-bubble-m {
+  background: radial-gradient(circle at 35% 35%, #ef5350 0%, #e53935 65%, #b71c1c 100%);
+}
+
+.subgame-bubble-s {
+  background: radial-gradient(circle at 35% 35%, #ffe082 0%, #ff9800 65%, #e65100 100%);
+}
+
+.subgame-bubble-t {
+  background: radial-gradient(circle at 35% 35%, #80deea 0%, #00bcd4 65%, #006064 100%);
+}
+
+.subgame-bubble-l {
+  background: radial-gradient(circle at 35% 35%, #ce93d8 0%, #9c27b0 65%, #4a148c 100%);
+}
+
+.subgame-bubble-p {
+  background: radial-gradient(circle at 35% 35%, #90caf9 0%, #1976d2 65%, #0d47a1 100%);
+}
+
+.subgame-bubble-n {
+  background: radial-gradient(circle at 35% 35%, #80cbc4 0%, #009688 65%, #004d40 100%);
+}
+
+.subgame-bubble-r {
+  background: radial-gradient(circle at 35% 35%, #ffab91 0%, #d84315 65%, #bf360c 100%);
+}
+
+.subgame-bubble-cd {
+  background: radial-gradient(circle at 35% 35%, #b39ddb 0%, #5e35b1 65%, #311b92 100%);
+}
+
+.subgame-bubble-reto {
+  background: radial-gradient(circle at 35% 35%, #fff59d 0%, #fbc02d 65%, #f57f17 100%);
+}
+
+.subgames-grid-10 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(10px, 2vw, 24px);
+  max-width: 980px;
+  width: 100%;
+  max-height: 74vh;
+  overflow-y: auto;
+  padding: 8px 6px;
+  -webkit-overflow-scrolling: touch;
+}
+
 .subgame-bubble-icon {
   font-size: clamp(2.4rem, 5.5vh, 3.8rem);
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.25));

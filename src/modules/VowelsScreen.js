@@ -149,14 +149,9 @@ export class VowelsScreen {
       Confetti.shoot(2500);
       StorageManager.completeModuleLevel('vowels', 1, 3);
       setTimeout(() => {
-        if (confirm('¡Felicidades! Has completado el repaso de vocales ⭐\n\n¿Quieres jugar el Nivel 2?')) {
-          this.currentLevel = 2;
-          this.renderGame(container);
-        } else {
-          this.currentLevel = null;
-          this.render(container);
-        }
-      }, 700);
+        this.currentLevel = 2;
+        this.renderGame(container);
+      }, 1200);
     });
   }
 
@@ -181,16 +176,13 @@ export class VowelsScreen {
           StorageManager.completeModuleLevel('vowels', this.currentLevel, 3);
           setTimeout(() => {
             if (this.currentLevel < 50) {
-              const next = this.currentLevel + 1;
-              if (confirm(`¡Correcto! ${targetVowel.letter} de ${targetVowel.word} ⭐\n\n¿Quieres pasar al Nivel ${next}?`)) {
-                this.currentLevel = next;
-                this.renderGame(container);
-                return;
-              }
+              this.currentLevel = this.currentLevel + 1;
+              this.renderGame(container);
+            } else {
+              this.currentLevel = null;
+              this.render(container);
             }
-            this.currentLevel = null;
-            this.render(container);
-          }, 800);
+          }, 1400);
         } else {
           audio.playError();
           e.target.classList.add('wrong');

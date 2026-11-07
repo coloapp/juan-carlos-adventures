@@ -177,14 +177,9 @@ export class ShapesScreen {
       Confetti.shoot(2500);
       StorageManager.completeModuleLevel('shapes', 1, 3);
       setTimeout(() => {
-        if (confirm('¡Felicidades! Has pintado todas las figuras ⭐\n\n¿Quieres jugar el Nivel 2?')) {
-          this.currentLevel = 2;
-          this.renderGame(container);
-        } else {
-          this.currentLevel = null;
-          this.render(container);
-        }
-      }, 700);
+        this.currentLevel = 2;
+        this.renderGame(container);
+      }, 1200);
     });
   }
 
@@ -210,16 +205,13 @@ export class ShapesScreen {
           StorageManager.completeModuleLevel('shapes', this.currentLevel, 3);
           setTimeout(() => {
             if (this.currentLevel < 50) {
-              const next = this.currentLevel + 1;
-              if (confirm(`¡Correcto! Es el ${target.name} ⭐\n\n¿Quieres pasar al Nivel ${next}?`)) {
-                this.currentLevel = next;
-                this.renderGame(container);
-                return;
-              }
+              this.currentLevel = this.currentLevel + 1;
+              this.renderGame(container);
+            } else {
+              this.currentLevel = null;
+              this.render(container);
             }
-            this.currentLevel = null;
-            this.render(container);
-          }, 800);
+          }, 1400);
         } else {
           audio.playError();
           audio.speak(`Ese es un ${chosen}, ¡intenta de nuevo!`);

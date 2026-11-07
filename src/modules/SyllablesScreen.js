@@ -389,16 +389,13 @@ export class SyllablesScreen {
 
           setTimeout(() => {
             if (this.currentLevel < 50) {
-              const next = this.currentLevel + 1;
-              if (confirm(`¡Excelente! Completaste ${item.word} ⭐\n\n¿Quieres jugar el Nivel ${next}?`)) {
-                this.currentLevel = next;
-                this.render(container);
-                return;
-              }
+              this.currentLevel = this.currentLevel + 1;
+              this.render(container);
+            } else {
+              this.currentLevel = null;
+              this.render(container);
             }
-            this.currentLevel = null;
-            this.render(container);
-          }, 800);
+          }, 1400);
 
         } else {
           audio.playError();
@@ -513,16 +510,13 @@ export class SyllablesScreen {
 
           setTimeout(() => {
             if (this.currentLevel < 50) {
-              const next = this.currentLevel + 1;
-              if (confirm(`¡Muy bien! Formaste ${item.syllable} ⭐\n\n¿Quieres jugar el Nivel ${next}?`)) {
-                this.currentLevel = next;
-                this.render(container);
-                return;
-              }
+              this.currentLevel = this.currentLevel + 1;
+              this.render(container);
+            } else {
+              this.currentLevel = null;
+              this.render(container);
             }
-            this.currentLevel = null;
-            this.render(container);
-          }, 1200);
+          }, 1400);
 
         } else {
           audio.playError();

@@ -225,3 +225,774 @@
   padding: 0 4px;
   box-sizing: border-box;
 }
+
+/* ==========================================================================
+   CUADERNILLO CALIGRÁFICO ESTILO SEP / LIBRO DE PREESCOLAR
+   ========================================================================== */
+
+.notebook-grid-bg {
+  background-color: #fdfbf7;
+  background-image: 
+    linear-gradient(to right, rgba(33, 150, 243, 0.18) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(33, 150, 243, 0.18) 1px, transparent 1px);
+  background-size: 38px 38px;
+}
+
+.notebook-workspace {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  width: 100%;
+  padding: 4px 10px;
+  box-sizing: border-box;
+}
+
+.notebook-page-header {
+  text-align: center;
+  margin-bottom: 6px;
+}
+
+.notebook-page-header h2 {
+  margin: 0;
+  font-size: clamp(1.1rem, 2.7vh, 1.5rem);
+  color: #0d47a1;
+  letter-spacing: 0.5px;
+}
+
+.notebook-instruction {
+  margin: 2px 0 0;
+  font-size: clamp(0.85rem, 1.9vh, 1.05rem);
+  font-weight: 700;
+  color: #37474f;
+}
+
+.notebook-grid-container {
+  position: relative;
+  width: min(96vw, 760px);
+  height: clamp(270px, 56vh, 420px);
+  background: #ffffff;
+  border: 4px solid #1976d2;
+  border-radius: 20px;
+  box-shadow: 0 10px 28px rgba(25, 118, 210, 0.15);
+  overflow: hidden;
+  touch-action: none; /* Esencial para trazo fluido en tablets sin scroll */
+}
+
+.notebook-grid-container canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+}
+
+#bgCanvas { z-index: 1; pointer-events: none; }
+#colorCanvas { z-index: 2; pointer-events: none; }
+#guideCanvas { z-index: 3; cursor: crosshair; }
+
+/* Zona del Árbol (A de Árbol) idéntico al cuadernillo */
+.notebook-tree-zone {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: clamp(140px, 28%, 220px);
+  height: clamp(190px, 44vh, 310px);
+  z-index: 4;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.notebook-tree-zone svg {
+  width: 100%;
+  height: 100%;
+  transition: filter 1s ease-in-out, transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.notebook-tree-zone:not(.colored) svg {
+  filter: grayscale(100%) brightness(0.95) opacity(0.85);
+}
+
+.notebook-tree-zone.colored svg {
+  transform: scale(1.06);
+  filter: grayscale(0%) brightness(1) drop-shadow(0 0 16px rgba(76, 175, 80, 0.7));
+  animation: treeBloom 0.9s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+/* Arte en blanco y negro por defecto (como en el libro físico) */
+.tree-canopy-outline {
+  fill: #ffffff;
+  stroke: #111111;
+  stroke-width: 2.8;
+  stroke-linejoin: round;
+  transition: fill 1s ease, stroke 1s ease;
+}
+
+.tree-spiral {
+  fill: none;
+  stroke: #111111;
+  stroke-width: 2;
+  stroke-linecap: round;
+  transition: stroke 1s ease;
+}
+
+.tree-trunk-outline {
+  fill: #ffffff;
+  stroke: #111111;
+  stroke-width: 2.8;
+  stroke-linejoin: round;
+  transition: fill 1s ease, stroke 1s ease;
+}
+
+.tree-wood-knot {
+  fill: #ffffff;
+  stroke: #111111;
+  stroke-width: 2;
+  transition: fill 1s ease, stroke 1s ease;
+}
+
+.tree-wood-spiral, .tree-grain {
+  fill: none;
+  stroke: #111111;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  transition: stroke 1s ease;
+}
+
+/* Estado Coloreado Automático: Transición a colores vivos */
+.notebook-tree-zone.colored .notebook-tree-svg {
+  transform: scale(1.06);
+  filter: drop-shadow(0 0 16px rgba(76, 175, 80, 0.7));
+  animation: treeBloom 0.9s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.notebook-tree-zone.colored .tree-canopy-outline {
+  fill: url(#notebookCanopyGrad);
+  stroke: #1b5e20;
+}
+
+.notebook-tree-zone.colored .tree-spiral {
+  stroke: #c8e6c9;
+  stroke-width: 2.4;
+}
+
+.notebook-tree-zone.colored .tree-trunk-outline {
+  fill: url(#notebookWoodGrad);
+  stroke: #3e2723;
+}
+
+.notebook-tree-zone.colored .tree-wood-knot {
+  fill: #4e342e;
+  stroke: #3e2723;
+}
+
+.notebook-tree-zone.colored .tree-wood-spiral,
+.notebook-tree-zone.colored .tree-grain {
+  stroke: #ffb74d;
+  stroke-width: 2;
+}
+
+.tree-caption {
+  margin-top: 4px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #546e7a;
+  background: rgba(255, 255, 255, 0.85);
+  padding: 2px 10px;
+  border-radius: 12px;
+  border: 1px solid #cfd8dc;
+  transition: all 0.4s ease;
+}
+
+.tree-caption.celebration-glow {
+  color: #e65100;
+  background: #fff8e1;
+  border-color: #ffb74d;
+  box-shadow: 0 0 10px rgba(255, 152, 0, 0.5);
+  transform: scale(1.05);
+}
+
+/* ==========================================================================
+   REUBICACIÓN DE ARABOT EN EL CENTRO SUPERIOR DEL HEADER
+   ========================================================================== */
+
+.arabot-top-anchor {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 3px 14px;
+  border-radius: 30px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: 2px solid #b3e5fc;
+}
+
+.arabot-header-component {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.arabot-top-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.arabot-top-pill:hover {
+  transform: scale(1.04);
+}
+
+.arabot-top-pill:active {
+  transform: scale(0.96);
+}
+
+.arabot-avatar-box {
+  position: relative;
+  width: clamp(42px, 8vw, 50px);
+  height: clamp(42px, 8vw, 50px);
+}
+
+.arabot-pill-label {
+  display: flex;
+  flex-direction: column;
+}
+
+.arabot-name-tag {
+  font-size: 0.78rem;
+  font-weight: 900;
+  color: #0277bd;
+  line-height: 1.1;
+}
+
+.arabot-help-tag {
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: #ff9800;
+  line-height: 1.1;
+}
+
+.arabot-speech-bubble-anchor {
+  position: absolute;
+  top: calc(100% + 12px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ffffff;
+  border: 3px solid #00bcd4;
+  border-radius: 18px;
+  padding: 8px 16px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.2);
+  min-width: 200px;
+  max-width: min(85vw, 360px);
+  z-index: 2000;
+  text-align: center;
+  pointer-events: auto;
+}
+
+.arabot-bubble-arrow-top {
+  position: absolute;
+  top: -9px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 9px solid #00bcd4;
+}
+  box-shadow: 0 2px 5px rgba(0,0,0,0.25);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* Animaciones de ARABOT */
+@keyframes arabotFloat {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-7px); }
+}
+
+@keyframes arabotPulse {
+  0% { transform: scale(0.9); opacity: 0.8; }
+  100% { transform: scale(1.3); opacity: 0; }
+}
+
+@keyframes antennaBlink {
+  0% { fill: #ffeb3b; filter: drop-shadow(0 0 2px #ffeb3b); }
+  100% { fill: #00e5ff; filter: drop-shadow(0 0 6px #00e5ff); }
+}
+
+.arabot-jump {
+  animation: arabotJumpKeyframes 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes arabotJumpKeyframes {
+  0% { transform: translateY(0) scale(1); }
+  40% { transform: translateY(-16px) scale(1.12); }
+  70% { transform: translateY(2px) scale(0.96); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+/* Burbuja de diálogo de ARABOT */
+.arabot-speech-bubble {
+  position: absolute;
+  top: 4px;
+  left: clamp(68px, 14vw, 86px);
+  background: #ffffff;
+  border: 3px solid #00bcd4;
+  border-radius: 18px;
+  padding: 8px 14px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  max-width: min(72vw, 320px);
+  min-width: 140px;
+  pointer-events: auto;
+  z-index: 1001;
+}
+
+.arabot-bubble-arrow {
+  position: absolute;
+  top: 18px;
+  left: -10px;
+  width: 0;
+  height: 0;
+  border-top: 7px solid transparent;
+  border-bottom: 7px solid transparent;
+  border-right: 10px solid #00bcd4;
+}
+
+.arabot-speech-text {
+  font-size: clamp(0.85rem, 1.9vh, 1.05rem);
+  font-weight: bold;
+  color: #006064;
+  line-height: 1.35;
+}
+
+.bubble-enter {
+  animation: bubblePopIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.bubble-exit {
+  animation: bubblePopOut 0.2s ease-in forwards;
+}
+
+@keyframes bubblePopIn {
+  from { opacity: 0; transform: scale(0.7) translateY(8px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes bubblePopOut {
+  from { opacity: 1; transform: scale(1); }
+  to { opacity: 0; transform: scale(0.8); }
+}
+
+/* Puntero / Lápiz mágico animado del tutorial */
+.arabot-magic-pointer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 2000;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 4px 12px rgba(255, 193, 7, 0.8));
+}
+
+.arabot-magic-pointer .pointer-icon {
+  font-size: clamp(2rem, 5vh, 2.8rem);
+  transform: rotate(-15deg);
+}
+
+.arabot-magic-pointer .pointer-sparkle {
+  font-size: 1.4rem;
+  margin-left: -8px;
+  margin-top: -16px;
+  animation: sparkleTwinkle 0.6s infinite alternate;
+}
+
+@keyframes sparkleTwinkle {
+  from { transform: scale(0.8); opacity: 0.6; }
+  to { transform: scale(1.3); opacity: 1; }
+}
+
+/* ==========================================================================
+   ESPACIO DE TRABAJO PEDAGÓGICO (Lienzo + Árbol Sorpresa)
+   ========================================================================== */
+
+.tracing-workspace {
+  display: flex;
+  flex: 1;
+  width: 100%;
+  max-width: 1040px;
+  justify-content: center;
+  align-items: center;
+  gap: clamp(8px, 2vw, 20px);
+  padding: 4px 8px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.tracing-header-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.header-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.level-subbadge {
+  font-size: clamp(0.75rem, 1.8vh, 0.9rem);
+  font-weight: 800;
+  color: #e65100;
+  background: #fff3e0;
+  padding: 2px 10px;
+  border-radius: 12px;
+  margin-top: 2px;
+  border: 1px solid #ffe0b2;
+}
+
+.letter-lowercase-highlight {
+  color: #00bcd4;
+  font-size: clamp(1.4rem, 3.8vh, 2rem);
+  font-weight: 900;
+}
+
+/* Tarjeta del Lienzo */
+.tracing-canvas-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1 1 580px;
+  max-width: 620px;
+  width: 100%;
+}
+
+.canvas-step-banner {
+  background: #ffffff;
+  border: 2px solid #ffb74d;
+  border-radius: 14px;
+  padding: 4px 14px;
+  font-size: clamp(0.8rem, 1.9vh, 0.95rem);
+  font-weight: 700;
+  color: #e65100;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+
+.step-indicator-pulse {
+  width: 10px;
+  height: 10px;
+  background: #ff9800;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #ff9800;
+  animation: pulseDot 1s infinite alternate;
+}
+
+@keyframes pulseDot {
+  from { transform: scale(0.85); opacity: 0.7; }
+  to { transform: scale(1.3); opacity: 1; }
+}
+
+.canvas-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+  height: clamp(230px, 44vh, 360px);
+  background: #ffffff;
+  border: 4px solid #00bcd4;
+  border-radius: 24px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  touch-action: none; /* Previene scroll en Android/Capacitor */
+}
+
+#bgCanvas, #colorCanvas, #guideCanvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+}
+
+#bgCanvas { z-index: 1; pointer-events: none; }
+#colorCanvas { z-index: 2; pointer-events: none; }
+#guideCanvas { z-index: 3; cursor: crosshair; }
+
+.stroke-progress-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+  width: 100%;
+  justify-content: center;
+}
+
+.progress-pill {
+  background: #ffffff;
+  border: 2px solid #cfd8dc;
+  border-radius: 14px;
+  padding: 4px 12px;
+  font-size: clamp(0.75rem, 1.7vh, 0.9rem);
+  font-weight: 700;
+  color: #546e7a;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.25s ease;
+}
+
+.progress-pill .pill-letter {
+  font-size: 1.1rem;
+  font-weight: 900;
+}
+
+.progress-pill.active {
+  border-color: #ff9800;
+  background: #fff8e1;
+  color: #e65100;
+  box-shadow: 0 0 10px rgba(255, 152, 0, 0.35);
+  transform: scale(1.04);
+}
+
+.progress-pill.completed {
+  border-color: #4caf50;
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+/* ==========================================================================
+   TARJETA DE LA SORPRESA: EL ÁRBOL (A de Árbol)
+   ========================================================================== */
+
+.surprise-card {
+  flex: 0 1 clamp(200px, 32vw, 290px);
+  background: linear-gradient(135deg, #ffffff 0%, #f9fbe7 100%);
+  border: 4px dashed #81c784;
+  border-radius: 24px;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  min-height: clamp(230px, 44vh, 360px);
+  box-sizing: border-box;
+}
+
+.surprise-card-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.surprise-icon {
+  font-size: clamp(1.4rem, 3vh, 1.8rem);
+}
+
+.surprise-word {
+  font-size: clamp(1.1rem, 2.5vh, 1.4rem);
+  font-weight: 900;
+  color: #2e7d32;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.surprise-word .highlight-letter {
+  color: #e91e63;
+  font-size: 1.3em;
+}
+
+.surprise-image-box {
+  position: relative;
+  width: 100%;
+  max-width: 220px;
+  height: clamp(130px, 25vh, 200px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Estado Bloqueado: Blanco y Negro con candado */
+.surprise-card.locked .surprise-illustration {
+  filter: grayscale(100%) brightness(0.92) opacity(0.65);
+  transition: filter 1s ease, transform 0.6s ease;
+}
+
+.surprise-lock-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(1.5px);
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  text-align: center;
+  transition: opacity 0.5s ease;
+}
+
+.surprise-lock-overlay .lock-icon {
+  font-size: 1.8rem;
+  margin-bottom: 4px;
+}
+
+.surprise-lock-overlay .lock-msg {
+  font-size: 0.75rem;
+  font-weight: bold;
+  color: #455a64;
+  line-height: 1.25;
+}
+
+/* Estado Desbloqueado: ¡Coloreado fluido a todo color con resplandor! */
+.surprise-card.unlocked {
+  background: linear-gradient(135deg, #ffffff 0%, #e8f5e9 100%);
+  border-color: #4caf50;
+  border-style: solid;
+  box-shadow: 0 12px 36px rgba(76, 175, 80, 0.45);
+  transform: scale(1.04);
+}
+
+.surprise-card.unlocked .surprise-illustration {
+  filter: grayscale(0%) brightness(1) drop-shadow(0 0 16px rgba(76, 175, 80, 0.7));
+  animation: treeBloom 0.9s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes treeBloom {
+  0% { transform: scale(0.85); filter: grayscale(80%); }
+  50% { transform: scale(1.12); filter: drop-shadow(0 0 24px rgba(255, 235, 59, 0.9)); }
+  100% { transform: scale(1); filter: drop-shadow(0 0 16px rgba(76, 175, 80, 0.7)); }
+}
+
+.surprise-badge {
+  background: #ffffff;
+  border: 2px solid #a5d6a7;
+  border-radius: 14px;
+  padding: 4px 12px;
+  font-size: clamp(0.72rem, 1.6vh, 0.85rem);
+  font-weight: bold;
+  color: #2e7d32;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  margin-top: 4px;
+  width: 100%;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.celebration-pulse {
+  color: #d81b60;
+  font-weight: 900;
+  animation: badgePulse 0.8s infinite alternate;
+}
+
+@keyframes badgePulse {
+  from { transform: scale(0.96); }
+  to { transform: scale(1.04); }
+}
+
+/* ==========================================================================
+   BANNER DE TRANSICIÓN AUTOMÁTICA DE NIVEL (SIN ALERTS)
+   ========================================================================== */
+
+.auto-transition-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(4px);
+  z-index: 10000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.transition-card {
+  background: linear-gradient(135deg, #ffffff 0%, #fffde7 100%);
+  border: 5px solid #ffb300;
+  border-radius: 30px;
+  padding: 24px 32px;
+  text-align: center;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.3);
+  max-width: 420px;
+  width: 88%;
+}
+
+.transition-stars {
+  font-size: 2.4rem;
+  margin-bottom: 6px;
+}
+
+.transition-title {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: #e65100;
+  margin-bottom: 6px;
+}
+
+.transition-msg {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #455a64;
+  margin-bottom: 16px;
+}
+
+.transition-progress-bar {
+  width: 100%;
+  height: 12px;
+  background: #e0e0e0;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.transition-progress-bar .progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #4caf50 0%, #8bc34a 100%);
+  border-radius: 6px;
+  transition: width 1.1s ease-in-out;
+}
+
+/* Responsive para pantallas compactas */
+@media (max-width: 768px) {
+  .tracing-workspace {
+    flex-direction: column;
+    overflow-y: auto;
+  }
+  .tracing-canvas-card {
+    max-width: 100%;
+  }
+  .surprise-card {
+    flex: none;
+    width: 100%;
+    min-height: auto;
+    padding: 8px 12px;
+  }
+  .surprise-image-box {
+    height: 130px;
+  }
+}

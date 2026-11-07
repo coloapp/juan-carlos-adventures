@@ -126,6 +126,33 @@ export class AudioManager {
     this.playTone(400, 'sine', 0.04, 0.05);
   }
 
+  playArabotBlip() {
+    if (this.isMuted) return;
+    this.ensureContext();
+    this.playTone(660, 'sine', 0.08, 0.18);
+    setTimeout(() => {
+      this.playTone(990, 'triangle', 0.12, 0.2);
+    }, 80);
+  }
+
+  playMagicSparkle() {
+    if (this.isMuted) return;
+    this.ensureContext();
+    const notes = [587.33, 659.25, 783.99, 880, 1046.50, 1174.66, 1318.51, 1567.98];
+    notes.forEach((freq, i) => {
+      setTimeout(() => {
+        this.playTone(freq, 'sine', 0.18, 0.15);
+      }, i * 45);
+    });
+  }
+
+  playCelebration() {
+    this.playFanfare();
+    setTimeout(() => {
+      this.playMagicSparkle();
+    }, 450);
+  }
+
   playError() {
     this.playTone(220, 'sawtooth', 0.2, 0.15);
   }

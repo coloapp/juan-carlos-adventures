@@ -6,6 +6,7 @@ $files = @(
     "src/components/Confetti.js",
     "src/components/Modal.js",
     "src/components/LevelSelector.js",
+    "src/components/ArabotAssistant.js",
     "src/core/LetterWaypoints.js",
     "src/modules/HomeScreen.js",
     "src/modules/NameTracingScreen.js",
