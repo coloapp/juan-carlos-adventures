@@ -25,3 +25,4 @@ O directamente al generar el bundle de producción:
 powershell -ExecutionPolicy Bypass -File .\build_bundle.ps1
 ```
 `build_bundle.ps1` detendrá y abortará automáticamente cualquier compilación si alguna prueba de navegación falla.
+

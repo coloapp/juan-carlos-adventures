@@ -1,4 +1,4 @@
-﻿# build_bundle.ps1 - Generador universal de bundle.js para Juan Carlos's Adventures
+# build_bundle.ps1 - Generador universal de bundle.js para Juan Carlos's Adventures
 $files = @(
     "src/core/StorageManager.js",
     "src/core/AudioManager.js",

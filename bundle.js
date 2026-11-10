@@ -1,7 +1,7 @@
 ﻿/**
  * Juan Carlos's Adventures - Standalone Universal Bundle
  * Compatible con file:/// (sin CORS), GitHub Pages y Android WebView.
- * Organizado en Español con 50 Juegos en Círculos por módulo y validación por waypoints.
+ * Organizado en EspaÃ±ol con 50 Juegos en CÃ­rculos por mÃ³dulo y validaciÃ³n por waypoints.
  */
 (function() {
   'use strict';
@@ -3761,6 +3761,189 @@ const SUBGAMES_LEVEL_MAP = {
 };
 
 // ============================================================================
+// HELPER FUNCTIONS: MOTOR DE MEMORIA MUSCULAR (TRAJECTORY CHECKPOINT SAMPLING)
+// ============================================================================
+function sampleLine(x1, y1, x2, y2, step = 15) {
+  const pts = [];
+  const dist = Math.hypot(x2 - x1, y2 - y1);
+  const steps = Math.max(2, Math.round(dist / step));
+  for (let i = 0; i <= steps; i++) {
+    const t = i / steps;
+    pts.push({ x: x1 + (x2 - x1) * t, y: y1 + (y2 - y1) * t, hit: false });
+  }
+  return pts;
+}
+
+function sampleArc(cx, cy, r, startAngle, endAngle, counterClockwise = false, step = 14) {
+  const pts = [];
+  let diff = endAngle - startAngle;
+  if (!counterClockwise && diff < 0) diff += Math.PI * 2;
+  if (counterClockwise && diff > 0) diff -= Math.PI * 2;
+  const arcLen = Math.abs(diff) * r;
+  const steps = Math.max(4, Math.round(arcLen / step));
+  for (let i = 0; i <= steps; i++) {
+    const angle = startAngle + diff * (i / steps);
+    pts.push({ x: cx + Math.cos(angle) * r, y: cy + Math.sin(angle) * r, hit: false });
+  }
+  return pts;
+}
+
+function sampleEllipse(cx, cy, rx, ry, step = 15) {
+  const pts = [];
+  const perimeterApprox = Math.PI * (3 * (rx + ry) - Math.sqrt((3 * rx + ry) * (rx + 3 * ry)));
+  const steps = Math.max(10, Math.round(perimeterApprox / step));
+  for (let i = 0; i < steps; i++) {
+    const angle = (Math.PI * 2 * i) / steps;
+    pts.push({ x: cx + Math.cos(angle) * rx, y: cy + Math.sin(angle) * ry, hit: false });
+  }
+  return pts;
+}
+
+function sampleQuadratic(x0, y0, cx, cy, x1, y1, step = 14) {
+  const pts = [];
+  const chord = Math.hypot(x1 - x0, y1 - y0);
+  const steps = Math.max(3, Math.round(chord / step));
+  for (let i = 0; i <= steps; i++) {
+    const t = i / steps;
+    const inv = 1 - t;
+    const x = inv * inv * x0 + 2 * inv * t * cx + t * t * x1;
+    const y = inv * inv * y0 + 2 * inv * t * cy + t * t * y1;
+    pts.push({ x, y, hit: false });
+  }
+  return pts;
+}
+
+function sampleHollowStrokeCheckpoints(stroke, W, H) {
+  if (stroke.isDot && stroke.points && stroke.points[0]) {
+    const p = stroke.points[0];
+    return [{ x: p.x * W, y: p.y * H, hit: false }];
+  }
+  const pts = stroke.points;
+  if (!pts || pts.length < 2) return [];
+  const checkpoints = [];
+  for (let i = 0; i < pts.length - 1; i++) {
+    const seg = sampleLine(pts[i].x * W, pts[i].y * H, pts[i + 1].x * W, pts[i + 1].y * H, 16);
+    if (i > 0 && seg.length > 0) seg.shift();
+    checkpoints.push(...seg);
+  }
+  return checkpoints;
+}
+
+function sampleGridLetterCheckpoints(char, isUpper, cx, topY, midY, baseY) {
+  const pts = [];
+  const c = (char || 'A').toUpperCase();
+
+  if (isUpper) {
+    if (c === 'A') {
+      pts.push(...sampleLine(cx, topY + 5, cx - 26, baseY));
+      pts.push(...sampleLine(cx, topY + 5, cx + 26, baseY));
+      pts.push(...sampleLine(cx - 15, midY, cx + 15, midY));
+    } else if (c === 'E') {
+      pts.push(...sampleLine(cx - 20, topY + 5, cx - 20, baseY));
+      pts.push(...sampleLine(cx - 20, topY + 5, cx + 20, topY + 5));
+      pts.push(...sampleLine(cx - 20, midY, cx + 14, midY));
+      pts.push(...sampleLine(cx - 20, baseY, cx + 20, baseY));
+    } else if (c === 'I') {
+      pts.push(...sampleLine(cx - 18, topY + 5, cx + 18, topY + 5));
+      pts.push(...sampleLine(cx, topY + 5, cx, baseY));
+      pts.push(...sampleLine(cx - 18, baseY, cx + 18, baseY));
+    } else if (c === 'O') {
+      pts.push(...sampleEllipse(cx, midY, 26, 92));
+    } else if (c === 'U') {
+      pts.push(...sampleLine(cx - 22, topY + 5, cx - 22, baseY - 35));
+      pts.push(...sampleQuadratic(cx - 22, baseY - 35, cx - 22, baseY, cx, baseY));
+      pts.push(...sampleQuadratic(cx, baseY, cx + 22, baseY, cx + 22, baseY - 35));
+      pts.push(...sampleLine(cx + 22, baseY - 35, cx + 22, topY + 5));
+    } else if (c === 'M') {
+      pts.push(...sampleLine(cx - 24, baseY, cx - 24, topY + 5));
+      pts.push(...sampleLine(cx - 24, topY + 5, cx, midY + 15));
+      pts.push(...sampleLine(cx, midY + 15, cx + 24, topY + 5));
+      pts.push(...sampleLine(cx + 24, topY + 5, cx + 24, baseY));
+    } else if (c === 'S') {
+      pts.push(...sampleQuadratic(cx + 18, topY + 18, cx, topY, cx - 12, topY + 25));
+      pts.push(...sampleQuadratic(cx - 12, topY + 25, cx - 16, midY, cx, midY));
+      pts.push(...sampleQuadratic(cx, midY, cx + 18, midY, cx + 14, baseY - 20));
+      pts.push(...sampleQuadratic(cx + 14, baseY - 20, cx, baseY + 4, cx - 18, baseY - 16));
+    } else if (c === 'T') {
+      pts.push(...sampleLine(cx - 22, topY + 5, cx + 22, topY + 5));
+      pts.push(...sampleLine(cx, topY + 5, cx, baseY));
+    } else if (c === 'L') {
+      pts.push(...sampleLine(cx - 18, topY + 5, cx - 18, baseY));
+      pts.push(...sampleLine(cx - 18, baseY, cx + 20, baseY));
+    } else if (c === 'P') {
+      pts.push(...sampleLine(cx - 18, topY + 5, cx - 18, baseY));
+      pts.push(...sampleQuadratic(cx - 18, topY + 5, cx + 24, topY + 5, cx + 24, (topY + 5 + midY) / 2));
+      pts.push(...sampleQuadratic(cx + 24, (topY + 5 + midY) / 2, cx + 24, midY + 15, cx - 18, midY + 15));
+    } else if (c === 'N') {
+      pts.push(...sampleLine(cx - 22, baseY, cx - 22, topY + 5));
+      pts.push(...sampleLine(cx - 22, topY + 5, cx + 22, baseY));
+      pts.push(...sampleLine(cx + 22, baseY, cx + 22, topY + 5));
+    } else if (c === 'R') {
+      pts.push(...sampleLine(cx - 18, topY + 5, cx - 18, baseY));
+      pts.push(...sampleQuadratic(cx - 18, topY + 5, cx + 22, topY + 5, cx + 22, midY));
+      pts.push(...sampleQuadratic(cx + 22, midY, cx + 22, midY + 12, cx - 18, midY + 12));
+      pts.push(...sampleLine(cx - 2, midY + 12, cx + 22, baseY));
+    } else {
+      pts.push(...sampleLine(cx - 18, topY + 10, cx - 18, baseY));
+      pts.push(...sampleLine(cx + 18, topY + 10, cx + 18, baseY));
+      pts.push(...sampleLine(cx - 18, midY, cx + 18, midY));
+    }
+  } else {
+    if (c === 'A') {
+      pts.push(...sampleArc(cx - 3, midY + 48, 20, 0, Math.PI * 2));
+      pts.push(...sampleLine(cx + 17, midY + 5, cx + 17, baseY));
+    } else if (c === 'E') {
+      pts.push(...sampleLine(cx - 16, midY + 48, cx + 16, midY + 48));
+      pts.push(...sampleArc(cx, midY + 48, 18, 0, Math.PI * 1.7, true));
+    } else if (c === 'I') {
+      pts.push(...sampleLine(cx, midY + 25, cx, baseY));
+      pts.push({ x: cx, y: midY + 10, hit: false });
+    } else if (c === 'O') {
+      pts.push(...sampleArc(cx, midY + 48, 20, 0, Math.PI * 2));
+    } else if (c === 'U') {
+      pts.push(...sampleLine(cx - 15, midY + 10, cx - 15, baseY - 20));
+      pts.push(...sampleQuadratic(cx - 15, baseY - 20, cx - 15, baseY, cx, baseY));
+      pts.push(...sampleQuadratic(cx, baseY, cx + 15, baseY, cx + 15, baseY - 20));
+      pts.push(...sampleLine(cx + 15, baseY - 20, cx + 15, midY + 10));
+      pts.push(...sampleLine(cx + 15, midY + 10, cx + 15, baseY));
+    } else if (c === 'M') {
+      pts.push(...sampleLine(cx - 20, midY + 10, cx - 20, baseY));
+      pts.push(...sampleQuadratic(cx - 20, midY + 25, cx - 10, midY + 10, cx, midY + 25));
+      pts.push(...sampleLine(cx, midY + 25, cx, baseY));
+      pts.push(...sampleQuadratic(cx, midY + 25, cx + 10, midY + 10, cx + 20, midY + 25));
+      pts.push(...sampleLine(cx + 20, midY + 25, cx + 20, baseY));
+    } else if (c === 'S') {
+      pts.push(...sampleQuadratic(cx + 12, midY + 20, cx, midY + 10, cx - 8, midY + 24));
+      pts.push(...sampleQuadratic(cx - 8, midY + 24, cx - 10, midY + 45, cx, midY + 45));
+      pts.push(...sampleQuadratic(cx, midY + 45, cx + 12, midY + 45, cx + 8, baseY - 10));
+      pts.push(...sampleQuadratic(cx + 8, baseY - 10, cx, baseY + 4, cx - 12, baseY - 8));
+    } else if (c === 'T') {
+      pts.push(...sampleLine(cx, midY - 15, cx, baseY - 10));
+      pts.push(...sampleQuadratic(cx, baseY - 10, cx, baseY, cx + 12, baseY));
+      pts.push(...sampleLine(cx - 12, midY + 15, cx + 12, midY + 15));
+    } else if (c === 'L') {
+      pts.push(...sampleLine(cx, topY + 10, cx, baseY));
+    } else if (c === 'P') {
+      pts.push(...sampleLine(cx - 14, midY + 10, cx - 14, baseY + 45));
+      pts.push(...sampleArc(cx, midY + 45, 18, 0, Math.PI * 2));
+    } else if (c === 'N') {
+      pts.push(...sampleLine(cx - 15, midY + 10, cx - 15, baseY));
+      pts.push(...sampleQuadratic(cx - 15, midY + 25, cx, midY + 10, cx + 15, midY + 25));
+      pts.push(...sampleLine(cx + 15, midY + 25, cx + 15, baseY));
+    } else if (c === 'R') {
+      pts.push(...sampleLine(cx - 12, midY + 10, cx - 12, baseY));
+      pts.push(...sampleQuadratic(cx - 12, midY + 25, cx, midY + 10, cx + 14, midY + 15));
+    } else {
+      pts.push(...sampleLine(cx - 10, midY + 15, cx - 10, baseY));
+      pts.push(...sampleLine(cx + 10, midY + 15, cx + 10, baseY));
+      pts.push(...sampleLine(cx - 10, midY + 30, cx + 10, midY + 30));
+    }
+  }
+
+  return pts;
+}
+
+// ============================================================================
 // 4. CLASE PRINCIPAL: LETTER TRACING SCREEN
 // ============================================================================
 class LetterTracingScreen {
@@ -3792,7 +3975,9 @@ class LetterTracingScreen {
     this.lastPoint = null;
     this.activeCrayonColor = '#ff5722'; // Naranja crayón
 
-    // Estado de cobertura
+    // Estado de cobertura y Memoria Muscular
+    this.hollowProgress = [];
+    this.gridRowProgress = [];
     this.hollowStrokesCompleted = { upper: new Set(), lower: new Set() };
     this.isIllustrationColored = false;
     this.rowLettersCompleted = [];
@@ -4030,6 +4215,7 @@ class LetterTracingScreen {
 
     this.setupArabot(container);
     this.setupCanvases(container);
+    this.initLevelProgress();
     this.drawBackground();
     this.startFxLoop();
     this.bindEvents(container);
@@ -4603,6 +4789,86 @@ class LetterTracingScreen {
     };
   }
 
+  // ==========================================================================
+  // INICIALIZACIÓN DE CHECKPOINTS DE MEMORIA MUSCULAR
+  // ==========================================================================
+  initLevelProgress() {
+    this.hollowProgress = [];
+    this.gridRowProgress = [];
+    this.hollowStrokesCompleted = { upper: new Set(), lower: new Set() };
+
+    if (!this.paintCanvas) return;
+    const W = this.paintCanvas.width;
+    const H = this.paintCanvas.height;
+
+    if (this.levelConfig.type === 'intro_hollow') {
+      const upperStrokes = this.pedagogicalData.uppercaseStrokes || [];
+      const lowerStrokes = this.pedagogicalData.lowercaseStrokes || [];
+
+      upperStrokes.forEach(stroke => {
+        const cps = sampleHollowStrokeCheckpoints(stroke, W, H);
+        this.hollowProgress.push({
+          id: stroke.id,
+          stroke,
+          isUpper: true,
+          isDot: stroke.isDot || false,
+          checkpoints: cps,
+          totalPoints: Math.max(1, cps.length),
+          hitCount: 0,
+          distanceDrawn: 0,
+          completed: false
+        });
+      });
+
+      lowerStrokes.forEach(stroke => {
+        const cps = sampleHollowStrokeCheckpoints(stroke, W, H);
+        this.hollowProgress.push({
+          id: stroke.id,
+          stroke,
+          isUpper: false,
+          isDot: stroke.isDot || false,
+          checkpoints: cps,
+          totalPoints: Math.max(1, cps.length),
+          hitCount: 0,
+          distanceDrawn: 0,
+          completed: false
+        });
+      });
+    } else if (this.levelConfig.type === 'grid_row' || this.levelConfig.type === 'grid_row_alternating') {
+      const topY = 115;
+      const midY = 215;
+      const baseY = 315;
+      const count = this.totalRowLetters;
+      const stepX = W / count;
+
+      for (let i = 0; i < count; i++) {
+        let char = '';
+        if (this.levelConfig.type === 'grid_row') {
+          char = this.levelConfig.char;
+        } else {
+          char = this.levelConfig.pattern[i];
+        }
+        const isUpper = (char === char.toUpperCase() && char !== char.toLowerCase());
+        const cx = (i + 0.5) * stepX;
+        const cps = sampleGridLetterCheckpoints(char, isUpper, cx, topY, midY, baseY);
+
+        this.gridRowProgress.push({
+          index: i,
+          char,
+          isUpper,
+          cx,
+          minX: cx - stepX * 0.48,
+          maxX: cx + stepX * 0.48,
+          checkpoints: cps,
+          totalPoints: Math.max(1, cps.length),
+          hitCount: 0,
+          distanceDrawn: 0,
+          completed: false
+        });
+      }
+    }
+  }
+
   handlePointerDown(x, y) {
     this.isDrawing = true;
     this.lastPoint = { x, y };
@@ -4610,16 +4876,25 @@ class LetterTracingScreen {
     // Trazar un punto de crayón inicial donde tocó el niño
     this.drawCrayonPoint(x, y);
     audio.playBrush();
-    this.checkTracingProgress(x, y);
+
+    // IMPORTANTE: NO se valida ni completa trazos en pointerdown.
+    // El niño debe mover su dedito / crayón para desarrollar memoria muscular.
   }
 
   handlePointerMove(x, y) {
     if (!this.isDrawing || !this.lastPoint) return;
 
+    const dx = x - this.lastPoint.x;
+    const dy = y - this.lastPoint.y;
+    const stepDist = Math.hypot(dx, dy);
+    if (stepDist < 2.5) return;
+
     // Dibujar trazo de crayón suave en tiempo real
     this.drawCrayonSegment(this.lastPoint.x, this.lastPoint.y, x, y);
     this.lastPoint = { x, y };
-    this.checkTracingProgress(x, y);
+
+    // Validar avance en la trayectoria de la línea punteada
+    this.checkTracingProgress(x, y, stepDist);
   }
 
   handlePointerUp() {
@@ -4654,80 +4929,103 @@ class LetterTracingScreen {
   }
 
   // ==========================================================================
-  // DETECCIÓN INTELIGENTE DE COBERTURA: ¡SE AUTO-RELLENA CON ESTRELLITAS!
+  // DETECCIÓN DE AVANCE Y VALIDACIÓN DE MEMORIA MUSCULAR
   // ==========================================================================
-  checkTracingProgress(x, y) {
+  checkTracingProgress(x, y, stepDist) {
     if (this.levelConfig.type === 'intro_hollow') {
-      this.checkIntroHollowHit(x, y);
+      this.checkIntroHollowProgress(x, y, stepDist);
     } else if (this.levelConfig.type === 'grid_row' || this.levelConfig.type === 'grid_row_alternating') {
-      this.checkGridRowHit(x, y);
+      this.checkGridRowProgress(x, y, stepDist);
     }
   }
 
   /**
-   * Cobertura de la A/a grande hueca (Nivel 1)
+   * Cobertura de la A/a grande hueca (Nivel 1): Trazo a trazo
    */
-  checkIntroHollowHit(x, y) {
-    const W = this.paintCanvas.width;
-    const H = this.paintCanvas.height;
+  checkIntroHollowProgress(x, y, stepDist) {
+    if (!this.hollowProgress) return;
+    const HIT_RADIUS = 34; // Radio ergonómico para dedito infantil
 
-    const upperStrokes = this.pedagogicalData.uppercaseStrokes || [];
-    const lowerStrokes = this.pedagogicalData.lowercaseStrokes || [];
+    for (const item of this.hollowProgress) {
+      if (item.completed) continue;
 
-    // Validar trazos mayúscula
-    upperStrokes.forEach(stroke => {
-      if (this.hollowStrokesCompleted.upper.has(stroke.id)) return;
-      if (this.isStrokeCovered(stroke, x, y, W, H)) {
-        this.hollowStrokesCompleted.upper.add(stroke.id);
-        this.snapHollowStroke(stroke, true);
+      // Caso especial: Punto de la letra 'i' minúscula
+      if (item.isDot) {
+        const cp = item.checkpoints[0];
+        if (cp && Math.hypot(x - cp.x, y - cp.y) <= 32) {
+          item.completed = true;
+          if (item.isUpper) this.hollowStrokesCompleted.upper.add(item.id);
+          else this.hollowStrokesCompleted.lower.add(item.id);
+          this.snapHollowStroke(item.stroke, item.isUpper);
+          this.emitStarBurst(cp.x, cp.y);
+          audio.playStar();
+          this.checkIntroCompletion();
+        }
+        continue;
+      }
+
+      // Trazos continuos: registrar puntos clave alcanzados
+      let newlyHit = false;
+      for (const cp of item.checkpoints) {
+        if (!cp.hit && Math.hypot(x - cp.x, y - cp.y) <= HIT_RADIUS) {
+          cp.hit = true;
+          item.hitCount++;
+          newlyHit = true;
+        }
+      }
+
+      if (newlyHit || this.isNearStroke(item, x, y, HIT_RADIUS + 12)) {
+        item.distanceDrawn += stepDist;
+      }
+
+      // Regla de memoria muscular:
+      // 1. Recorrer al menos el 70% de los checkpoints del trazo
+      // 2. Haber dibujado una distancia real mínima (evita toques rápidos)
+      // 3. Haber pasado cerca del inicio (flecha numerada) y del final
+      const coverage = item.hitCount / Math.max(1, item.totalPoints);
+      const minDistance = Math.max(45, item.totalPoints * 8);
+      const startPassed = item.checkpoints[0]?.hit || item.checkpoints[1]?.hit;
+      const endPassed = item.checkpoints[item.checkpoints.length - 1]?.hit || item.checkpoints[item.checkpoints.length - 2]?.hit;
+
+      if (coverage >= 0.70 && item.distanceDrawn >= minDistance && startPassed && endPassed) {
+        item.completed = true;
+        if (item.isUpper) this.hollowStrokesCompleted.upper.add(item.id);
+        else this.hollowStrokesCompleted.lower.add(item.id);
+
+        this.snapHollowStroke(item.stroke, item.isUpper);
         this.emitStarBurst(x, y);
         audio.playStar();
 
-        // Si se completó toda la mayúscula
-        if (this.hollowStrokesCompleted.upper.size === upperStrokes.length) {
+        // Notificación pedagógica de ARABOT
+        const upperCount = (this.pedagogicalData.uppercaseStrokes || []).length;
+        if (item.isUpper && this.hollowStrokesCompleted.upper.size === upperCount) {
           if (this.arabot) {
             this.arabot.speak(`¡Genial! ¡Ahora traza la pequeña <strong>${this.pedagogicalData.lowercase}</strong>! ⭐`);
             this.arabot.bounceHead();
           }
         }
-      }
-    });
 
-    // Validar trazos minúscula
-    lowerStrokes.forEach(stroke => {
-      if (this.hollowStrokesCompleted.lower.has(stroke.id)) return;
-      if (this.isStrokeCovered(stroke, x, y, W, H)) {
-        this.hollowStrokesCompleted.lower.add(stroke.id);
-        this.snapHollowStroke(stroke, false);
-        this.emitStarBurst(x, y);
-        audio.playStar();
-
-        // Si se completaron mayúscula y minúscula -> ¡Colorear árbol y ganar nivel!
-        if (this.hollowStrokesCompleted.upper.size === upperStrokes.length &&
-            this.hollowStrokesCompleted.lower.size === lowerStrokes.length) {
-          this.onIntroLevelComplete();
-        }
+        this.checkIntroCompletion();
       }
-    });
+    }
   }
 
-  isStrokeCovered(stroke, px, py, W, H) {
-    if (stroke.isDot) {
-      const p = stroke.points[0];
-      return Math.hypot(px - p.x * W, py - p.y * H) <= 45;
+  isNearStroke(item, x, y, maxDist = 45) {
+    if (!item.checkpoints) return false;
+    for (let i = 0; i < item.checkpoints.length; i++) {
+      const cp = item.checkpoints[i];
+      if (Math.hypot(x - cp.x, y - cp.y) <= maxDist) return true;
     }
+    return false;
+  }
 
-    // Verificar si el dedo pasó cerca de los puntos clave del trazo
-    const pts = stroke.points;
-    if (!pts || pts.length < 2) return false;
-
-    let hits = 0;
-    pts.forEach(p => {
-      const dist = Math.hypot(px - p.x * W, py - p.y * H);
-      if (dist <= 48) hits++;
-    });
-
-    return (hits >= Math.max(1, Math.floor(pts.length * 0.6)));
+  checkIntroCompletion() {
+    const upperStrokes = this.pedagogicalData.uppercaseStrokes || [];
+    const lowerStrokes = this.pedagogicalData.lowercaseStrokes || [];
+    if (this.hollowStrokesCompleted.upper.size === upperStrokes.length &&
+        this.hollowStrokesCompleted.lower.size === lowerStrokes.length) {
+      this.onIntroLevelComplete();
+    }
   }
 
   /**
@@ -4803,27 +5101,43 @@ class LetterTracingScreen {
   /**
    * Cobertura de letras en el renglón de cuadrícula (Niveles 2, 3, 4, 5...)
    */
-  checkGridRowHit(x, y) {
-    const W = this.paintCanvas.width;
-    const topY = 115;
-    const baseY = 315;
-    const count = this.totalRowLetters;
-    const stepX = W / count;
+  checkGridRowProgress(x, y, stepDist) {
+    if (!this.gridRowProgress) return;
+    const HIT_RADIUS = 28;
 
-    for (let i = 0; i < count; i++) {
-      if (this.rowLettersCompleted[i]) continue;
+    for (const item of this.gridRowProgress) {
+      if (item.completed) continue;
 
-      const cx = (i + 0.5) * stepX;
-      const minX = cx - (stepX * 0.44);
-      const maxX = cx + (stepX * 0.44);
+      // La letra evaluada debe coincidir con la columna horizontal
+      if (x < item.minX || x > item.maxX) continue;
 
-      // Si el niño trazó dentro de la caja de esta letra
-      if (x >= minX && x <= maxX && y >= topY - 20 && y <= baseY + 30) {
-        this.rowLettersCompleted[i] = true;
+      let newlyHit = false;
+      for (const cp of item.checkpoints) {
+        if (!cp.hit && Math.hypot(x - cp.x, y - cp.y) <= HIT_RADIUS) {
+          cp.hit = true;
+          item.hitCount++;
+          newlyHit = true;
+        }
+      }
 
-        // Auto-rellenar esa letra en color sólido
-        this.snapGridRowLetter(i, cx);
-        this.emitStarBurst(cx, (topY + baseY) / 2);
+      if (newlyHit || (y >= 90 && y <= 335)) {
+        item.distanceDrawn += stepDist;
+      }
+
+      const coverage = item.hitCount / Math.max(1, item.totalPoints);
+      const minDistance = item.isUpper ? 60 : 45;
+
+      // Criterio de memoria muscular: Recorrer al menos el 65% de la letra punteada
+      if (coverage >= 0.65 && item.distanceDrawn >= minDistance) {
+        item.completed = true;
+        this.rowLettersCompleted[item.index] = true;
+
+        // Limpiar trazos rústicos de crayón en la casilla de esta letra
+        this.paintCtx.clearRect(item.minX, 85, item.maxX - item.minX, 255);
+
+        // Auto-rellenar esa letra en trazo sólido brillante
+        this.snapGridRowLetter(item.index, item.cx);
+        this.emitStarBurst(item.cx, 215);
         audio.playPop();
 
         // Actualizar contador visual
@@ -4832,7 +5146,7 @@ class LetterTracingScreen {
         if (label) label.innerText = `${completedCount}`;
 
         // Si completó todas las letras del renglón
-        if (completedCount === count) {
+        if (completedCount === this.totalRowLetters) {
           this.onRowLevelComplete();
         }
       }
@@ -5198,6 +5512,7 @@ class LetterTracingScreen {
     if (this.rowLettersCompleted) {
       this.rowLettersCompleted.fill(false);
     }
+    this.initLevelProgress();
     const label = document.getElementById('completedCountLabel');
     if (label) label.innerText = '0';
 
@@ -6840,7 +7155,7 @@ class App {
 // Inicializar la aplicación cuando el DOM esté listo
 
 
-  // Inicialización inmediata y segura en cualquier entorno
+  // InicializaciÃ³n inmediata y segura en cualquier entorno
   function bootstrap() {
     if (!window.__APP_INSTANCE) {
       window.__APP_INSTANCE = new App();

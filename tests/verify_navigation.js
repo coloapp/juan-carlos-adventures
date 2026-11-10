@@ -382,6 +382,156 @@ const tests = [
     }
   },
   {
+    name: 'Motor de Memoria Muscular: Validación de no-autocompletado al toque y avance por recorrido continuo',
+    run: () => {
+      app.screens['letter-tracing'].resetState();
+      app.navigate('letter-tracing');
+      const card = appRoot.querySelector('[data-game="vocales_cuadernillo"]');
+      if (!card) throw new Error('No se encontró vocales_cuadernillo');
+      card.click();
+      const node1 = appRoot.querySelector('[data-level="1"]');
+      if (!node1) throw new Error('No se encontró nivel 1');
+      node1.click();
+
+      const screen = app.screens['letter-tracing'];
+      const paintCanvas = appRoot.querySelector('#paintCanvas');
+      if (!paintCanvas) throw new Error('No se encontró paintCanvas');
+
+      // 1. Simular toque estático (tap simple) sobre el inicio del trazo A1 (x: 150, y: 75)
+      paintCanvas.dispatchEvent({
+        type: 'pointerdown',
+        pointerId: 1,
+        clientX: 150,
+        clientY: 75,
+        preventDefault: () => {}
+      });
+      paintCanvas.dispatchEvent({
+        type: 'pointerup',
+        pointerId: 1,
+        preventDefault: () => {}
+      });
+
+      // Debe estar INCOMPLETO (NO "boom se llena" con un solo toque)
+      if (screen.hollowStrokesCompleted.upper.size > 0) {
+        throw new Error('Fallo de memoria muscular: Un simple toque autocompletó el trazo.');
+      }
+
+      // 2. Simular recorrido real a lo largo de la diagonal izquierda (de arriba hacia abajo)
+      // A1 va desde (0.1974*760=150, 0.1786*420=75) hacia (0.1026*760=78, 0.7738*420=325)
+      paintCanvas.dispatchEvent({
+        type: 'pointerdown',
+        pointerId: 1,
+        clientX: 150,
+        clientY: 75,
+        preventDefault: () => {}
+      });
+
+      for (let s = 1; s <= 20; s++) {
+        const t = s / 20;
+        const curX = 150 + (78 - 150) * t;
+        const curY = 75 + (325 - 75) * t;
+        paintCanvas.dispatchEvent({
+          type: 'pointermove',
+          pointerId: 1,
+          clientX: curX,
+          clientY: curY,
+          preventDefault: () => {}
+        });
+      }
+
+      paintCanvas.dispatchEvent({
+        type: 'pointerup',
+        pointerId: 1,
+        preventDefault: () => {}
+      });
+
+      // Ahora que hizo el recorrido completo con su dedo, el trazo A1 debe completarse exitosamente
+      if (!screen.hollowStrokesCompleted.upper.has('A1')) {
+        throw new Error('Fallo de memoria muscular: El recorrido continuo no validó el trazo A1.');
+      }
+
+      // 3. Probar Nivel 2 (Renglón de cuadrícula de 8 letras A)
+      screen.currentLevel = 2;
+      screen.renderLevelGame(appRoot);
+
+      const paintCanvas2 = appRoot.querySelector('#paintCanvas');
+      if (!paintCanvas2) throw new Error('No se encontró paintCanvas en nivel 2');
+
+      // Letra 0 está en cx = (0 + 0.5) * (760/8) = 47.5
+      // Simular tap simple: NO debe completarse
+      paintCanvas2.dispatchEvent({
+        type: 'pointerdown',
+        pointerId: 1,
+        clientX: 47,
+        clientY: 120,
+        preventDefault: () => {}
+      });
+      paintCanvas2.dispatchEvent({
+        type: 'pointerup',
+        pointerId: 1,
+        preventDefault: () => {}
+      });
+
+      if (screen.rowLettersCompleted[0]) {
+        throw new Error('Fallo de memoria muscular: Un simple toque autocompletó la letra en el renglón.');
+      }
+
+      // Simular trazo real de la A en el renglón (diagonal izq, diagonal der y barra central)
+      paintCanvas2.dispatchEvent({
+        type: 'pointerdown',
+        pointerId: 1,
+        clientX: 47,
+        clientY: 120,
+        preventDefault: () => {}
+      });
+
+      // Diagonal izquierda (47, 120) a (21, 315)
+      for (let s = 1; s <= 15; s++) {
+        const t = s / 15;
+        paintCanvas2.dispatchEvent({
+          type: 'pointermove',
+          pointerId: 1,
+          clientX: 47 + (21 - 47) * t,
+          clientY: 120 + (315 - 120) * t,
+          preventDefault: () => {}
+        });
+      }
+      // Diagonal derecha (47, 120) a (73, 315)
+      for (let s = 1; s <= 15; s++) {
+        const t = s / 15;
+        paintCanvas2.dispatchEvent({
+          type: 'pointermove',
+          pointerId: 1,
+          clientX: 47 + (73 - 47) * t,
+          clientY: 120 + (315 - 120) * t,
+          preventDefault: () => {}
+        });
+      }
+      // Barra central (32, 215) a (62, 215)
+      for (let s = 1; s <= 10; s++) {
+        const t = s / 10;
+        paintCanvas2.dispatchEvent({
+          type: 'pointermove',
+          pointerId: 1,
+          clientX: 32 + (62 - 32) * t,
+          clientY: 215,
+          preventDefault: () => {}
+        });
+      }
+
+      paintCanvas2.dispatchEvent({
+        type: 'pointerup',
+        pointerId: 1,
+        preventDefault: () => {}
+      });
+
+      // Ahora sí debe estar completada la letra 0
+      if (!screen.rowLettersCompleted[0]) {
+        throw new Error('Fallo de memoria muscular: El trazo continuo del renglón no validó la letra.');
+      }
+    }
+  },
+  {
     name: 'Módulo de Números: Selector y Nivel 1',
     run: () => {
       app.navigate('numbers');
