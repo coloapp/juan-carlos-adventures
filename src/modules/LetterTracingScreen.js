@@ -894,7 +894,7 @@ export class LetterTracingScreen {
 
     container.querySelector('#btnBackToHome')?.addEventListener('click', () => {
       audio.playClick();
-      this.cleanup();
+      this.resetState();
       this.navigator.navigate('home');
     });
 
@@ -920,9 +920,17 @@ export class LetterTracingScreen {
     LevelSelector.render({
       container,
       moduleKey: subgame.moduleKey,
-      totalLevels: subgame.totalLevels,
+      moduleTitle: subgame.title,
+      moduleIcon: subgame.icon,
       title: subgame.title,
       icon: subgame.icon,
+      totalLevels: subgame.totalLevels,
+      onBackHome: () => {
+        audio.playClick();
+        this.activeSubgame = null;
+        this.currentLevel = null;
+        this.render(container);
+      },
       onBack: () => {
         audio.playClick();
         this.activeSubgame = null;
@@ -2326,6 +2334,12 @@ export class LetterTracingScreen {
       ctx.lineTo(W, y);
       ctx.stroke();
     }
+  }
+
+  resetState() {
+    this.activeSubgame = null;
+    this.currentLevel = null;
+    this.cleanup();
   }
 
   cleanup() {

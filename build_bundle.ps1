@@ -1,4 +1,4 @@
-# build_bundle.ps1 - Generador universal de bundle.js para Juan Carlos's Adventures
+﻿# build_bundle.ps1 - Generador universal de bundle.js para Juan Carlos's Adventures
 $files = @(
     "src/core/StorageManager.js",
     "src/core/AudioManager.js",
@@ -87,3 +87,20 @@ $combined += $bundleFooter
 
 Set-Content -Path "bundle.js" -Value $combined -Encoding UTF8
 Write-Host "bundle.js generado exitosamente. Tamano: $((Get-Item 'bundle.js').Length) bytes."
+
+# Verificación de sintaxis con Node
+node -c bundle.js
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "Error de sintaxis en bundle.js. Abortando."
+    exit 1
+}
+
+# Verificación automatizada de navegación y clics
+Write-Host "Ejecutando suite automatizada de pruebas de navegacion..." -ForegroundColor Cyan
+node tests/verify_navigation.js
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "Pruebas de navegacion fallaron. El bundle no esta listo para produccion."
+    exit 1
+}
+
+Write-Host "Todas las pruebas pasaron exitosamente. Bundle listo para produccion." -ForegroundColor Green

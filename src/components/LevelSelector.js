@@ -19,16 +19,14 @@ export class LevelSelector {
    *   - onBackHome: Función callback para volver al menú principal
    */
   static render(config) {
-    const {
-      container,
-      moduleKey,
-      moduleTitle,
-      moduleIcon = '⭐',
-      bgClass = '',
-      totalLevels = 50,
-      onSelectLevel,
-      onBackHome
-    } = config;
+    const container = config.container;
+    const moduleKey = config.moduleKey || 'general';
+    const moduleTitle = config.moduleTitle || config.title || 'NIVELES';
+    const moduleIcon = config.moduleIcon || config.icon || '⭐';
+    const bgClass = config.bgClass || '';
+    const totalLevels = config.totalLevels || 50;
+    const onSelectLevel = config.onSelectLevel;
+    const onBackHome = config.onBackHome || config.onBack;
 
     const student = StorageManager.getActiveStudent();
     const progress = StorageManager.getModuleLevels(moduleKey);
@@ -43,9 +41,9 @@ export class LevelSelector {
           <button class="back-btn" id="btnBackHomeFromLevels">⬅️ Menú</button>
           
           <div class="selector-title-group">
-            <h2 class="selector-module-title">${moduleIcon} ${moduleTitle.toUpperCase()}</h2>
+            <h2 class="selector-module-title">${moduleIcon} ${(moduleTitle || 'NIVELES').toUpperCase()}</h2>
             <div class="levels-subtitle-pill">
-              50 Juegos Didácticos • Completados: <strong>${completedCount}/50</strong>
+              ${totalLevels} Juegos Didácticos • Completados: <strong>${completedCount}/${totalLevels}</strong>
             </div>
           </div>
 

@@ -82,9 +82,15 @@ export class NameTracingScreen {
       LevelSelector.render({
         container,
         moduleKey: 'name-tracing',
+        moduleTitle: 'Traza tu Nombre',
+        moduleIcon: '⭐',
         title: 'Traza tu Nombre',
         icon: '⭐',
         totalLevels: 50,
+        onBackHome: () => {
+          audio.playClick();
+          this.navigator.navigate('home');
+        },
         onBack: () => {
           audio.playClick();
           this.navigator.navigate('home');

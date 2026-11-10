@@ -1,7 +1,7 @@
 ﻿/**
  * Juan Carlos's Adventures - Standalone Universal Bundle
  * Compatible con file:/// (sin CORS), GitHub Pages y Android WebView.
- * Organizado en EspaÃ±ol con 50 Juegos en CÃ­rculos por mÃ³dulo y validaciÃ³n por waypoints.
+ * Organizado en Español con 50 Juegos en Círculos por módulo y validación por waypoints.
  */
 (function() {
   'use strict';
@@ -705,16 +705,14 @@ class LevelSelector {
    *   - onBackHome: Función callback para volver al menú principal
    */
   static render(config) {
-    const {
-      container,
-      moduleKey,
-      moduleTitle,
-      moduleIcon = '⭐',
-      bgClass = '',
-      totalLevels = 50,
-      onSelectLevel,
-      onBackHome
-    } = config;
+    const container = config.container;
+    const moduleKey = config.moduleKey || 'general';
+    const moduleTitle = config.moduleTitle || config.title || 'NIVELES';
+    const moduleIcon = config.moduleIcon || config.icon || '⭐';
+    const bgClass = config.bgClass || '';
+    const totalLevels = config.totalLevels || 50;
+    const onSelectLevel = config.onSelectLevel;
+    const onBackHome = config.onBackHome || config.onBack;
 
     const student = StorageManager.getActiveStudent();
     const progress = StorageManager.getModuleLevels(moduleKey);
@@ -729,9 +727,9 @@ class LevelSelector {
           <button class="back-btn" id="btnBackHomeFromLevels">⬅️ Menú</button>
           
           <div class="selector-title-group">
-            <h2 class="selector-module-title">${moduleIcon} ${moduleTitle.toUpperCase()}</h2>
+            <h2 class="selector-module-title">${moduleIcon} ${(moduleTitle || 'NIVELES').toUpperCase()}</h2>
             <div class="levels-subtitle-pill">
-              50 Juegos Didácticos • Completados: <strong>${completedCount}/50</strong>
+              ${totalLevels} Juegos Didácticos • Completados: <strong>${completedCount}/${totalLevels}</strong>
             </div>
           </div>
 
@@ -2299,9 +2297,15 @@ class NameTracingScreen {
       LevelSelector.render({
         container,
         moduleKey: 'name-tracing',
+        moduleTitle: 'Traza tu Nombre',
+        moduleIcon: '⭐',
         title: 'Traza tu Nombre',
         icon: '⭐',
         totalLevels: 50,
+        onBackHome: () => {
+          audio.playClick();
+          this.navigator.navigate('home');
+        },
         onBack: () => {
           audio.playClick();
           this.navigator.navigate('home');
@@ -3886,7 +3890,7 @@ class LetterTracingScreen {
 
     container.querySelector('#btnBackToHome')?.addEventListener('click', () => {
       audio.playClick();
-      this.cleanup();
+      this.resetState();
       this.navigator.navigate('home');
     });
 
@@ -3912,9 +3916,17 @@ class LetterTracingScreen {
     LevelSelector.render({
       container,
       moduleKey: subgame.moduleKey,
-      totalLevels: subgame.totalLevels,
+      moduleTitle: subgame.title,
+      moduleIcon: subgame.icon,
       title: subgame.title,
       icon: subgame.icon,
+      totalLevels: subgame.totalLevels,
+      onBackHome: () => {
+        audio.playClick();
+        this.activeSubgame = null;
+        this.currentLevel = null;
+        this.render(container);
+      },
       onBack: () => {
         audio.playClick();
         this.activeSubgame = null;
@@ -5318,6 +5330,12 @@ class LetterTracingScreen {
       ctx.lineTo(W, y);
       ctx.stroke();
     }
+  }
+
+  resetState() {
+    this.activeSubgame = null;
+    this.currentLevel = null;
+    this.cleanup();
   }
 
   cleanup() {
@@ -6822,7 +6840,7 @@ class App {
 // Inicializar la aplicación cuando el DOM esté listo
 
 
-  // InicializaciÃ³n inmediata y segura en cualquier entorno
+  // Inicialización inmediata y segura en cualquier entorno
   function bootstrap() {
     if (!window.__APP_INSTANCE) {
       window.__APP_INSTANCE = new App();
