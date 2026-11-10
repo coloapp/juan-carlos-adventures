@@ -10,7 +10,7 @@
   --accent-purple: #9c27b0;
   --accent-teal: #009688;
   --bg-sky: linear-gradient(180deg, #87ceeb 0%, #b0e0e6 100%);
-  --font-child: 'Comic Sans MS', 'Chalkboard SE', 'Fredoka One', 'Quicksand', system-ui, sans-serif;
+  --font-child: 'Fredoka', 'Quicksand', 'Nunito', 'Chalkboard SE', 'Comic Sans MS', system-ui, sans-serif;
   --card-radius: 24px;
 }
 
