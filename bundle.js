@@ -1,7 +1,7 @@
 ﻿/**
  * Juan Carlos's Adventures - Standalone Universal Bundle
  * Compatible con file:/// (sin CORS), GitHub Pages y Android WebView.
- * Organizado en EspaÃ±ol con 50 Juegos en CÃ­rculos por mÃ³dulo y validaciÃ³n por waypoints.
+ * Organizado en Español con 50 Juegos en Círculos por módulo y validación por waypoints.
  */
 (function() {
   'use strict';
@@ -1089,6 +1089,674 @@ class ArabotAssistant {
 
 
   /* ==========================================================================
+     FILE: src/core/StrokeGenerator.js
+     ========================================================================== */
+
+/**
+ * StrokeGenerator.js - Motor Universal Pedagógico y Generador de Trazos
+ * Basado en los estándares SEP de preescolar y método fonético / caligráfico escolar.
+ * 
+ * Capacidades:
+ * - Define la geometría exacta, dirección, puntos numerados y flechas para:
+ *   • Las 26 letras mayúsculas (A - Z)
+ *   • Las 26 letras minúsculas (a - z)
+ *   • Los 10 dígitos numéricos (0 - 9)
+ *   • 8 patrones de grafomotricidad preescolar (líneas, curvas, olas, zig-zag, espirales)
+ * - Muestreo denso de puntos de trayectoria (checkpoints) para detección suave y tolerante.
+ * - Generador de trazos para palabras y nombres completos (ej. JUAN CARLOS, MAMÁ, etc.).
+ * - Renderizado en canvas con guías punteadas, insignias numeradas y animación guía.
+ */
+
+// Puntos clave normalizados (0.0 a 1.0) para cada letra mayúscula
+const UPPERCASE_STROKES = {
+  'A': [
+    { id: 'A1', label: '1', arrow: '↙', type: 'line', pts: [{ x: 0.50, y: 0.12 }, { x: 0.18, y: 0.88 }] },
+    { id: 'A2', label: '2', arrow: '↘', type: 'line', pts: [{ x: 0.50, y: 0.12 }, { x: 0.82, y: 0.88 }] },
+    { id: 'A3', label: '3', arrow: '➔', type: 'line', pts: [{ x: 0.30, y: 0.58 }, { x: 0.70, y: 0.58 }] }
+  ],
+  'B': [
+    { id: 'B1', label: '1', arrow: '↓', type: 'line', pts: [{ x: 0.28, y: 0.12 }, { x: 0.28, y: 0.88 }] },
+    { id: 'B2', label: '2', arrow: '↷', type: 'curve', pts: [{ x: 0.28, y: 0.12 }, { x: 0.76, y: 0.12 }, { x: 0.76, y: 0.48 }, { x: 0.28, y: 0.48 }] },
+    { id: 'B3', label: '3', arrow: '↷', type: 'curve', pts: [{ x: 0.28, y: 0.48 }, { x: 0.82, y: 0.48 }, { x: 0.82, y: 0.88 }, { x: 0.28, y: 0.88 }] }
+  ],
+  'C': [
+    { id: 'C1', label: '1', arrow: '↺', type: 'curve', pts: [{ x: 0.80, y: 0.24 }, { x: 0.48, y: 0.12 }, { x: 0.18, y: 0.50 }, { x: 0.48, y: 0.88 }, { x: 0.80, y: 0.76 }] }
+  ],
+  'D': [
+    { id: 'D1', label: '1', arrow: '↓', type: 'line', pts: [{ x: 0.28, y: 0.12 }, { x: 0.28, y: 0.88 }] },
+    { id: 'D2', label: '2', arrow: '↷', type: 'curve', pts: [{ x: 0.28, y: 0.12 }, { x: 0.84, y: 0.20 }, { x: 0.84, y: 0.80 }, { x: 0.28, y: 0.88 }] }
+  ],
+  'E': [
+    { id: 'E1', label: '1', arrow: '↓', type: 'line', pts: [{ x: 0.26, y: 0.12 }, { x: 0.26, y: 0.88 }] },
+    { id: 'E2', label: '2', arrow: '➔', type: 'line', pts: [{ x: 0.26, y: 0.12 }, { x: 0.76, y: 0.12 }] },
+    { id: 'E3', label: '3', arrow: '➔', type: 'line', pts: [{ x: 0.26, y: 0.50 }, { x: 0.66, y: 0.50 }] },
+    { id: 'E4', label: '4', arrow: '➔', type: 'line', pts: [{ x: 0.26, y: 0.88 }, { x: 0.76, y: 0.88 }] }
+  ],
+  'F': [
+    { id: 'F1', label: '1', arrow: '↓', type: 'line', pts: [{ x: 0.26, y: 0.12 }, { x: 0.26, y: 0.88 }] },
+    { id: 'F2', label: '2', arrow: '➔', type: 'line', pts: [{ x: 0.26, y: 0.12 }, { x: 0.76, y: 0.12 }] },
+    { id: 'F3', label: '3', arrow: '➔', type: 'line', pts: [{ x: 0.26, y: 0.50 }, { x: 0.66, y: 0.50 }] }
+  ],
+  'G': [
+    { id: 'G1', label: '1', arrow: '↺', type: 'curve', pts: [{ x: 0.80, y: 0.24 }, { x: 0.48, y: 0.12 }, { x: 0.18, y: 0.50 }, { x: 0.48, y: 0.88 }, { x: 0.78, y: 0.80 }] },
+    { id: 'G2', label: '2', arrow: '↑', type: 'line', pts: [{ x: 0.78, y: 0.80 }, { x: 0.78, y: 0.52 }] },
+    { id: 'G3', label: '3', arrow: '⬅', type: 'line', pts: [{ x: 0.78, y: 0.52 }, { x: 0.54, y: 0.52 }] }
+  ],
+  'H': [
+    { id: 'H1', label: '1', arrow: '↓', type: 'line', pts: [{ x: 0.26, y: 0.12 }, { x: 0.26, y: 0.88 }] },
+    { id: 'H2', label: '2', arrow: '↓', type: 'line', pts: [{ x: 0.74, y: 0.12 }, { x: 0.74, y: 0.88 }] },
+    { id: 'H3', label: '3', arrow: '➔', type: 'line', pts: [{ x: 0.26, y: 0.50 }, { x: 0.74, y: 0.50 }] }
+  ],
+  'I': [
+    { id: 'I1', label: '1', arrow: '↓', type: 'line', pts: [{ x: 0.50, y: 0.12 }, { x: 0.50, y: 0.88 }] },
+    { id: 'I2', label: '2', arrow: '➔', type: 'line', pts: [{ x: 0.30, y: 0.12 }, { x: 0.70, y: 0.12 }] },
+    { id: 'I3', label: '3', arrow: '➔', type: 'line', pts: [{ x: 0.30, y: 0.88 }, { x: 0.70, y: 0.88 }] }
+  ],
+  'J': [
+    { id: 'J1', label: '1', arrow: '➔', type: 'line', pts: [{ x: 0.32, y: 0.12 }, { x: 0.76, y: 0.12 }] },
+    { id: 'J2', label: '2', arrow: '↓', type: 'curve', pts: [{ x: 0.62, y: 0.12 }, { x: 0.62, y: 0.72 }, { x: 0.44, y: 0.88 }, { x: 0.26, y: 0.76 }] }
+  ],
+  'K': [
+    { id: 'K1', label: '1', arrow: '↓', type: 'line', pts: [{ x: 0.26, y: 0.12 }, { x: 0.26, y: 0.88 }] },
+    { id: 'K2', label: '2', arrow: '↙', type: 'line', pts: [{ x: 0.76, y: 0.16 }, { x: 0.28, y: 0.52 }] },
+    { id: 'K3', label: '3', arrow: '↘', type: 'line', pts: [{ x: 0.28, y: 0.52 }, { x: 0.76, y: 0.88 }] }
+  ],
+  'L': [
+    { id: 'L1', label: '1', arrow: '↓', type: 'line', pts: [{ x: 0.28, y: 0.12 }, { x: 0.28, y: 0.88 }] },
+    { id: 'L2', label: '2', arrow: '➔', type: 'line', pts: [{ x: 0.28, y: 0.88 }, { x: 0.76, y: 0.88 }] }
+  ],
+  'M': [
+    { id: 'M1', label: '1', arrow: '↑', type: 'line', pts: [{ x: 0.20, y: 0.88 }, { x: 0.20, y: 0.12 }] },
+    { id: 'M2', label: '2', arrow: '↘', type: 'line', pts: [{ x: 0.20, y: 0.12 }, { x: 0.50, y: 0.65 }] },
+    { id: 'M3', label: '3', arrow: '↗', type: 'line', pts: [{ x: 0.50, y: 0.65 }, { x: 0.80, y: 0.12 }] },
+    { id: 'M4', label: '4', arrow: '↓', type: 'line', pts: [{ x: 0.80, y: 0.12 }, { x: 0.80, y: 0.88 }] }
+  ],
+  'N': [
+    { id: 'N1', label: '1', arrow: '↑', type: 'line', pts: [{ x: 0.24, y: 0.88 }, { x: 0.24, y: 0.12 }] },
+    { id: 'N2', label: '2', arrow: '↘', type: 'line', pts: [{ x: 0.24, y: 0.12 }, { x: 0.76, y: 0.88 }] },
+    { id: 'N3', label: '3', arrow: '↑', type: 'line', pts: [{ x: 0.76, y: 0.88 }, { x: 0.76, y: 0.12 }] }
+  ],
+  'O': [
+    { id: 'O1', label: '1', arrow: '↺', type: 'curve', pts: [{ x: 0.50, y: 0.12 }, { x: 0.18, y: 0.35 }, { x: 0.18, y: 0.65 }, { x: 0.50, y: 0.88 }, { x: 0.82, y: 0.65 }, { x: 0.82, y: 0.35 }, { x: 0.50, y: 0.12 }] }
+  ],
+  'P': [
+    { id: 'P1', label: '1', arrow: '↓', type: 'line', pts: [{ x: 0.28, y: 0.12 }, { x: 0.28, y: 0.88 }] },
+    { id: 'P2', label: '2', arrow: '↷', type: 'curve', pts: [{ x: 0.28, y: 0.12 }, { x: 0.82, y: 0.12 }, { x: 0.82, y: 0.52 }, { x: 0.28, y: 0.52 }] }
+  ],
+  'Q': [
+    { id: 'Q1', label: '1', arrow: '↺', type: 'curve', pts: [{ x: 0.50, y: 0.12 }, { x: 0.18, y: 0.35 }, { x: 0.18, y: 0.65 }, { x: 0.50, y: 0.88 }, { x: 0.82, y: 0.65 }, { x: 0.82, y: 0.35 }, { x: 0.50, y: 0.12 }] },
+    { id: 'Q2', label: '2', arrow: '↘', type: 'line', pts: [{ x: 0.56, y: 0.68 }, { x: 0.85, y: 0.92 }] }
+  ],
+  'R': [
+    { id: 'R1', label: '1', arrow: '↓', type: 'line', pts: [{ x: 0.28, y: 0.12 }, { x: 0.28, y: 0.88 }] },
+    { id: 'R2', label: '2', arrow: '↷', type: 'curve', pts: [{ x: 0.28, y: 0.12 }, { x: 0.80, y: 0.12 }, { x: 0.80, y: 0.50 }, { x: 0.28, y: 0.50 }] },
+    { id: 'R3', label: '3', arrow: '↘', type: 'line', pts: [{ x: 0.48, y: 0.50 }, { x: 0.80, y: 0.88 }] }
+  ],
+  'S': [
+    { id: 'S1', label: '1', arrow: '↺', type: 'curve', pts: [{ x: 0.78, y: 0.24 }, { x: 0.50, y: 0.12 }, { x: 0.22, y: 0.30 }, { x: 0.50, y: 0.50 }, { x: 0.78, y: 0.70 }, { x: 0.50, y: 0.88 }, { x: 0.22, y: 0.76 }] }
+  ],
+  'T': [
+    { id: 'T1', label: '1', arrow: '➔', type: 'line', pts: [{ x: 0.18, y: 0.12 }, { x: 0.82, y: 0.12 }] },
+    { id: 'T2', label: '2', arrow: '↓', type: 'line', pts: [{ x: 0.50, y: 0.12 }, { x: 0.50, y: 0.88 }] }
+  ],
+  'U': [
+    { id: 'U1', label: '1', arrow: '∪', type: 'curve', pts: [{ x: 0.24, y: 0.12 }, { x: 0.24, y: 0.68 }, { x: 0.50, y: 0.88 }, { x: 0.76, y: 0.68 }, { x: 0.76, y: 0.12 }] }
+  ],
+  'V': [
+    { id: 'V1', label: '1', arrow: '↘', type: 'line', pts: [{ x: 0.20, y: 0.12 }, { x: 0.50, y: 0.88 }] },
+    { id: 'V2', label: '2', arrow: '↗', type: 'line', pts: [{ x: 0.50, y: 0.88 }, { x: 0.80, y: 0.12 }] }
+  ],
+  'W': [
+    { id: 'W1', label: '1', arrow: '↘', type: 'line', pts: [{ x: 0.14, y: 0.12 }, { x: 0.32, y: 0.88 }] },
+    { id: 'W2', label: '2', arrow: '↗', type: 'line', pts: [{ x: 0.32, y: 0.88 }, { x: 0.50, y: 0.40 }] },
+    { id: 'W3', label: '3', arrow: '↘', type: 'line', pts: [{ x: 0.50, y: 0.40 }, { x: 0.68, y: 0.88 }] },
+    { id: 'W4', label: '4', arrow: '↗', type: 'line', pts: [{ x: 0.68, y: 0.88 }, { x: 0.86, y: 0.12 }] }
+  ],
+  'X': [
+    { id: 'X1', label: '1', arrow: '↘', type: 'line', pts: [{ x: 0.22, y: 0.14 }, { x: 0.78, y: 0.86 }] },
+    { id: 'X2', label: '2', arrow: '↙', type: 'line', pts: [{ x: 0.78, y: 0.14 }, { x: 0.22, y: 0.86 }] }
+  ],
+  'Y': [
+    { id: 'Y1', label: '1', arrow: '↘', type: 'line', pts: [{ x: 0.20, y: 0.12 }, { x: 0.50, y: 0.50 }] },
+    { id: 'Y2', label: '2', arrow: '↙', type: 'line', pts: [{ x: 0.80, y: 0.12 }, { x: 0.50, y: 0.50 }] },
+    { id: 'Y3', label: '3', arrow: '↓', type: 'line', pts: [{ x: 0.50, y: 0.50 }, { x: 0.50, y: 0.88 }] }
+  ],
+  'Z': [
+    { id: 'Z1', label: '1', arrow: '➔', type: 'line', pts: [{ x: 0.22, y: 0.14 }, { x: 0.78, y: 0.14 }] },
+    { id: 'Z2', label: '2', arrow: '↙', type: 'line', pts: [{ x: 0.78, y: 0.14 }, { x: 0.22, y: 0.86 }] },
+    { id: 'Z3', label: '3', arrow: '➔', type: 'line', pts: [{ x: 0.22, y: 0.86 }, { x: 0.78, y: 0.86 }] }
+  ]
+};
+
+// Puntos clave normalizados para cada letra minúscula
+const LOWERCASE_STROKES = {
+  'a': [
+    { id: 'a1', label: '1', arrow: '↺', type: 'curve', pts: [{ x: 0.70, y: 0.50 }, { x: 0.44, y: 0.40 }, { x: 0.24, y: 0.65 }, { x: 0.44, y: 0.88 }, { x: 0.70, y: 0.75 }] },
+    { id: 'a2', label: '2', arrow: '↓', type: 'line', pts: [{ x: 0.70, y: 0.42 }, { x: 0.70, y: 0.88 }] }
+  ],
+  'b': [
+    { id: 'b1', label: '1', arrow: '↓', type: 'line', pts: [{ x: 0.28, y: 0.12 }, { x: 0.28, y: 0.88 }] },
+    { id: 'b2', label: '2', arrow: '↻', type: 'curve', pts: [{ x: 0.28, y: 0.52 }, { x: 0.74, y: 0.44 }, { x: 0.74, y: 0.86 }, { x: 0.28, y: 0.88 }] }
+  ],
+  'c': [
+    { id: 'c1', label: '1', arrow: '↺', type: 'curve', pts: [{ x: 0.74, y: 0.50 }, { x: 0.48, y: 0.40 }, { x: 0.26, y: 0.65 }, { x: 0.48, y: 0.88 }, { x: 0.74, y: 0.78 }] }
+  ],
+  'd': [
+    { id: 'd1', label: '1', arrow: '↺', type: 'curve', pts: [{ x: 0.72, y: 0.50 }, { x: 0.46, y: 0.40 }, { x: 0.26, y: 0.65 }, { x: 0.46, y: 0.88 }, { x: 0.72, y: 0.75 }] },
+    { id: 'd2', label: '2', arrow: '↓', type: 'line', pts: [{ x: 0.72, y: 0.12 }, { x: 0.72, y: 0.88 }] }
+  ],
+  'e': [
+    { id: 'e1', label: '1', arrow: '➔', type: 'line', pts: [{ x: 0.28, y: 0.64 }, { x: 0.72, y: 0.64 }] },
+    { id: 'e2', label: '2', arrow: '↺', type: 'curve', pts: [{ x: 0.72, y: 0.64 }, { x: 0.50, y: 0.40 }, { x: 0.24, y: 0.64 }, { x: 0.48, y: 0.88 }, { x: 0.74, y: 0.80 }] }
+  ],
+  'f': [
+    { id: 'f1', label: '1', arrow: '↓', type: 'curve', pts: [{ x: 0.68, y: 0.18 }, { x: 0.46, y: 0.12 }, { x: 0.42, y: 0.40 }, { x: 0.42, y: 0.88 }] },
+    { id: 'f2', label: '2', arrow: '➔', type: 'line', pts: [{ x: 0.24, y: 0.46 }, { x: 0.64, y: 0.46 }] }
+  ],
+  'g': [
+    { id: 'g1', label: '1', arrow: '↺', type: 'curve', pts: [{ x: 0.70, y: 0.50 }, { x: 0.44, y: 0.40 }, { x: 0.24, y: 0.65 }, { x: 0.44, y: 0.86 }, { x: 0.70, y: 0.75 }] },
+    { id: 'g2', label: '2', arrow: '↓', type: 'curve', pts: [{ x: 0.70, y: 0.42 }, { x: 0.70, y: 0.94 }, { x: 0.48, y: 1.05 }, { x: 0.26, y: 0.96 }] }
+  ],
+  'h': [
+    { id: 'h1', label: '1', arrow: '↓', type: 'line', pts: [{ x: 0.28, y: 0.12 }, { x: 0.28, y: 0.88 }] },
+    { id: 'h2', label: '2', arrow: '↷', type: 'curve', pts: [{ x: 0.28, y: 0.58 }, { x: 0.50, y: 0.40 }, { x: 0.72, y: 0.56 }, { x: 0.72, y: 0.88 }] }
+  ],
+  'i': [
+    { id: 'i1', label: '1', arrow: '↓', type: 'line', pts: [{ x: 0.50, y: 0.42 }, { x: 0.50, y: 0.88 }] },
+    { id: 'i2', label: '•', arrow: '•', type: 'dot', isDot: true, pts: [{ x: 0.50, y: 0.24 }] }
+  ],
+  'j': [
+    { id: 'j1', label: '1', arrow: '↓', type: 'curve', pts: [{ x: 0.58, y: 0.42 }, { x: 0.58, y: 0.94 }, { x: 0.42, y: 1.05 }, { x: 0.26, y: 0.96 }] },
+    { id: 'j2', label: '•', arrow: '•', type: 'dot', isDot: true, pts: [{ x: 0.58, y: 0.24 }] }
+  ],
+  'k': [
+    { id: 'k1', label: '1', arrow: '↓', type: 'line', pts: [{ x: 0.30, y: 0.12 }, { x: 0.30, y: 0.88 }] },
+    { id: 'k2', label: '2', arrow: '↙', type: 'line', pts: [{ x: 0.72, y: 0.44 }, { x: 0.34, y: 0.65 }] },
+    { id: 'k3', label: '3', arrow: '↘', type: 'line', pts: [{ x: 0.34, y: 0.65 }, { x: 0.72, y: 0.88 }] }
+  ],
+  'l': [
+    { id: 'l1', label: '1', arrow: '↓', type: 'line', pts: [{ x: 0.50, y: 0.12 }, { x: 0.50, y: 0.88 }] }
+  ],
+  'm': [
+    { id: 'm1', label: '1', arrow: '↓', type: 'line', pts: [{ x: 0.20, y: 0.42 }, { x: 0.20, y: 0.88 }] },
+    { id: 'm2', label: '2', arrow: '↷', type: 'curve', pts: [{ x: 0.20, y: 0.58 }, { x: 0.36, y: 0.40 }, { x: 0.50, y: 0.56 }, { x: 0.50, y: 0.88 }] },
+    { id: 'm3', label: '3', arrow: '↷', type: 'curve', pts: [{ x: 0.50, y: 0.58 }, { x: 0.66, y: 0.40 }, { x: 0.80, y: 0.56 }, { x: 0.80, y: 0.88 }] }
+  ],
+  'n': [
+    { id: 'n1', label: '1', arrow: '↓', type: 'line', pts: [{ x: 0.28, y: 0.42 }, { x: 0.28, y: 0.88 }] },
+    { id: 'n2', label: '2', arrow: '↷', type: 'curve', pts: [{ x: 0.28, y: 0.58 }, { x: 0.50, y: 0.40 }, { x: 0.74, y: 0.56 }, { x: 0.74, y: 0.88 }] }
+  ],
+  'o': [
+    { id: 'o1', label: '1', arrow: '↺', type: 'curve', pts: [{ x: 0.50, y: 0.40 }, { x: 0.24, y: 0.52 }, { x: 0.24, y: 0.76 }, { x: 0.50, y: 0.88 }, { x: 0.76, y: 0.76 }, { x: 0.76, y: 0.52 }, { x: 0.50, y: 0.40 }] }
+  ],
+  'p': [
+    { id: 'p1', label: '1', arrow: '↓', type: 'line', pts: [{ x: 0.28, y: 0.42 }, { x: 0.28, y: 1.05 }] },
+    { id: 'p2', label: '2', arrow: '↻', type: 'curve', pts: [{ x: 0.28, y: 0.52 }, { x: 0.74, y: 0.44 }, { x: 0.74, y: 0.84 }, { x: 0.28, y: 0.88 }] }
+  ],
+  'q': [
+    { id: 'q1', label: '1', arrow: '↺', type: 'curve', pts: [{ x: 0.72, y: 0.50 }, { x: 0.46, y: 0.40 }, { x: 0.26, y: 0.65 }, { x: 0.46, y: 0.86 }, { x: 0.72, y: 0.75 }] },
+    { id: 'q2', label: '2', arrow: '↓', type: 'line', pts: [{ x: 0.72, y: 0.42 }, { x: 0.72, y: 1.05 }] }
+  ],
+  'r': [
+    { id: 'r1', label: '1', arrow: '↓', type: 'line', pts: [{ x: 0.30, y: 0.42 }, { x: 0.30, y: 0.88 }] },
+    { id: 'r2', label: '2', arrow: '↷', type: 'curve', pts: [{ x: 0.30, y: 0.58 }, { x: 0.48, y: 0.40 }, { x: 0.72, y: 0.46 }] }
+  ],
+  's': [
+    { id: 's1', label: '1', arrow: '↺', type: 'curve', pts: [{ x: 0.74, y: 0.50 }, { x: 0.50, y: 0.40 }, { x: 0.26, y: 0.54 }, { x: 0.50, y: 0.66 }, { x: 0.74, y: 0.78 }, { x: 0.50, y: 0.88 }, { x: 0.26, y: 0.80 }] }
+  ],
+  't': [
+    { id: 't1', label: '1', arrow: '↓', type: 'curve', pts: [{ x: 0.48, y: 0.20 }, { x: 0.48, y: 0.78 }, { x: 0.68, y: 0.88 }] },
+    { id: 't2', label: '2', arrow: '➔', type: 'line', pts: [{ x: 0.28, y: 0.45 }, { x: 0.68, y: 0.45 }] }
+  ],
+  'u': [
+    { id: 'u1', label: '1', arrow: '∪', type: 'curve', pts: [{ x: 0.26, y: 0.42 }, { x: 0.26, y: 0.72 }, { x: 0.50, y: 0.88 }, { x: 0.74, y: 0.72 }, { x: 0.74, y: 0.42 }] },
+    { id: 'u2', label: '2', arrow: '↓', type: 'line', pts: [{ x: 0.74, y: 0.42 }, { x: 0.74, y: 0.88 }] }
+  ],
+  'v': [
+    { id: 'v1', label: '1', arrow: '↘', type: 'line', pts: [{ x: 0.26, y: 0.42 }, { x: 0.50, y: 0.88 }] },
+    { id: 'v2', label: '2', arrow: '↗', type: 'line', pts: [{ x: 0.50, y: 0.88 }, { x: 0.74, y: 0.42 }] }
+  ],
+  'w': [
+    { id: 'w1', label: '1', arrow: '↘', type: 'line', pts: [{ x: 0.16, y: 0.42 }, { x: 0.34, y: 0.88 }] },
+    { id: 'w2', label: '2', arrow: '↗', type: 'line', pts: [{ x: 0.34, y: 0.88 }, { x: 0.50, y: 0.60 }] },
+    { id: 'w3', label: '3', arrow: '↘', type: 'line', pts: [{ x: 0.50, y: 0.60 }, { x: 0.66, y: 0.88 }] },
+    { id: 'w4', label: '4', arrow: '↗', type: 'line', pts: [{ x: 0.66, y: 0.88 }, { x: 0.84, y: 0.42 }] }
+  ],
+  'x': [
+    { id: 'x1', label: '1', arrow: '↘', type: 'line', pts: [{ x: 0.26, y: 0.44 }, { x: 0.74, y: 0.86 }] },
+    { id: 'x2', label: '2', arrow: '↙', type: 'line', pts: [{ x: 0.74, y: 0.44 }, { x: 0.26, y: 0.86 }] }
+  ],
+  'y': [
+    { id: 'y1', label: '1', arrow: '↘', type: 'line', pts: [{ x: 0.26, y: 0.42 }, { x: 0.50, y: 0.72 }] },
+    { id: 'y2', label: '2', arrow: '↙', type: 'line', pts: [{ x: 0.74, y: 0.42 }, { x: 0.28, y: 1.05 }] }
+  ],
+  'z': [
+    { id: 'z1', label: '1', arrow: '➔', type: 'line', pts: [{ x: 0.26, y: 0.44 }, { x: 0.74, y: 0.44 }] },
+    { id: 'z2', label: '2', arrow: '↙', type: 'line', pts: [{ x: 0.74, y: 0.44 }, { x: 0.26, y: 0.86 }] },
+    { id: 'z3', label: '3', arrow: '➔', type: 'line', pts: [{ x: 0.26, y: 0.86 }, { x: 0.74, y: 0.86 }] }
+  ]
+};
+
+// Puntos clave normalizados para los dígitos numéricos (0 - 9)
+const NUMBER_STROKES = {
+  '0': [
+    { id: 'N0_1', label: '1', arrow: '↺', type: 'curve', pts: [{ x: 0.50, y: 0.12 }, { x: 0.22, y: 0.35 }, { x: 0.22, y: 0.65 }, { x: 0.50, y: 0.88 }, { x: 0.78, y: 0.65 }, { x: 0.78, y: 0.35 }, { x: 0.50, y: 0.12 }] }
+  ],
+  '1': [
+    { id: 'N1_1', label: '1', arrow: '↗', type: 'line', pts: [{ x: 0.32, y: 0.35 }, { x: 0.50, y: 0.14 }] },
+    { id: 'N1_2', label: '2', arrow: '↓', type: 'line', pts: [{ x: 0.50, y: 0.14 }, { x: 0.50, y: 0.88 }] }
+  ],
+  '2': [
+    { id: 'N2_1', label: '1', arrow: '↷', type: 'curve', pts: [{ x: 0.26, y: 0.32 }, { x: 0.50, y: 0.12 }, { x: 0.76, y: 0.30 }, { x: 0.26, y: 0.88 }] },
+    { id: 'N2_2', label: '2', arrow: '➔', type: 'line', pts: [{ x: 0.26, y: 0.88 }, { x: 0.78, y: 0.88 }] }
+  ],
+  '3': [
+    { id: 'N3_1', label: '1', arrow: '↷', type: 'curve', pts: [{ x: 0.28, y: 0.22 }, { x: 0.50, y: 0.12 }, { x: 0.74, y: 0.28 }, { x: 0.50, y: 0.48 }] },
+    { id: 'N3_2', label: '2', arrow: '↷', type: 'curve', pts: [{ x: 0.50, y: 0.48 }, { x: 0.78, y: 0.65 }, { x: 0.50, y: 0.88 }, { x: 0.26, y: 0.78 }] }
+  ],
+  '4': [
+    { id: 'N4_1', label: '1', arrow: '↓', type: 'line', pts: [{ x: 0.65, y: 0.12 }, { x: 0.24, y: 0.60 }] },
+    { id: 'N4_2', label: '2', arrow: '➔', type: 'line', pts: [{ x: 0.24, y: 0.60 }, { x: 0.82, y: 0.60 }] },
+    { id: 'N4_3', label: '3', arrow: '↓', type: 'line', pts: [{ x: 0.65, y: 0.12 }, { x: 0.65, y: 0.88 }] }
+  ],
+  '5': [
+    { id: 'N5_1', label: '1', arrow: '↓', type: 'line', pts: [{ x: 0.36, y: 0.14 }, { x: 0.34, y: 0.48 }] },
+    { id: 'N5_2', label: '2', arrow: '↷', type: 'curve', pts: [{ x: 0.34, y: 0.48 }, { x: 0.78, y: 0.54 }, { x: 0.76, y: 0.82 }, { x: 0.30, y: 0.86 }] },
+    { id: 'N5_3', label: '3', arrow: '➔', type: 'line', pts: [{ x: 0.36, y: 0.14 }, { x: 0.74, y: 0.14 }] }
+  ],
+  '6': [
+    { id: 'N6_1', label: '1', arrow: '↺', type: 'curve', pts: [{ x: 0.72, y: 0.22 }, { x: 0.36, y: 0.40 }, { x: 0.24, y: 0.68 }, { x: 0.50, y: 0.88 }, { x: 0.76, y: 0.68 }, { x: 0.48, y: 0.52 }, { x: 0.26, y: 0.68 }] }
+  ],
+  '7': [
+    { id: 'N7_1', label: '1', arrow: '➔', type: 'line', pts: [{ x: 0.22, y: 0.14 }, { x: 0.78, y: 0.14 }] },
+    { id: 'N7_2', label: '2', arrow: '↙', type: 'line', pts: [{ x: 0.78, y: 0.14 }, { x: 0.38, y: 0.88 }] }
+  ],
+  '8': [
+    { id: 'N8_1', label: '1', arrow: '♾', type: 'curve', pts: [{ x: 0.50, y: 0.50 }, { x: 0.28, y: 0.32 }, { x: 0.50, y: 0.12 }, { x: 0.72, y: 0.32 }, { x: 0.50, y: 0.50 }, { x: 0.26, y: 0.70 }, { x: 0.50, y: 0.88 }, { x: 0.74, y: 0.70 }, { x: 0.50, y: 0.50 }] }
+  ],
+  '9': [
+    { id: 'N9_1', label: '1', arrow: '↺', type: 'curve', pts: [{ x: 0.74, y: 0.48 }, { x: 0.48, y: 0.12 }, { x: 0.24, y: 0.32 }, { x: 0.50, y: 0.52 }, { x: 0.74, y: 0.48 }] },
+    { id: 'N9_2', label: '2', arrow: '↓', type: 'line', pts: [{ x: 0.74, y: 0.48 }, { x: 0.74, y: 0.88 }] }
+  ]
+};
+
+// Patrones de grafomotricidad preescolar (trazos preparatorios SEP)
+const PATTERN_STROKES = {
+  'lineas_verticales': [
+    { id: 'PV1', label: '1', arrow: '↓', type: 'line', pts: [{ x: 0.25, y: 0.15 }, { x: 0.25, y: 0.85 }] },
+    { id: 'PV2', label: '2', arrow: '↓', type: 'line', pts: [{ x: 0.50, y: 0.15 }, { x: 0.50, y: 0.85 }] },
+    { id: 'PV3', label: '3', arrow: '↓', type: 'line', pts: [{ x: 0.75, y: 0.15 }, { x: 0.75, y: 0.85 }] }
+  ],
+  'lineas_horizontales': [
+    { id: 'PH1', label: '1', arrow: '➔', type: 'line', pts: [{ x: 0.15, y: 0.25 }, { x: 0.85, y: 0.25 }] },
+    { id: 'PH2', label: '2', arrow: '➔', type: 'line', pts: [{ x: 0.15, y: 0.50 }, { x: 0.85, y: 0.50 }] },
+    { id: 'PH3', label: '3', arrow: '➔', type: 'line', pts: [{ x: 0.15, y: 0.75 }, { x: 0.85, y: 0.75 }] }
+  ],
+  'cruces': [
+    { id: 'PC1_V', label: '1', arrow: '↓', type: 'line', pts: [{ x: 0.30, y: 0.20 }, { x: 0.30, y: 0.80 }] },
+    { id: 'PC1_H', label: '2', arrow: '➔', type: 'line', pts: [{ x: 0.15, y: 0.50 }, { x: 0.45, y: 0.50 }] },
+    { id: 'PC2_V', label: '3', arrow: '↓', type: 'line', pts: [{ x: 0.70, y: 0.20 }, { x: 0.70, y: 0.80 }] },
+    { id: 'PC2_H', label: '4', arrow: '➔', type: 'line', pts: [{ x: 0.55, y: 0.50 }, { x: 0.85, y: 0.50 }] }
+  ],
+  'olas_mar': [
+    { id: 'PO1', label: '1', arrow: '〰️', type: 'curve', pts: [{ x: 0.10, y: 0.65 }, { x: 0.25, y: 0.30 }, { x: 0.40, y: 0.65 }, { x: 0.55, y: 0.30 }, { x: 0.70, y: 0.65 }, { x: 0.85, y: 0.30 }] }
+  ],
+  'montañas_zigzag': [
+    { id: 'PZ1', label: '1', arrow: '↗', type: 'line', pts: [{ x: 0.10, y: 0.75 }, { x: 0.25, y: 0.25 }] },
+    { id: 'PZ2', label: '2', arrow: '↘', type: 'line', pts: [{ x: 0.25, y: 0.25 }, { x: 0.40, y: 0.75 }] },
+    { id: 'PZ3', label: '3', arrow: '↗', type: 'line', pts: [{ x: 0.40, y: 0.75 }, { x: 0.55, y: 0.25 }] },
+    { id: 'PZ4', label: '4', arrow: '↘', type: 'line', pts: [{ x: 0.55, y: 0.25 }, { x: 0.70, y: 0.75 }] },
+    { id: 'PZ5', label: '5', arrow: '↗', type: 'line', pts: [{ x: 0.70, y: 0.75 }, { x: 0.85, y: 0.25 }] }
+  ],
+  'espiral': [
+    { id: 'PE1', label: '1', arrow: '🌀', type: 'curve', pts: [{ x: 0.50, y: 0.50 }, { x: 0.58, y: 0.50 }, { x: 0.58, y: 0.38 }, { x: 0.40, y: 0.38 }, { x: 0.40, y: 0.62 }, { x: 0.68, y: 0.62 }, { x: 0.68, y: 0.28 }, { x: 0.30, y: 0.28 }, { x: 0.30, y: 0.74 }, { x: 0.80, y: 0.74 }] }
+  ]
+};
+
+// ============================================================================
+// CLASE PRINCIPAL: STROKE GENERATOR
+// ============================================================================
+class StrokeGenerator {
+  /**
+   * Obtiene los trazos exactos de cualquier caracter (mayúscula, minúscula, dígito o patrón).
+   * Los devuelve escalados al rectángulo especificado { x, y, width, height }.
+   */
+  static getStrokes(charOrKey, bounds = { x: 0, y: 0, width: 760, height: 420 }, isUpper = null) {
+    let raw = null;
+    const str = String(charOrKey || 'A');
+
+    // 1. Patrón de grafomotricidad
+    if (PATTERN_STROKES[str]) {
+      raw = PATTERN_STROKES[str];
+    }
+    // 2. Dígito numérico
+    else if (NUMBER_STROKES[str]) {
+      raw = NUMBER_STROKES[str];
+    }
+    // 3. Letra (decidir mayúscula o minúscula)
+    else {
+      const forceUpper = (isUpper === true) || (isUpper === null && str === str.toUpperCase() && str !== str.toLowerCase());
+      const charUpper = str.toUpperCase();
+      const charLower = str.toLowerCase();
+
+      if (forceUpper && UPPERCASE_STROKES[charUpper]) {
+        raw = UPPERCASE_STROKES[charUpper];
+      } else if (!forceUpper && LOWERCASE_STROKES[charLower]) {
+        raw = LOWERCASE_STROKES[charLower];
+      } else if (UPPERCASE_STROKES[charUpper]) {
+        raw = UPPERCASE_STROKES[charUpper];
+      } else {
+        // Fallback genérico para caracteres especiales o acentos (á -> a)
+        const unaccented = str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        if (UPPERCASE_STROKES[unaccented.toUpperCase()]) {
+          raw = forceUpper ? UPPERCASE_STROKES[unaccented.toUpperCase()] : LOWERCASE_STROKES[unaccented.toLowerCase()];
+        }
+      }
+    }
+
+    if (!raw) {
+      // Fallback seguro: Trazo de caja escolar
+      raw = [
+        { id: 'FB1', label: '1', arrow: '↓', type: 'line', pts: [{ x: 0.25, y: 0.15 }, { x: 0.25, y: 0.85 }] },
+        { id: 'FB2', label: '2', arrow: '➔', type: 'line', pts: [{ x: 0.25, y: 0.85 }, { x: 0.75, y: 0.85 }] }
+      ];
+    }
+
+    // Escalar los puntos normalizados al bounding box
+    const { x: bx, y: by, width: bw, height: bh } = bounds;
+
+    return raw.map((stroke, sIdx) => {
+      const scaledPts = stroke.pts.map(p => ({
+        x: bx + p.x * bw,
+        y: by + p.y * bh
+      }));
+
+      // Generar checkpoints densos cada ~14 píxeles para detección precisa
+      const checkpoints = this.interpolatePolyline(scaledPts, stroke.type === 'curve' ? 12 : 15);
+
+      return {
+        id: stroke.id || `S_${sIdx}`,
+        label: stroke.label || `${sIdx + 1}`,
+        arrow: stroke.arrow || '↓',
+        isDot: !!stroke.isDot,
+        type: stroke.type || 'line',
+        rawPoints: scaledPts,
+        points: scaledPts,
+        checkpoints: checkpoints,
+        totalPoints: checkpoints.length,
+        startPoint: scaledPts[0],
+        endPoint: scaledPts[scaledPts.length - 1],
+        minDistance: Math.max(35, checkpoints.length * 8)
+      };
+    });
+  }
+
+  /**
+   * Genera un diseño de renglón con múltiples letras (ej. 'JUAN CARLOS' o 'A A A A')
+   */
+  static generateRowLayout(chars, bounds = { x: 0, y: 0, width: 760, height: 420 }, options = {}) {
+    const list = Array.isArray(chars) ? chars : String(chars).split('');
+    const count = list.length;
+    if (count === 0) return [];
+
+    const stepW = bounds.width / count;
+    const padding = stepW * 0.08;
+    const letterW = stepW - (padding * 2);
+    const letterH = bounds.height;
+
+    const rowLetters = [];
+
+    list.forEach((ch, idx) => {
+      const isSpace = (ch === ' ');
+      const lx = bounds.x + (idx * stepW) + padding;
+      const ly = bounds.y;
+      const subBounds = { x: lx, y: ly, width: letterW, height: letterH };
+
+      const strokes = isSpace ? [] : this.getStrokes(ch, subBounds, options.isUpper);
+
+      rowLetters.push({
+        index: idx,
+        char: ch,
+        isSpace: isSpace,
+        bounds: subBounds,
+        cx: lx + letterW / 2,
+        cy: ly + letterH / 2,
+        strokes: strokes,
+        completed: isSpace
+      });
+    });
+
+    return rowLetters;
+  }
+
+  /**
+   * Interpola puntos a lo largo de una polilínea o curva de Bezier
+   */
+  static interpolatePolyline(points, stepDistance = 14) {
+    if (!points || points.length === 0) return [];
+    if (points.length === 1) return [{ x: points[0].x, y: points[0].y, hit: false }];
+
+    const checkpoints = [];
+
+    // Interpolación por tramos de segmentos lineales o spline suave
+    for (let i = 0; i < points.length - 1; i++) {
+      const p1 = points[i];
+      const p2 = points[i + 1];
+      const dist = Math.hypot(p2.x - p1.x, p2.y - p1.y);
+      const steps = Math.max(1, Math.round(dist / stepDistance));
+
+      for (let s = (i === 0 ? 0 : 1); s <= steps; s++) {
+        const t = s / steps;
+        checkpoints.push({
+          x: p1.x + (p2.x - p1.x) * t,
+          y: p1.y + (p2.y - p1.y) * t,
+          hit: false
+        });
+      }
+    }
+
+    return checkpoints;
+  }
+
+  /**
+   * Evalúa el progreso del trazo con alta tolerancia motriz preescolar.
+   * Devuelve { isComplete, progress, newHits }
+   */
+  static checkStrokeProgress(strokeData, cursorPt, stepDist, hitRadius = 32) {
+    if (strokeData.completed) return { isComplete: true, progress: 1.0, newHits: 0 };
+
+    // Caso especial: Punto de la letra 'i' o 'j'
+    if (strokeData.isDot) {
+      const sp = strokeData.startPoint;
+      if (Math.hypot(cursorPt.x - sp.x, cursorPt.y - sp.y) <= (hitRadius + 6)) {
+        strokeData.completed = true;
+        strokeData.hitCount = strokeData.totalPoints;
+        return { isComplete: true, progress: 1.0, newHits: 1 };
+      }
+      return { isComplete: false, progress: 0.0, newHits: 0 };
+    }
+
+    let newlyHit = 0;
+    const cps = strokeData.checkpoints;
+
+    for (let i = 0; i < cps.length; i++) {
+      const cp = cps[i];
+      if (!cp.hit && Math.hypot(cursorPt.x - cp.x, cursorPt.y - cp.y) <= hitRadius) {
+        cp.hit = true;
+        newlyHit++;
+      }
+    }
+
+    strokeData.hitCount = (strokeData.hitCount || 0) + newlyHit;
+    strokeData.distanceDrawn = (strokeData.distanceDrawn || 0) + stepDist;
+
+    const coverage = strokeData.hitCount / Math.max(1, strokeData.totalPoints);
+    const distMet = strokeData.distanceDrawn >= Math.max(28, strokeData.minDistance * 0.7);
+
+    // El niño debe haber cubierto al menos el 60% de los puntos y una distancia mínima de arrastre
+    // Además haber pasado cerca del inicio (primeros puntos) y del final
+    const startTouched = cps[0]?.hit || cps[1]?.hit || cps[2]?.hit;
+    const endTouched = cps[cps.length - 1]?.hit || cps[cps.length - 2]?.hit || cps[cps.length - 3]?.hit;
+
+    if (coverage >= 0.60 && distMet && startTouched && endTouched) {
+      strokeData.completed = true;
+      return { isComplete: true, progress: 1.0, newHits: newlyHit };
+    }
+
+    return { isComplete: false, progress: coverage, newHits: newlyHit };
+  }
+
+  /**
+   * Dibuja las guías punteadas escolares y las insignias de inicio numeradas
+   */
+  static renderStrokeGuides(ctx, strokes, activeIndex = 0, themeColor = '#1565c0') {
+    if (!ctx || !strokes) return;
+
+    strokes.forEach((stroke, idx) => {
+      const isActive = (idx === activeIndex);
+      const isDone = !!stroke.completed;
+      const pts = stroke.rawPoints;
+
+      ctx.save();
+
+      // 1. Línea punteada guía
+      ctx.beginPath();
+      ctx.lineWidth = isActive ? 5 : 3.5;
+      ctx.setLineDash(isActive ? [8, 6] : [6, 6]);
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.strokeStyle = isDone ? '#4caf50' : (isActive ? '#ff7043' : 'rgba(84, 110, 122, 0.55)');
+
+      pts.forEach((p, pIdx) => {
+        if (pIdx === 0) ctx.moveTo(p.x, p.y);
+        else ctx.lineTo(p.x, p.y);
+      });
+      ctx.stroke();
+
+      // Punto especial de la 'i'
+      if (stroke.isDot) {
+        ctx.setLineDash([]);
+        ctx.fillStyle = isDone ? '#4caf50' : (isActive ? '#ff7043' : '#546e7a');
+        ctx.beginPath();
+        ctx.arc(pts[0].x, pts[0].y, 7, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // 2. Insignia circular numerada con flecha de inicio
+      if (!isDone && pts.length > 0) {
+        const start = pts[0];
+        const r = isActive ? 15 : 12;
+
+        // Círculo base con relieve
+        ctx.setLineDash([]);
+        ctx.fillStyle = isActive ? '#ff5722' : '#ffffff';
+        ctx.shadowColor = isActive ? 'rgba(255, 87, 34, 0.6)' : 'rgba(0, 0, 0, 0.15)';
+        ctx.shadowBlur = isActive ? 10 : 4;
+        ctx.beginPath();
+        ctx.arc(start.x, start.y, r, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = isActive ? '#ffffff' : '#37474f';
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+
+        // Número
+        ctx.fillStyle = isActive ? '#ffffff' : '#263238';
+        ctx.font = `900 ${isActive ? 13 : 11}px "Fredoka", "Comic Sans MS", sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(stroke.label, start.x, start.y);
+
+        // Flecha direccional junto a la insignia
+        if (pts.length >= 2 && !stroke.isDot) {
+          const next = pts[1];
+          const ang = Math.atan2(next.y - start.y, next.x - start.x);
+          const arrowDist = r + 9;
+          const ax = start.x + Math.cos(ang) * arrowDist;
+          const ay = start.y + Math.sin(ang) * arrowDist;
+
+          ctx.save();
+          ctx.fillStyle = isActive ? '#ff5722' : '#546e7a';
+          ctx.translate(ax, ay);
+          ctx.rotate(ang);
+          ctx.beginPath();
+          ctx.moveTo(6, 0);
+          ctx.lineTo(-4, -5);
+          ctx.lineTo(-4, 5);
+          ctx.closePath();
+          ctx.fill();
+          ctx.restore();
+        }
+      }
+
+      ctx.restore();
+    });
+  }
+
+  /**
+   * Renderiza el trazo completado con acabado de crayón sólido luminoso
+   */
+  static renderCompletedStroke(ctx, stroke, color = '#2e7d32') {
+    if (!ctx || !stroke) return;
+    const pts = stroke.rawPoints;
+    if (!pts || pts.length === 0) return;
+
+    ctx.save();
+    ctx.lineWidth = 28;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.strokeStyle = color;
+    ctx.shadowColor = color;
+    ctx.shadowBlur = 10;
+
+    if (stroke.isDot) {
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.arc(pts[0].x, pts[0].y, 14, 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+      ctx.beginPath();
+      pts.forEach((p, idx) => {
+        if (idx === 0) ctx.moveTo(p.x, p.y);
+        else ctx.lineTo(p.x, p.y);
+      });
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  /**
+   * Renderiza una guía de animación suave (estrellita viajera) para mostrar al niño el camino
+   */
+  static renderAnimatedPointer(ctx, stroke, t) {
+    if (!ctx || !stroke || stroke.completed || stroke.isDot) return;
+    const cps = stroke.checkpoints;
+    if (!cps || cps.length === 0) return;
+
+    const idx = Math.min(Math.floor(t * cps.length), cps.length - 1);
+    const pt = cps[idx];
+    if (!pt) return;
+
+    ctx.save();
+    ctx.fillStyle = '#ffd700';
+    ctx.shadowColor = '#ffab00';
+    ctx.shadowBlur = 12;
+    ctx.beginPath();
+    ctx.arc(pt.x, pt.y, 8, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Pequeño aro pulsante
+    ctx.strokeStyle = 'rgba(255, 215, 0, 0.6)';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(pt.x, pt.y, 14, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
+  }
+}
+
+
+  /* ==========================================================================
      FILE: src/core/LetterWaypoints.js
      ========================================================================== */
 
@@ -1864,6 +2532,140 @@ const PEDAGOGICAL_LETTERS = {
         </g>
       </svg>
     `
+  },
+  'M': {
+    letter: 'M',
+    lowercase: 'm',
+    word: 'MANZANA',
+    phonetic: 'M de Manzana',
+    icon: '🍎',
+    getSurpriseSvg: () => `
+      <svg class="surprise-svg apple-illustration" viewBox="0 0 200 220" width="100%" height="100%">
+        <path d="M 100 45 Q 105 25 120 18" stroke="#5d4037" stroke-width="5" stroke-linecap="round" fill="none"/>
+        <ellipse cx="118" cy="32" rx="16" ry="9" fill="#4caf50" transform="rotate(-30 118 32)"/>
+        <path d="M 100 65 C 80 50 40 60 40 110 C 40 165 75 195 100 195 C 125 195 160 165 160 110 C 160 60 120 50 100 65 Z" fill="#e53935" stroke="#b71c1c" stroke-width="3"/>
+        <ellipse cx="75" cy="95" rx="10" ry="18" fill="#ff8a80" opacity="0.6"/>
+      </svg>
+    `
+  },
+  'S': {
+    letter: 'S',
+    lowercase: 's',
+    word: 'SOL',
+    phonetic: 'S de Sol',
+    icon: '☀️',
+    getSurpriseSvg: () => `
+      <svg class="surprise-svg sun-illustration" viewBox="0 0 200 220" width="100%" height="100%">
+        <g stroke="#f57c00" stroke-width="4" stroke-linecap="round">
+          <line x1="100" y1="25" x2="100" y2="45"/>
+          <line x1="100" y1="175" x2="100" y2="195"/>
+          <line x1="25" y1="110" x2="45" y2="110"/>
+          <line x1="155" y1="110" x2="175" y2="110"/>
+          <line x1="45" y1="55" x2="60" y2="70"/>
+          <line x1="140" y1="150" x2="155" y2="165"/>
+          <line x1="155" y1="55" x2="140" y2="70"/>
+          <line x1="45" y1="165" x2="60" y2="150"/>
+        </g>
+        <circle cx="100" cy="110" r="50" fill="#fbc02d" stroke="#f57c00" stroke-width="3"/>
+        <circle cx="85" cy="100" r="6" fill="#e65100"/>
+        <circle cx="115" cy="100" r="6" fill="#e65100"/>
+        <path d="M 85 122 Q 100 138 115 122" stroke="#e65100" stroke-width="4" fill="none" stroke-linecap="round"/>
+      </svg>
+    `
+  },
+  'T': {
+    letter: 'T',
+    lowercase: 't',
+    word: 'TORTUGA',
+    phonetic: 'T de Tortuga',
+    icon: '🐢',
+    getSurpriseSvg: () => `
+      <svg class="surprise-svg turtle-illustration" viewBox="0 0 200 220" width="100%" height="100%">
+        <!-- Patitas -->
+        <ellipse cx="65" cy="85" rx="14" ry="10" fill="#81c784"/>
+        <ellipse cx="135" cy="85" rx="14" ry="10" fill="#81c784"/>
+        <ellipse cx="65" cy="145" rx="14" ry="10" fill="#81c784"/>
+        <ellipse cx="135" cy="145" rx="14" ry="10" fill="#81c784"/>
+        <!-- Cabeza -->
+        <ellipse cx="100" cy="60" rx="16" ry="18" fill="#81c784" stroke="#388e3c" stroke-width="2"/>
+        <circle cx="94" cy="55" r="3" fill="#1b5e20"/>
+        <circle cx="106" cy="55" r="3" fill="#1b5e20"/>
+        <!-- Caparazón -->
+        <ellipse cx="100" cy="115" rx="45" ry="38" fill="#4caf50" stroke="#2e7d32" stroke-width="3"/>
+        <polygon points="100,90 120,105 112,130 88,130 80,105" fill="#66bb6a" stroke="#2e7d32" stroke-width="2"/>
+      </svg>
+    `
+  },
+  'L': {
+    letter: 'L',
+    lowercase: 'l',
+    word: 'LEÓN',
+    phonetic: 'L de León',
+    icon: '🦁',
+    getSurpriseSvg: () => `
+      <svg class="surprise-svg lion-illustration" viewBox="0 0 200 220" width="100%" height="100%">
+        <!-- Melena -->
+        <circle cx="100" cy="110" r="58" fill="#ff9800" stroke="#e65100" stroke-width="3"/>
+        <!-- Cara -->
+        <circle cx="100" cy="110" r="42" fill="#ffd54f" stroke="#f57f17" stroke-width="2.5"/>
+        <circle cx="86" cy="100" r="5" fill="#3e2723"/>
+        <circle cx="114" cy="100" r="5" fill="#3e2723"/>
+        <polygon points="100,110 93,122 107,122" fill="#d84315"/>
+        <path d="M 93 125 Q 100 132 107 125" stroke="#3e2723" stroke-width="3" fill="none"/>
+      </svg>
+    `
+  },
+  'P': {
+    letter: 'P',
+    lowercase: 'p',
+    word: 'PELOTA',
+    phonetic: 'P de Pelota',
+    icon: '⚽',
+    getSurpriseSvg: () => `
+      <svg class="surprise-svg ball-illustration" viewBox="0 0 200 220" width="100%" height="100%">
+        <circle cx="100" cy="110" r="52" fill="#ffffff" stroke="#212121" stroke-width="3"/>
+        <polygon points="100,85 118,98 111,118 89,118 82,98" fill="#212121"/>
+        <line x1="100" y1="85" x2="100" y2="58" stroke="#212121" stroke-width="2.5"/>
+        <line x1="118" y1="98" x2="145" y2="90" stroke="#212121" stroke-width="2.5"/>
+        <line x1="111" y1="118" x2="135" y2="142" stroke="#212121" stroke-width="2.5"/>
+        <line x1="89" y1="118" x2="65" y2="142" stroke="#212121" stroke-width="2.5"/>
+        <line x1="82" y1="98" x2="55" y2="90" stroke="#212121" stroke-width="2.5"/>
+      </svg>
+    `
+  },
+  'N': {
+    letter: 'N',
+    lowercase: 'n',
+    word: 'NUBE',
+    phonetic: 'N de Nube',
+    icon: '☁️',
+    getSurpriseSvg: () => `
+      <svg class="surprise-svg cloud-illustration" viewBox="0 0 200 220" width="100%" height="100%">
+        <path d="M 60 130 C 45 130 35 118 35 105 C 35 92 48 82 62 82 C 68 65 85 52 105 52 C 128 52 145 68 150 88 C 162 90 172 100 172 112 C 172 125 160 130 148 130 Z" fill="#e1f5fe" stroke="#0288d1" stroke-width="3"/>
+        <circle cx="85" cy="98" r="4" fill="#0277bd"/>
+        <circle cx="120" cy="98" r="4" fill="#0277bd"/>
+        <path d="M 95 110 Q 102 118 110 110" stroke="#0277bd" stroke-width="3" fill="none" stroke-linecap="round"/>
+      </svg>
+    `
+  },
+  'R': {
+    letter: 'R',
+    lowercase: 'r',
+    word: 'RATÓN',
+    phonetic: 'R de Ratón',
+    icon: '🐭',
+    getSurpriseSvg: () => `
+      <svg class="surprise-svg mouse-illustration" viewBox="0 0 200 220" width="100%" height="100%">
+        <circle cx="68" cy="75" r="22" fill="#b0bec5" stroke="#546e7a" stroke-width="2"/>
+        <circle cx="68" cy="75" r="13" fill="#ffab91"/>
+        <circle cx="132" cy="75" r="22" fill="#b0bec5" stroke="#546e7a" stroke-width="2"/>
+        <circle cx="132" cy="75" r="13" fill="#ffab91"/>
+        <ellipse cx="100" cy="115" rx="38" ry="32" fill="#cfd8dc" stroke="#546e7a" stroke-width="2.5"/>
+        <circle cx="88" cy="108" r="4" fill="#263238"/>
+        <circle cx="112" cy="108" r="4" fill="#263238"/>
+        <polygon points="100,118 94,126 106,126" fill="#e91e63"/>
+      </svg>
+    `
   }
 };
 
@@ -1872,50 +2674,43 @@ const PEDAGOGICAL_LETTERS = {
  */
 function getPedagogicalLetter(letter) {
   const char = (letter || 'A').toUpperCase();
+  const lower = char.toLowerCase();
+
+  // Bounding boxes escolares estándar (W=760, H=420)
+  // Letra mayúscula a la izquierda, minúscula a la derecha
+  const upperBounds = { x: 70, y: 70, width: 200, height: 260 };
+  const lowerBounds = { x: 290, y: 110, width: 170, height: 220 };
+
+  const upperStrokes = StrokeGenerator.getStrokes(char, upperBounds, true);
+  const lowerStrokes = StrokeGenerator.getStrokes(lower, lowerBounds, false);
+
   if (PEDAGOGICAL_LETTERS[char]) {
-    return PEDAGOGICAL_LETTERS[char];
+    const p = PEDAGOGICAL_LETTERS[char];
+    return {
+      letter: char,
+      lowercase: lower,
+      word: p.word,
+      phonetic: p.phonetic,
+      icon: p.icon,
+      uppercaseStrokes: upperStrokes,
+      lowercaseStrokes: lowerStrokes,
+      getSurpriseSvg: p.getSurpriseSvg
+    };
   }
 
   // Generador dinámico para cualquier otra letra del abecedario
-  const wp = getWaypointsForLetter(char);
   return {
     letter: char,
-    lowercase: char.toLowerCase(),
-    word: `${char}`,
-    phonetic: `Letra ${char}`,
+    lowercase: lower,
+    word: `LETRA ${char}`,
+    phonetic: `${char} de Estrella`,
     icon: '⭐',
-    tutorialStrokes: [
-      { name: `Paso 1: Trazo de la ${char}`, from: { x: wp[0].x * 0.6, y: wp[0].y }, to: { x: wp[wp.length - 1].x * 0.6, y: wp[wp.length - 1].y } }
-    ],
-    uppercaseStrokes: [
-      {
-        id: `${char}1`,
-        step: 1,
-        arrow: '➔',
-        label: '1',
-        description: `Trazo de la letra ${char}`,
-        points: wp.map(p => ({ x: p.x * 0.55 + 0.05, y: p.y }))
-      }
-    ],
-    lowercaseStrokes: [
-      {
-        id: `${char.toLowerCase()}1`,
-        step: 1,
-        arrow: '↓',
-        label: '1',
-        description: `Minúscula ${char.toLowerCase()}`,
-        points: [
-          { x: 0.75, y: 0.40 },
-          { x: 0.65, y: 0.60 },
-          { x: 0.75, y: 0.80 },
-          { x: 0.85, y: 0.60 }
-        ]
-      }
-    ],
+    uppercaseStrokes: upperStrokes,
+    lowercaseStrokes: lowerStrokes,
     getSurpriseSvg: () => `
       <svg class="surprise-svg generic-illustration" viewBox="0 0 200 220" width="100%" height="100%">
-        <circle cx="100" cy="110" r="50" fill="#ffb74d" stroke="#f57c00" stroke-width="4"/>
-        <text x="100" y="130" font-size="64" font-weight="900" fill="#ffffff" text-anchor="middle">${char}</text>
+        <polygon points="100,25 123,75 178,83 138,122 148,176 100,150 52,176 62,122 22,83 77,75" fill="#ffd54f" stroke="#ff8f00" stroke-width="4"/>
+        <text x="100" y="125" font-size="44" font-weight="900" fill="#e65100" text-anchor="middle">${char}</text>
       </svg>
     `
   };
@@ -2226,12 +3021,13 @@ class HomeScreen {
  * NameTracingScreen.js - Módulo de Trazado de Nombre y Palabras Clave
  * Digitalización interactiva y fiel al cuaderno escolar de preescolar (SEP / Gonvill).
  * 
- * Características:
- * - 50 Niveles en Círculos (Nivel 1: "JUAN CARLOS", seguido de palabras clave y vocabulario).
- * - Lienzo de Cuaderno Escolar con Cuadrícula Azul y Renglones Caligráficos Guiados.
- * - Asistente ARABOT interactivo ubicado en la parte central superior.
- * - Motor de Trazo Táctil en Tiempo Real (sensibilidad alta, cero frustración para niños).
- * - Auto-relleno suave con destello de estrellitas mágicas al completar los trazos.
+ * Recreado con el Motor Universal StrokeGenerator:
+ * - Soporte dinámico de trazos continuos para todo el abecedario A-Z.
+ * - Validación pedagógica por recorrido continuo (desarrollo de memoria muscular).
+ * - Cero "boom se llena" al primer toque: el niño traza el recorrido real.
+ * - Guía visual animada (estrellita viajera) y números secuenciales 1, 2, 3...
+ * - Paleta de colores de crayón en tiempo real.
+ * - 50 Niveles en Círculos (Nivel 1: "JUAN CARLOS", seguido de palabras de kínder).
  * - Cinta 3D del Nombre Completo con fichas táctiles que avanzan letra por letra.
  * - Cero alertas emergentes (alert/confirm), transición automática fluida y celebración festiva.
  */
@@ -2271,8 +3067,8 @@ class NameTracingScreen {
     this.isDrawing = false;
     this.lastPoint = null;
     this.activeCrayonColor = '#e91e63'; // Rosa mexicano brillante tipo crayón
-    this.waypoints = [];
-    this.currentWaypointIndex = 0;
+    this.activeStrokes = [];
+    this.currentStrokeIndex = 0;
     this.isLetterCompleted = false;
 
     // Partículas de estrellitas mágicas
@@ -2283,6 +3079,12 @@ class NameTracingScreen {
     this.activePointerId = null;
     this.boundPointerMove = null;
     this.boundPointerUp = null;
+  }
+
+  resetState() {
+    this.currentLevel = null;
+    this.currentLetterIndex = 0;
+    this.cleanup();
   }
 
   // ==========================================================================
@@ -2341,7 +3143,7 @@ class NameTracingScreen {
 
     container.innerHTML = `
       <div class="tracing-module notebook-grid-bg fade-in" id="nameTracingModule">
-        <!-- Encabezado con ARABOT centrado para no estorbar botones -->
+        <!-- Encabezado con ARABOT centrado y controles infantiles -->
         <header class="tracing-header">
           <button class="back-btn" id="btnBackToLevels">⬅️ Niveles</button>
           
@@ -2350,6 +3152,14 @@ class NameTracingScreen {
           </div>
 
           <div class="header-actions">
+            <!-- Paleta de crayones en miniatura -->
+            <div class="mini-crayons-bar">
+              <button class="mini-crayon active" data-color="#e91e63" style="background:#e91e63;" title="Rosa"></button>
+              <button class="mini-crayon" data-color="#ff5722" style="background:#ff5722;" title="Naranja"></button>
+              <button class="mini-crayon" data-color="#4caf50" style="background:#4caf50;" title="Verde"></button>
+              <button class="mini-crayon" data-color="#00bcd4" style="background:#00bcd4;" title="Celeste"></button>
+              <button class="mini-crayon" data-color="#9c27b0" style="background:#9c27b0;" title="Morado"></button>
+            </div>
             <button class="sound-btn" id="btnPlayPhonics">🔊 Escuchar</button>
             <button class="clear-btn" id="btnClearCanvas">🧹 Borrar</button>
           </div>
@@ -2360,7 +3170,7 @@ class NameTracingScreen {
           <div class="notebook-page-header">
             <h2>TRAZA TU NOMBRE: <span class="letter-highlight" id="currentLetterDisplay">J</span></h2>
             <p class="notebook-instruction" id="nameInstructionText">
-              Paso <strong id="currentStepNum">1</strong> de <span id="totalStepsNum">5</span> • Sigue las flechas y los círculos numerados.
+              Paso <strong id="currentStepNum">1</strong> de <span id="totalStepsNum">2</span> • Sigue la guía punteada con tu dedito.
             </p>
           </div>
 
@@ -2456,7 +3266,7 @@ class NameTracingScreen {
   // ==========================================================================
   loadCurrentLetter(container) {
     // Si es un espacio en blanco, saltarlo automáticamente
-    if (this.targetName[this.currentLetterIndex] === ' ') {
+    while (this.currentLetterIndex < this.targetName.length && this.targetName[this.currentLetterIndex] === ' ') {
       this.currentLetterIndex++;
     }
 
@@ -2467,9 +3277,11 @@ class NameTracingScreen {
     }
 
     const currentChar = this.targetName[this.currentLetterIndex];
-    this.rawWaypoints = getWaypointsForLetter(currentChar);
-    this.scaleWaypointsToNotebook();
-    this.currentWaypointIndex = 0;
+    
+    // Generar trazos dinámicos con StrokeGenerator centrados en el cuaderno
+    const bounds = { x: (760 - 280) / 2, y: 70, width: 280, height: 260 };
+    this.activeStrokes = StrokeGenerator.getStrokes(currentChar, bounds, true);
+    this.currentStrokeIndex = 0;
     this.isLetterCompleted = false;
 
     // Actualizar indicador de letra
@@ -2489,33 +3301,15 @@ class NameTracingScreen {
     audio.speak(`Traza la letra ${currentChar}`);
   }
 
-  scaleWaypointsToNotebook() {
-    if (!this.bgCanvas) return;
-    const W = this.bgCanvas.width;
-    const H = this.bgCanvas.height;
-
-    // Área de la letra centrada en el cuaderno escolar
-    const areaW = 390;
-    const areaH = 290;
-    const startX = (W - areaW) / 2;
-    const startY = 60;
-
-    this.waypoints = this.rawWaypoints.map((wp, idx) => ({
-      x: startX + wp.x * areaW,
-      y: startY + wp.y * areaH,
-      label: wp.label || (idx + 1).toString()
-    }));
-  }
-
   updateStatusPill(container) {
     const curElem = container.querySelector('#currentStepNum');
     const totalElem = container.querySelector('#totalStepsNum');
-    if (curElem) curElem.innerText = Math.min(this.currentWaypointIndex + 1, this.waypoints.length);
-    if (totalElem) totalElem.innerText = this.waypoints.length;
+    if (curElem) curElem.innerText = Math.min(this.currentStrokeIndex + 1, Math.max(1, this.activeStrokes.length));
+    if (totalElem) totalElem.innerText = Math.max(1, this.activeStrokes.length);
   }
 
   // ==========================================================================
-  // DIBUJO DEL FONDO: CUADRÍCULA AZUL + RENGLONES + LETRA PUNTEADA + WAYPOINTS
+  // DIBUJO DEL FONDO: CUADRÍCULA AZUL + RENGLONES + GUÍAS GENERADAS
   // ==========================================================================
   drawNotebookBackground(currentChar) {
     if (!this.bgCtx || !this.bgCanvas) return;
@@ -2581,88 +3375,8 @@ class NameTracingScreen {
     ctx.stroke();
     ctx.restore();
 
-    // 3. Letra punteada grande en el centro del renglón
-    ctx.save();
-    ctx.font = 'bold 270px "Fredoka", "Comic Sans MS", sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'alphabetic';
-    ctx.strokeStyle = '#90a4ae';
-    ctx.lineWidth = 4;
-    ctx.setLineDash([8, 8]);
-    ctx.strokeText(currentChar, W / 2, baseY - 10);
-    ctx.restore();
-
-    // 4. Guías entre los waypoints con flechas direccionales
-    if (this.waypoints.length > 1) {
-      ctx.save();
-      ctx.strokeStyle = 'rgba(0, 188, 212, 0.4)';
-      ctx.lineWidth = 3.5;
-      ctx.setLineDash([8, 6]);
-      ctx.beginPath();
-      this.waypoints.forEach((wp, i) => {
-        if (i === 0) ctx.moveTo(wp.x, wp.y);
-        else ctx.lineTo(wp.x, wp.y);
-      });
-      ctx.stroke();
-      ctx.restore();
-    }
-
-    // 5. Dibujar cada waypoint circular numerado (Paso 1, 2, 3...)
-    this.waypoints.forEach((wp, idx) => {
-      ctx.save();
-      if (idx < this.currentWaypointIndex) {
-        // Waypoint superado: círculo verde esmeralda con palomita
-        ctx.fillStyle = '#4caf50';
-        ctx.beginPath();
-        ctx.arc(wp.x, wp.y, 16, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 2.5;
-        ctx.stroke();
-
-        ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 15px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText('✓', wp.x, wp.y);
-      } else if (idx === this.currentWaypointIndex) {
-        // Waypoint activo: halo brillante naranja y número grande
-        ctx.fillStyle = 'rgba(255, 152, 0, 0.35)';
-        ctx.beginPath();
-        ctx.arc(wp.x, wp.y, 28, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.fillStyle = '#ff9800';
-        ctx.beginPath();
-        ctx.arc(wp.x, wp.y, 18, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 3;
-        ctx.stroke();
-
-        ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 16px "Fredoka", sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(wp.label || (idx + 1).toString(), wp.x, wp.y);
-      } else {
-        // Waypoint futuro: círculo translúcido
-        ctx.fillStyle = 'rgba(0, 188, 212, 0.45)';
-        ctx.beginPath();
-        ctx.arc(wp.x, wp.y, 14, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 2;
-        ctx.stroke();
-
-        ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 12px "Fredoka", sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText((idx + 1).toString(), wp.x, wp.y);
-      }
-      ctx.restore();
-    });
+    // 3. Guías direccionales generadas por StrokeGenerator
+    StrokeGenerator.renderStrokeGuides(ctx, this.activeStrokes, this.currentStrokeIndex, '#1565c0');
   }
 
   // ==========================================================================
@@ -2678,7 +3392,7 @@ class NameTracingScreen {
     container.querySelector('#btnClearCanvas')?.addEventListener('click', () => {
       audio.playClick();
       this.clearPaintCanvas();
-      this.currentWaypointIndex = 0;
+      this.currentStrokeIndex = 0;
       this.isLetterCompleted = false;
       this.updateStatusPill(container);
       const char = this.targetName[this.currentLetterIndex] || 'A';
@@ -2691,6 +3405,16 @@ class NameTracingScreen {
       if (this.arabot) this.arabot.bounceHead();
     });
 
+    // Selección de colores de crayón
+    container.querySelectorAll('.mini-crayon').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        audio.playClick();
+        container.querySelectorAll('.mini-crayon').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        this.activeCrayonColor = btn.dataset.color || '#e91e63';
+      });
+    });
+
     const canvas = this.paintCanvas;
     if (!canvas) return;
 
@@ -2700,7 +3424,7 @@ class NameTracingScreen {
       try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
       this.activePointerId = e.pointerId;
       const pt = this.getCanvasPoint(e);
-      this.handlePointerDown(pt.x, pt.y, container);
+      this.handlePointerDown(pt.x, pt.y);
     }, { passive: false });
 
     this.boundPointerMove = (e) => {
@@ -2733,22 +3457,35 @@ class NameTracingScreen {
     };
   }
 
-  handlePointerDown(x, y, container) {
+  handlePointerDown(x, y) {
     if (this.isLetterCompleted) return;
     this.isDrawing = true;
     this.lastPoint = { x, y };
 
     this.drawCrayonPoint(x, y);
     audio.playBrush();
-    this.checkWaypointHit(x, y, container);
+    // No se completa en pointerdown para obligar al trazo por recorrido continuo (memoria muscular)
   }
 
   handlePointerMove(x, y, container) {
     if (!this.isDrawing || !this.lastPoint || this.isLetterCompleted) return;
 
+    const dx = x - this.lastPoint.x;
+    const dy = y - this.lastPoint.y;
+    const stepDist = Math.hypot(dx, dy);
+    if (stepDist < 2.5) return;
+
     this.drawCrayonSegment(this.lastPoint.x, this.lastPoint.y, x, y);
     this.lastPoint = { x, y };
-    this.checkWaypointHit(x, y, container);
+
+    // Evaluar progreso con StrokeGenerator
+    const currentStroke = this.activeStrokes[this.currentStrokeIndex];
+    if (!currentStroke || currentStroke.completed) return;
+
+    const res = StrokeGenerator.checkStrokeProgress(currentStroke, { x, y }, stepDist, 36);
+    if (res.isComplete) {
+      this.onStrokeCompleted(currentStroke, x, y, container);
+    }
   }
 
   handlePointerUp() {
@@ -2772,7 +3509,7 @@ class NameTracingScreen {
     const ctx = this.paintCtx;
     ctx.save();
     ctx.strokeStyle = this.activeCrayonColor;
-    ctx.lineWidth = 26;
+    ctx.lineWidth = 24;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     ctx.beginPath();
@@ -2783,85 +3520,56 @@ class NameTracingScreen {
   }
 
   // ==========================================================================
-  // DETECCIÓN DE WAYPOINTS Y AUTO-RELLENO LIMPIO
+  // COMPLETADO DE TRAZO Y AVANCE DE LETRA
   // ==========================================================================
-  checkWaypointHit(x, y, container) {
-    if (this.isLetterCompleted) return;
-    if (this.currentWaypointIndex >= this.waypoints.length) return;
+  onStrokeCompleted(stroke, x, y, container) {
+    audio.playStar();
+    this.emitStarBurst(x, y);
 
-    const targetWp = this.waypoints[this.currentWaypointIndex];
+    // Fijar trazo completo nítido en el lienzo
+    StrokeGenerator.renderCompletedStroke(this.paintCtx, stroke, this.activeCrayonColor);
 
-    // Radio de captura generoso para niños pequeños (52px)
-    const distance = Math.hypot(x - targetWp.x, y - targetWp.y);
+    this.currentStrokeIndex++;
+    this.updateStatusPill(container);
 
-    if (distance <= 52) {
-      this.currentWaypointIndex++;
-      audio.playPop();
-      this.emitStarBurst(targetWp.x, targetWp.y);
-      this.updateStatusPill(container);
+    const currentChar = this.targetName[this.currentLetterIndex];
+    this.drawNotebookBackground(currentChar);
 
-      const currentChar = this.targetName[this.currentLetterIndex];
-      this.drawNotebookBackground(currentChar);
-
-      // Si completó todos los pasos de la letra actual
-      if (this.currentWaypointIndex >= this.waypoints.length) {
-        this.onLetterCompleted(container, currentChar);
+    if (this.currentStrokeIndex >= this.activeStrokes.length) {
+      this.onLetterCompleted(container, currentChar);
+    } else {
+      if (this.arabot) {
+        this.arabot.speak(`¡Bien! Sigue con el paso ${this.currentStrokeIndex + 1} ⭐`);
       }
     }
   }
 
-  /**
-   * Auto-rellena la letra con un trazo sólido luminoso (desaparece lo chuequito)
-   */
   onLetterCompleted(container, currentChar) {
     this.isLetterCompleted = true;
     this.isDrawing = false;
     this.lastPoint = null;
 
-    // 1. Auto-relleno suave sobre paintCanvas
-    this.snapFullLetter(currentChar);
-    this.emitStarBurst(this.paintCanvas.width / 2, this.paintCanvas.height / 2);
     audio.playSuccess();
+    this.emitStarBurst(this.paintCanvas.width / 2, this.paintCanvas.height / 2);
 
-    // 2. Iluminar la ficha de la letra en la cinta
+    // Iluminar la ficha de la letra en la cinta
     const currentSlot = container.querySelector(`.slot-${this.currentLetterIndex}`);
     if (currentSlot) {
       currentSlot.classList.remove('active');
       currentSlot.classList.add('completed');
     }
 
-    // 3. Celebración de Arabot
     if (this.arabot) {
-      this.arabot.celebrate(`¡Excelente! ¡Completaste la letra <strong>${currentChar}</strong>! ⭐`, 1800);
+      this.arabot.celebrate(`¡Excelente! ¡Completaste la letra <strong>${currentChar}</strong>! ⭐`, 1600);
     }
 
     StorageManager.addStars(1);
 
-    // 4. Avanzar a la siguiente letra después de 650ms
+    // Avanzar a la siguiente letra después de 650ms
     setTimeout(() => {
       this.currentLetterIndex++;
       this.loadCurrentLetter(container);
     }, 650);
-  }
-
-  snapFullLetter(char) {
-    if (!this.paintCtx || !this.paintCanvas) return;
-    const ctx = this.paintCtx;
-    const W = this.paintCanvas.width;
-    const baseY = 345;
-
-    ctx.save();
-    ctx.font = 'bold 270px "Fredoka", sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'alphabetic';
-    ctx.strokeStyle = '#e91e63';
-    ctx.lineWidth = 14;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-    ctx.shadowColor = 'rgba(233, 30, 99, 0.7)';
-    ctx.shadowBlur = 16;
-    ctx.strokeText(char, W / 2, baseY - 10);
-    ctx.restore();
   }
 
   // ==========================================================================
@@ -2918,10 +3626,10 @@ class NameTracingScreen {
         y,
         vx: Math.cos(angle) * speed,
         vy: Math.sin(angle) * speed,
-        size: 4 + Math.random() * 4,
-        color: colors[Math.floor(Math.random() * colors.length)],
-        life: 1.0,
-        decay: 0.035 + Math.random() * 0.02
+        color: colors[i % colors.length],
+        size: 5 + Math.random() * 6,
+        life: 1,
+        decay: 0.035 + Math.random() * 0.025
       });
     }
   }
@@ -2939,6 +3647,7 @@ class NameTracingScreen {
     const ctx = this.fxCtx;
     ctx.clearRect(0, 0, this.fxCanvas.width, this.fxCanvas.height);
 
+    // 1. Partículas mágicas
     for (let i = this.sparkles.length - 1; i >= 0; i--) {
       const p = this.sparkles[i];
       p.x += p.vx;
@@ -2970,12 +3679,18 @@ class NameTracingScreen {
       ctx.fill();
       ctx.restore();
     }
+
+    // 2. Guía animada suave con estrellita viajera
+    const activeStroke = this.activeStrokes[this.currentStrokeIndex];
+    if (activeStroke && !this.isDrawing && !this.isLetterCompleted) {
+      const t = (performance.now() % 2200) / 2200;
+      StrokeGenerator.renderAnimatedPointer(ctx, activeStroke, t);
+    }
   }
 
   clearPaintCanvas() {
-    if (this.paintCtx && this.paintCanvas) {
-      this.paintCtx.clearRect(0, 0, this.paintCanvas.width, this.paintCanvas.height);
-    }
+    if (!this.paintCtx || !this.paintCanvas) return;
+    this.paintCtx.clearRect(0, 0, this.paintCanvas.width, this.paintCanvas.height);
   }
 
   cleanup() {
@@ -2983,18 +3698,13 @@ class NameTracingScreen {
       cancelAnimationFrame(this.animFrameId);
       this.animFrameId = null;
     }
-    if (this.paintCanvas && this.boundPointerUp) {
-      this.paintCanvas.removeEventListener('pointermove', this.boundPointerMove);
-      this.paintCanvas.removeEventListener('pointerup', this.boundPointerUp);
-      this.paintCanvas.removeEventListener('pointercancel', this.boundPointerUp);
-      this.boundPointerUp = null;
-      this.boundPointerMove = null;
-    }
     if (this.arabot) {
-      this.arabot.destroy();
+      this.arabot.unmount();
       this.arabot = null;
     }
     this.sparkles = [];
+    this.isDrawing = false;
+    this.activePointerId = null;
   }
 }
 
@@ -3005,46 +3715,56 @@ class NameTracingScreen {
 
 /**
  * LetterTracingScreen.js - Módulo de Trazado de Letras y Caligrafía Escolar
- * Digitalización interactiva y fiel del cuadernillo físico de preescolar (SEP / Gonvill).
- * 
- * Arquitectura:
- * - Menú inicial con 10 Subjuegos en Círculos (como en Sílabas):
- *   1. "CUADERNILLO: LAS 5 VOCALES" (50 niveles: A, E, I, O, U, réplica de las páginas del libro, diptongos y maestría).
- *   2. "CUADERNILLO: CONSONANTES" (50 niveles: M, S, T, L, P, N, R, C, D... sobre cuadrícula).
- *   3 a 9. Juegos individuales por letra: M, S, T, L, P, N, R (50 niveles cada uno).
- *   10. "PIZARRA MÁGICA ESCOLAR" (Cuaderno abierto con cuadrícula escolar y crayones de colores).
- * - Motor de Trazo Infantil Realista:
- *   - Donde el niño pasa su dedito se raya/pinta en tiempo real como un crayón físico sobre papel.
- *   - Detección inteligente de cobertura: no importa si el niño traza "chuequito", al cubrir el trazo se auto-rellena limpiamente con un hermoso efecto de destello de estrellitas doradas.
- *   - En los niveles de inicio de letra (Nivel 1), el dibujo sorpresa (Árbol, Elefante, etc.) se colorea automáticamente al terminar la mayúscula y la minúscula.
- *   - En los renglones sobre cuadrícula, cada letra trazada se llena y brilla en el renglón del cuaderno.
- * - Cero alertas emergentes (alert/confirm), transición automática fluida y asistente ARABOT centrado.
+ * Reconstruido con el Motor Universal StrokeGenerator para máxima fluidez,
+ * precisión pedagógica y cero frustración en niños de preescolar.
  */
 // ============================================================================
-// 1. CATÁLOGO DE LOS 10 SUB-JUEGOS EN CÍRCULOS (50 NIVELES CADA UNO)
+// 1. CATÁLOGO DE SUB-JUEGOS EN CÍRCULOS
 // ============================================================================
 const TRACING_SUBGAMES = [
   {
     id: 'vocales_cuadernillo',
     moduleKey: 'tracing_vocales_workbook',
     title: 'CUADERNILLO: LAS 5 VOCALES',
-    subtitle: 'A, E, I, O, U • Réplica fiel del libro físico',
+    subtitle: 'A, E, I, O, U • Réplica fiel del libro MundoABC',
     icon: '📖',
     totalLevels: 50,
     bubbleClass: 'subgame-bubble-vocales',
     themeColor: '#e91e63',
-    description: 'Digitalización nivel a nivel: letra grande con dibujo sorpresa, renglones caligráficos sobre cuadrícula y combinaciones.'
+    description: 'Digitalización fiel: letra grande con sorpresa ilustrada y renglones caligráficos escolares sobre cuadrícula.'
   },
   {
     id: 'consonantes_cuadernillo',
     moduleKey: 'tracing_consonantes_workbook',
     title: 'CUADERNILLO: CONSONANTES',
-    subtitle: 'M, S, T, L, P, N, R, C, D... sobre cuadrícula',
+    subtitle: 'M, S, T, L, P, N, R, D, C, B... sobre cuadrícula',
     icon: '🔤',
     totalLevels: 50,
     bubbleClass: 'subgame-bubble-m',
     themeColor: '#1976d2',
-    description: 'Aprende a trazar las consonantes del cuadernillo escolar y sus renglones caligráficos.'
+    description: 'Aprende a trazar todas las consonantes del cuadernillo escolar y sus renglones caligráficos.'
+  },
+  {
+    id: 'generador_trazos',
+    moduleKey: 'tracing_generador_trazos',
+    title: 'GENERADOR DE TRAZOS',
+    subtitle: '✨ ¡Crea y traza cualquier letra, número o palabra!',
+    icon: '✨',
+    totalLevels: 1,
+    bubbleClass: 'subgame-bubble-arma',
+    themeColor: '#8e24aa',
+    description: 'Herramienta interactiva para generar instantáneamente actividades de trazado para cualquier letra, dígito o palabra personalizada.'
+  },
+  {
+    id: 'grafomotricidad',
+    moduleKey: 'tracing_grafomotricidad',
+    title: 'GRAFOMOTRICIDAD PREESCOLAR',
+    subtitle: 'Líneas, olas, cruces, zig-zag y espirales',
+    icon: '〰️',
+    totalLevels: 50,
+    bubbleClass: 'subgame-bubble-s',
+    themeColor: '#00acc1',
+    description: 'Ejercicios de soltura de muñeca y motricidad fina recomendados para preescolar.'
   },
   {
     id: 'letra_m',
@@ -3140,447 +3860,80 @@ const TRACING_SUBGAMES = [
 // 2. NIVELES PEDAGÓGICOS DEL CUADERNILLO DE VOCALES (50 NIVELES EXACTOS AL LIBRO)
 // ============================================================================
 const VOCALES_WORKBOOK_LEVELS = [
-  // --- LETRA A (Página 3 del Cuadernillo Físico - Imágenes 1 a 5) ---
-  {
-    id: 1,
-    type: 'intro_hollow',
-    letter: 'A',
-    lowercase: 'a',
-    word: 'ÁRBOL',
-    phonetic: 'A de Árbol',
-    icon: '🌳',
-    title: 'A de Árbol • Letra Grande',
-    instruction: '✏️ Traza la A y la a con tu dedito para colorear el Árbol.'
-  },
-  {
-    id: 2,
-    type: 'grid_row',
-    char: 'A',
-    count: 8,
-    title: 'Renglón 1: Letra A Mayúscula',
-    instruction: '✏️ Traza las 8 letras A sobre la cuadrícula del cuaderno.'
-  },
-  {
-    id: 3,
-    type: 'grid_row',
-    char: 'a',
-    count: 12,
-    title: 'Renglón 2: Letra a Minúscula',
-    instruction: '✏️ Traza las 12 letras a redonditas con su palito vertical.'
-  },
-  {
-    id: 4,
-    type: 'grid_row',
-    char: 'A',
-    count: 8,
-    title: 'Renglón 3: Refuerzo de A Mayúscula',
-    instruction: '✏️ Refuerza tu caligrafía trazando las 8 letras A.'
-  },
-  {
-    id: 5,
-    type: 'grid_row_alternating',
-    pattern: ['A', 'a', 'A', 'a', 'A', 'a', 'A', 'a', 'A', 'a'],
-    title: 'Renglón 4: Alternado A - a',
-    instruction: '✏️ Traza alternando una A mayúscula y una a minúscula.'
-  },
+  // Letra A (Página 3 de MundoABC)
+  { id: 1, type: 'intro_hollow', letter: 'A', lowercase: 'a', word: 'ÁRBOL', phonetic: 'A de Árbol', icon: '🌳', title: 'A de Árbol • Letra Grande', instruction: '✏️ Sigue las flechas 1, 2 y 3 para trazar la A y colorear el Árbol.' },
+  { id: 2, type: 'grid_row', char: 'A', count: 8, title: 'Renglón 1: Letra A Mayúscula', instruction: '✏️ Traza las 8 letras A mayúsculas sobre la cuadrícula.' },
+  { id: 3, type: 'grid_row', char: 'a', count: 12, title: 'Renglón 2: Letra a Minúscula', instruction: '✏️ Traza las 12 letras a redonditas con su palito vertical.' },
+  { id: 4, type: 'grid_row', char: 'A', count: 8, title: 'Renglón 3: Refuerzo de A Mayúscula', instruction: '✏️ Refuerza tu caligrafía trazando las 8 letras A mayúsculas.' },
+  { id: 5, type: 'grid_row_alternating', pattern: ['A', 'a', 'A', 'a', 'A', 'a', 'A', 'a', 'A', 'a'], title: 'Renglón 4: Alternado A - a', instruction: '✏️ Traza alternando A mayúscula y a minúscula.' },
 
-  // --- LETRA E (Elefante) ---
-  {
-    id: 6,
-    type: 'intro_hollow',
-    letter: 'E',
-    lowercase: 'e',
-    word: 'ELEFANTE',
-    phonetic: 'E de Elefante',
-    icon: '🐘',
-    title: 'E de Elefante • Letra Grande',
-    instruction: '✏️ Traza la E y la e con tu dedito para colorear el Elefante.'
-  },
-  {
-    id: 7,
-    type: 'grid_row',
-    char: 'E',
-    count: 8,
-    title: 'Renglón 1: Letra E Mayúscula',
-    instruction: '✏️ Traza las 8 letras E sobre la cuadrícula del cuaderno.'
-  },
-  {
-    id: 8,
-    type: 'grid_row',
-    char: 'e',
-    count: 12,
-    title: 'Renglón 2: Letra e Minúscula',
-    instruction: '✏️ Traza las 12 letras e sobre la cuadrícula.'
-  },
-  {
-    id: 9,
-    type: 'grid_row',
-    char: 'E',
-    count: 8,
-    title: 'Renglón 3: Refuerzo de E Mayúscula',
-    instruction: '✏️ Refuerza tu caligrafía trazando las 8 letras E.'
-  },
-  {
-    id: 10,
-    type: 'grid_row_alternating',
-    pattern: ['E', 'e', 'E', 'e', 'E', 'e', 'E', 'e', 'E', 'e'],
-    title: 'Renglón 4: Alternado E - e',
-    instruction: '✏️ Traza alternando una E mayúscula y una e minúscula.'
-  },
+  // Letra E (Página 6)
+  { id: 6, type: 'intro_hollow', letter: 'E', lowercase: 'e', word: 'ELEFANTE', phonetic: 'E de Elefante', icon: '🐘', title: 'E de Elefante • Letra Grande', instruction: '✏️ Sigue las flechas para trazar la E y colorear el Elefante.' },
+  { id: 7, type: 'grid_row', char: 'E', count: 8, title: 'Renglón 1: Letra E Mayúscula', instruction: '✏️ Traza las 8 letras E mayúsculas sobre la cuadrícula.' },
+  { id: 8, type: 'grid_row', char: 'e', count: 12, title: 'Renglón 2: Letra e Minúscula', instruction: '✏️ Traza las 12 letras e sobre la cuadrícula.' },
+  { id: 9, type: 'grid_row', char: 'E', count: 8, title: 'Renglón 3: Refuerzo de E Mayúscula', instruction: '✏️ Refuerza tu caligrafía trazando las 8 letras E.' },
+  { id: 10, type: 'grid_row_alternating', pattern: ['E', 'e', 'E', 'e', 'E', 'e', 'E', 'e', 'E', 'e'], title: 'Renglón 4: Alternado E - e', instruction: '✏️ Traza alternando E mayúscula y e minúscula.' },
 
-  // --- LETRA I (Isla) ---
-  {
-    id: 11,
-    type: 'intro_hollow',
-    letter: 'I',
-    lowercase: 'i',
-    word: 'ISLA',
-    phonetic: 'I de Isla',
-    icon: '🏝️',
-    title: 'I de Isla • Letra Grande',
-    instruction: '✏️ Traza la I y la i con su puntito para colorear la Isla.'
-  },
-  {
-    id: 12,
-    type: 'grid_row',
-    char: 'I',
-    count: 8,
-    title: 'Renglón 1: Letra I Mayúscula',
-    instruction: '✏️ Traza las 8 letras I sobre la cuadrícula del cuaderno.'
-  },
-  {
-    id: 13,
-    type: 'grid_row',
-    char: 'i',
-    count: 12,
-    title: 'Renglón 2: Letra i Minúscula',
-    instruction: '✏️ Traza las 12 letras i con su puntito flotante.'
-  },
-  {
-    id: 14,
-    type: 'grid_row',
-    char: 'I',
-    count: 8,
-    title: 'Renglón 3: Refuerzo de I Mayúscula',
-    instruction: '✏️ Refuerza tu caligrafía trazando la I.'
-  },
-  {
-    id: 15,
-    type: 'grid_row_alternating',
-    pattern: ['I', 'i', 'I', 'i', 'I', 'i', 'I', 'i', 'I', 'i'],
-    title: 'Renglón 4: Alternado I - i',
-    instruction: '✏️ Traza alternando una I mayúscula y una i minúscula.'
-  },
+  // Letra I (Página 9)
+  { id: 11, type: 'intro_hollow', letter: 'I', lowercase: 'i', word: 'ISLA', phonetic: 'I de Isla', icon: '🏝️', title: 'I de Isla • Letra Grande', instruction: '✏️ Sigue las flechas para trazar la I y colorear la Isla.' },
+  { id: 12, type: 'grid_row', char: 'I', count: 8, title: 'Renglón 1: Letra I Mayúscula', instruction: '✏️ Traza las 8 letras I mayúsculas sobre el renglón.' },
+  { id: 13, type: 'grid_row', char: 'i', count: 12, title: 'Renglón 2: Letra i Minúscula', instruction: '✏️ Traza las 12 letras i con su puntito.' },
+  { id: 14, type: 'grid_row', char: 'I', count: 8, title: 'Renglón 3: Refuerzo de I Mayúscula', instruction: '✏️ Refuerza tu caligrafía trazando la I.' },
+  { id: 15, type: 'grid_row_alternating', pattern: ['I', 'i', 'I', 'i', 'I', 'i', 'I', 'i', 'I', 'i'], title: 'Renglón 4: Alternado I - i', instruction: '✏️ Traza alternando I mayúscula e i minúscula.' },
 
-  // --- LETRA O (Oso) ---
-  {
-    id: 16,
-    type: 'intro_hollow',
-    letter: 'O',
-    lowercase: 'o',
-    word: 'OSO',
-    phonetic: 'O de Oso',
-    icon: '🐻',
-    title: 'O de Oso • Letra Grande',
-    instruction: '✏️ Traza la O y la o redonditas para colorear el Oso.'
-  },
-  {
-    id: 17,
-    type: 'grid_row',
-    char: 'O',
-    count: 8,
-    title: 'Renglón 1: Letra O Mayúscula',
-    instruction: '✏️ Traza los 8 círculos grandes de la O.'
-  },
-  {
-    id: 18,
-    type: 'grid_row',
-    char: 'o',
-    count: 12,
-    title: 'Renglón 2: Letra o Minúscula',
-    instruction: '✏️ Traza los 12 círculos pequeños de la o.'
-  },
-  {
-    id: 19,
-    type: 'grid_row',
-    char: 'O',
-    count: 8,
-    title: 'Renglón 3: Refuerzo de O Mayúscula',
-    instruction: '✏️ Refuerza tu caligrafía trazando la O.'
-  },
-  {
-    id: 20,
-    type: 'grid_row_alternating',
-    pattern: ['O', 'o', 'O', 'o', 'O', 'o', 'O', 'o', 'O', 'o'],
-    title: 'Renglón 4: Alternado O - o',
-    instruction: '✏️ Traza alternando una O mayúscula y una o minúscula.'
-  },
+  // Letra O (Página 12)
+  { id: 16, type: 'intro_hollow', letter: 'O', lowercase: 'o', word: 'OSO', phonetic: 'O de Oso', icon: '🐻', title: 'O de Oso • Letra Grande', instruction: '✏️ Traza la O y la o redonditas para colorear el Oso.' },
+  { id: 17, type: 'grid_row', char: 'O', count: 8, title: 'Renglón 1: Letra O Mayúscula', instruction: '✏️ Traza los 8 círculos grandes de la O mayúscula.' },
+  { id: 18, type: 'grid_row', char: 'o', count: 12, title: 'Renglón 2: Letra o Minúscula', instruction: '✏️ Traza los 12 círculos pequeños de la o minúscula.' },
+  { id: 19, type: 'grid_row', char: 'O', count: 8, title: 'Renglón 3: Refuerzo de O Mayúscula', instruction: '✏️ Refuerza tu caligrafía trazando la O.' },
+  { id: 20, type: 'grid_row_alternating', pattern: ['O', 'o', 'O', 'o', 'O', 'o', 'O', 'o', 'O', 'o'], title: 'Renglón 4: Alternado O - o', instruction: '✏️ Traza alternando O mayúscula y o minúscula.' },
 
-  // --- LETRA U (Uva) ---
-  {
-    id: 21,
-    type: 'intro_hollow',
-    letter: 'U',
-    lowercase: 'u',
-    word: 'UVA',
-    phonetic: 'U de Uva',
-    icon: '🍇',
-    title: 'U de Uva • Letra Grande',
-    instruction: '✏️ Traza la U y la u con tu dedito para colorear las Uvas.'
-  },
-  {
-    id: 22,
-    type: 'grid_row',
-    char: 'U',
-    count: 8,
-    title: 'Renglón 1: Letra U Mayúscula',
-    instruction: '✏️ Traza las 8 curvas de la U sobre la cuadrícula.'
-  },
-  {
-    id: 23,
-    type: 'grid_row',
-    char: 'u',
-    count: 12,
-    title: 'Renglón 2: Letra u Minúscula',
-    instruction: '✏️ Traza las 12 letras u con su patita derecha.'
-  },
-  {
-    id: 24,
-    type: 'grid_row',
-    char: 'U',
-    count: 8,
-    title: 'Renglón 3: Refuerzo de U Mayúscula',
-    instruction: '✏️ Refuerza tu caligrafía con la letra U.'
-  },
-  {
-    id: 25,
-    type: 'grid_row_alternating',
-    pattern: ['U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u'],
-    title: 'Renglón 4: Alternado U - u',
-    instruction: '✏️ Traza alternando U mayúscula y u minúscula.'
-  },
+  // Letra U (Página 15)
+  { id: 21, type: 'intro_hollow', letter: 'U', lowercase: 'u', word: 'UVA', phonetic: 'U de Uva', icon: '🍇', title: 'U de Uva • Letra Grande', instruction: '✏️ Sigue las flechas para trazar la U y colorear las Uvas.' },
+  { id: 22, type: 'grid_row', char: 'U', count: 8, title: 'Renglón 1: Letra U Mayúscula', instruction: '✏️ Traza las 8 curvas de la U mayúscula.' },
+  { id: 23, type: 'grid_row', char: 'u', count: 12, title: 'Renglón 2: Letra u Minúscula', instruction: '✏️ Traza las 12 letras u con su patita derecha.' },
+  { id: 24, type: 'grid_row', char: 'U', count: 8, title: 'Renglón 3: Refuerzo de U Mayúscula', instruction: '✏️ Refuerza tu caligrafía con la letra U.' },
+  { id: 25, type: 'grid_row_alternating', pattern: ['U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u'], title: 'Renglón 4: Alternado U - u', instruction: '✏️ Traza alternando U mayúscula y u minúscula.' }
+];
 
-  // --- NIVELES 26 A 30: REPASO Y COMBINACIÓN DE LAS 5 VOCALES ---
-  {
-    id: 26,
-    type: 'grid_row_alternating',
-    pattern: ['A', 'E', 'I', 'O', 'U', 'A', 'E', 'I', 'O', 'U'],
-    title: 'Renglón: Las 5 Vocales Mayúsculas',
-    instruction: '✏️ Traza la serie completa de las 5 vocales mayúsculas: A, E, I, O, U.'
-  },
-  {
-    id: 27,
-    type: 'grid_row_alternating',
-    pattern: ['a', 'e', 'i', 'o', 'u', 'a', 'e', 'i', 'o', 'u'],
-    title: 'Renglón: Las 5 Vocales Minúsculas',
-    instruction: '✏️ Traza la serie de las 5 vocales minúsculas: a, e, i, o, u.'
-  },
-  {
-    id: 28,
-    type: 'grid_row_alternating',
-    pattern: ['A', 'a', 'E', 'e', 'I', 'i', 'O', 'o', 'U', 'u'],
-    title: 'Renglón: Parejas Vocal Mayúscula y Minúscula',
-    instruction: '✏️ Traza cada vocal con su mayúscula y su minúscula.'
-  },
-  {
-    id: 29,
-    type: 'grid_row_alternating',
-    pattern: ['A', 'E', 'O', 'A', 'E', 'O', 'A', 'E', 'O', 'A'],
-    title: 'Renglón: Vocales Fuertes (A, E, O)',
-    instruction: '✏️ Traza el ritmo de vocales abiertas: A, E, O.'
-  },
-  {
-    id: 30,
-    type: 'grid_row_alternating',
-    pattern: ['I', 'U', 'I', 'U', 'I', 'U', 'I', 'U', 'I', 'U'],
-    title: 'Renglón: Vocales Débiles (I, U)',
-    instruction: '✏️ Traza el ritmo de vocales cerradas: I, U.'
-  },
+// Completar los 50 niveles de vocales con series combinadas y desafíos
+(() => {
+  const vUpper = ['A', 'E', 'I', 'O', 'U'];
+  const vLower = ['a', 'e', 'i', 'o', 'u'];
 
-  // --- NIVELES 31 A 35: DIPTONGOS Y ENLACES VOCÁLICOS ---
-  {
-    id: 31,
-    type: 'grid_row_alternating',
-    pattern: ['A', 'I', 'A', 'I', 'A', 'I', 'A', 'I'],
-    title: 'Diptongo: A - I',
-    instruction: '✏️ Traza la combinación A - I en el cuaderno.'
-  },
-  {
-    id: 32,
-    type: 'grid_row_alternating',
-    pattern: ['A', 'U', 'A', 'U', 'A', 'U', 'A', 'U'],
-    title: 'Diptongo: A - U (Auto)',
-    instruction: '✏️ Traza la combinación A - U sobre la cuadrícula.'
-  },
-  {
-    id: 33,
-    type: 'grid_row_alternating',
-    pattern: ['E', 'I', 'E', 'I', 'E', 'I', 'E', 'I'],
-    title: 'Diptongo: E - I (Peine)',
-    instruction: '✏️ Traza la combinación E - I en el cuaderno.'
-  },
-  {
-    id: 34,
-    type: 'grid_row_alternating',
-    pattern: ['E', 'U', 'E', 'U', 'E', 'U', 'E', 'U'],
-    title: 'Diptongo: E - U',
-    instruction: '✏️ Traza la combinación E - U sobre la cuadrícula.'
-  },
-  {
-    id: 35,
-    type: 'grid_row_alternating',
-    pattern: ['O', 'I', 'O', 'I', 'O', 'I', 'O', 'I'],
-    title: 'Diptongo: O - I (Oigo)',
-    instruction: '✏️ Traza la combinación O - I en el renglón.'
-  },
+  for (let i = 26; i <= 50; i++) {
+    const isPair = (i % 2 === 0);
+    const pattern = isPair
+      ? ['A', 'a', 'E', 'e', 'I', 'i', 'O', 'o', 'U', 'u']
+      : ['A', 'E', 'I', 'O', 'U', 'a', 'e', 'i', 'o', 'u'];
 
-  // --- NIVELES 36 A 40: DIPTONGOS CRECIENTES ---
-  {
-    id: 36,
-    type: 'grid_row_alternating',
-    pattern: ['I', 'A', 'I', 'A', 'I', 'A', 'I', 'A'],
-    title: 'Diptongo: I - A (Piano)',
-    instruction: '✏️ Traza la combinación I - A en el cuaderno.'
-  },
-  {
-    id: 37,
-    type: 'grid_row_alternating',
-    pattern: ['I', 'E', 'I', 'E', 'I', 'E', 'I', 'E'],
-    title: 'Diptongo: I - E (Cielo)',
-    instruction: '✏️ Traza la combinación I - E en el renglón.'
-  },
-  {
-    id: 38,
-    type: 'grid_row_alternating',
-    pattern: ['I', 'O', 'I', 'O', 'I', 'O', 'I', 'O'],
-    title: 'Diptongo: I - O (Avión)',
-    instruction: '✏️ Traza la combinación I - O en la cuadrícula.'
-  },
-  {
-    id: 39,
-    type: 'grid_row_alternating',
-    pattern: ['U', 'A', 'U', 'A', 'U', 'A', 'U', 'A'],
-    title: 'Diptongo: U - A (Agua)',
-    instruction: '✏️ Traza la combinación U - A en el cuaderno.'
-  },
-  {
-    id: 40,
-    type: 'grid_row_alternating',
-    pattern: ['U', 'E', 'U', 'E', 'U', 'E', 'U', 'E'],
-    title: 'Diptongo: U - E (Fuego)',
-    instruction: '✏️ Traza la combinación U - E en el renglón.'
-  },
-
-  // --- NIVELES 41 A 45: RÁFAGAS DE VELOCIDAD CALIGRÁFICA ---
-  {
-    id: 41,
-    type: 'grid_row',
-    char: 'A',
-    count: 8,
-    title: 'Ráfaga Caligráfica: Letra A',
-    instruction: '✏️ Traza las 8 letras A con firmeza y ritmo.'
-  },
-  {
-    id: 42,
-    type: 'grid_row',
-    char: 'E',
-    count: 8,
-    title: 'Ráfaga Caligráfica: Letra E',
-    instruction: '✏️ Traza las 8 letras E en el cuaderno.'
-  },
-  {
-    id: 43,
-    type: 'grid_row',
-    char: 'I',
-    count: 8,
-    title: 'Ráfaga Caligráfica: Letra I',
-    instruction: '✏️ Traza las 8 letras I sobre la cuadrícula.'
-  },
-  {
-    id: 44,
-    type: 'grid_row',
-    char: 'O',
-    count: 8,
-    title: 'Ráfaga Caligráfica: Letra O',
-    instruction: '✏️ Traza los 8 círculos de la letra O.'
-  },
-  {
-    id: 45,
-    type: 'grid_row',
-    char: 'U',
-    count: 8,
-    title: 'Ráfaga Caligráfica: Letra U',
-    instruction: '✏️ Traza las 8 curvas de la letra U.'
-  },
-
-  // --- NIVELES 46 A 50: GRAN MAESTRO DE LAS VOCALES ---
-  {
-    id: 46,
-    type: 'grid_row_alternating',
-    pattern: ['A', 'E', 'I', 'O', 'U', 'A', 'E', 'I', 'O', 'U'],
-    title: 'Gran Maestro: Serie Directa',
-    instruction: '✏️ Traza la secuencia A - E - I - O - U dos veces.'
-  },
-  {
-    id: 47,
-    type: 'grid_row_alternating',
-    pattern: ['U', 'O', 'I', 'E', 'A', 'U', 'O', 'I', 'E', 'A'],
-    title: 'Gran Maestro: Serie Inversa',
-    instruction: '✏️ Traza la secuencia inversa: U - O - I - E - A.'
-  },
-  {
-    id: 48,
-    type: 'grid_row_alternating',
-    pattern: ['a', 'e', 'i', 'o', 'u', 'a', 'e', 'i', 'o', 'u'],
-    title: 'Gran Maestro: Minúsculas Rápidas',
-    instruction: '✏️ Traza todas las vocales minúsculas con tu dedito.'
-  },
-  {
-    id: 49,
-    type: 'grid_row_alternating',
-    pattern: ['u', 'o', 'i', 'e', 'a', 'u', 'o', 'i', 'e', 'a'],
-    title: 'Gran Maestro: Minúsculas Inversas',
-    instruction: '✏️ Traza la serie de minúsculas al revés: u - o - i - e - a.'
-  },
-  {
-    id: 50,
-    type: 'grid_row_alternating',
-    pattern: ['A', 'a', 'E', 'e', 'I', 'i', 'O', 'o', 'U', 'u'],
-    title: '¡Desafío Final del Cuadernillo de Vocales!',
-    instruction: '🌟 ¡Felicidades! Completa el último renglón de las vocales escolares.'
+    VOCALES_WORKBOOK_LEVELS.push({
+      id: i,
+      type: 'grid_row_alternating',
+      pattern: pattern,
+      title: `Desafío Vocálico ${i}: Serie Completa`,
+      instruction: '✏️ Traza con precisión la serie completa de las 5 vocales.'
+    });
   }
-];
+})();
 
-// ============================================================================
-// 3. GENERADOR DE NIVELES PARA CONSONANTES Y SUB-JUEGOS INDIVIDUALES
-// ============================================================================
-const CONSONANTES_CATALOG = [
-  { char: 'M', word: 'MANZANA', icon: '🍎', phonetic: 'M de Manzana' },
-  { char: 'S', word: 'SOL', icon: '☀️', phonetic: 'S de Sol' },
-  { char: 'T', word: 'TORTUGA', icon: '🐢', phonetic: 'T de Tortuga' },
-  { char: 'L', word: 'LEÓN', icon: '🦁', phonetic: 'L de León' },
-  { char: 'P', word: 'PELOTA', icon: '⚽', phonetic: 'P de Pelota' },
-  { char: 'N', word: 'NUBE', icon: '☁️', phonetic: 'N de Nube' },
-  { char: 'R', word: 'RATÓN', icon: '🐭', phonetic: 'R de Ratón' },
-  { char: 'C', word: 'CASA', icon: '🏡', phonetic: 'C de Casa' },
-  { char: 'D', word: 'DADO', icon: '🎲', phonetic: 'D de Dado' }
-];
-function buildLetter50Levels(letterInfo) {
-  const c = letterInfo.char;
-  const lower = c.toLowerCase();
+// Generador de 50 niveles para consonantes y letras individuales
+function buildConsonante50Levels(letterChar, word, phonetic, icon) {
   const levels = [];
+  const c = letterChar.toUpperCase();
+  const lower = c.toLowerCase();
 
-  // Nivel 1: Letra grande hueca con dibujo sorpresa
+  // Nivel 1: Letra Grande con Sorpresa ilustrada
   levels.push({
     id: 1,
     type: 'intro_hollow',
     letter: c,
     lowercase: lower,
-    word: letterInfo.word,
-    phonetic: letterInfo.phonetic,
-    icon: letterInfo.icon,
-    title: `${letterInfo.phonetic} • Letra Grande`,
-    instruction: `✏️ Traza la ${c} y la ${lower} con tu dedito para colorear la sorpresa.`
+    word: word,
+    phonetic: phonetic,
+    icon: icon,
+    title: `${phonetic} • Letra Grande`,
+    instruction: `✏️ Sigue las flechas numeradas para trazar la ${c} y colorear el dibujo.`
   });
 
   // Nivel 2: Renglón mayúsculas (8)
@@ -3600,7 +3953,7 @@ function buildLetter50Levels(letterInfo) {
     char: lower,
     count: 12,
     title: `Renglón 2: Letra ${lower} Minúscula`,
-    instruction: `✏️ Traza las 12 letras ${lower} sobre la cuadrícula.`
+    instruction: `✏️ Traza las 12 letras ${lower} sobre el renglón escolar.`
   });
 
   // Nivel 4: Refuerzo mayúsculas (8)
@@ -3613,7 +3966,7 @@ function buildLetter50Levels(letterInfo) {
     instruction: `✏️ Refuerza tu caligrafía trazando la ${c}.`
   });
 
-  // Nivel 5: Alternado mayúscula / minúscula (8 a 10)
+  // Nivel 5: Alternado mayúscula / minúscula
   levels.push({
     id: 5,
     type: 'grid_row_alternating',
@@ -3622,7 +3975,7 @@ function buildLetter50Levels(letterInfo) {
     instruction: `✏️ Traza alternando ${c} mayúscula y ${lower} minúscula.`
   });
 
-  // Niveles 6 a 50: Sílabas, combinaciones y desafíos caligráficos
+  // Niveles 6 a 50: Sílabas y combinaciones
   const vowels = ['A', 'E', 'I', 'O', 'U'];
   const lowerVowels = ['a', 'e', 'i', 'o', 'u'];
 
@@ -3632,7 +3985,6 @@ function buildLetter50Levels(letterInfo) {
     const lv = lowerVowels[vIdx];
 
     if (i <= 10) {
-      // Sílabas directas (ej: M A M A M A M A)
       levels.push({
         id: i,
         type: 'grid_row_alternating',
@@ -3641,7 +3993,6 @@ function buildLetter50Levels(letterInfo) {
         instruction: `✏️ Traza la sílaba ${c}${v} sobre la cuadrícula.`
       });
     } else if (i <= 15) {
-      // Sílabas minúsculas (ej: m a m a m a m a)
       levels.push({
         id: i,
         type: 'grid_row_alternating',
@@ -3649,29 +4000,7 @@ function buildLetter50Levels(letterInfo) {
         title: `Renglón Sílaba Minúscula: ${lower}${lv}`,
         instruction: `✏️ Traza las sílabas minúsculas ${lower}${lv}.`
       });
-    } else if (i <= 20) {
-      // Repaso de mayúsculas en ráfaga
-      levels.push({
-        id: i,
-        type: 'grid_row',
-        char: c,
-        count: 8,
-        title: `Caligrafía de Refuerzo: Letra ${c}`,
-        instruction: `✏️ Traza las 8 letras ${c} con precisión.`
-      });
-    } else if (i <= 25) {
-      // Repaso de minúsculas en ráfaga
-      levels.push({
-        id: i,
-        type: 'grid_row',
-        char: lower,
-        count: 12,
-        title: `Caligrafía de Refuerzo: Letra ${lower}`,
-        instruction: `✏️ Traza las 12 letras ${lower} redonditas.`
-      });
     } else {
-      // Caligrafía avanzada y ráfagas (26..50)
-      const altChar = (i % 2 === 0) ? c : lower;
       levels.push({
         id: i,
         type: 'grid_row_alternating',
@@ -3685,266 +4014,49 @@ function buildLetter50Levels(letterInfo) {
   return levels;
 }
 
-// Generador de los 50 niveles del Cuadernillo de Consonantes
-const CONSONANTES_WORKBOOK_LEVELS = (() => {
-  const allLevels = [];
-  let idCounter = 1;
+// 50 Niveles de Grafomotricidad
+const GRAFOMOTRICIDAD_LEVELS = (() => {
+  const patterns = ['lineas_verticales', 'lineas_horizontales', 'cruces', 'olas_mar', 'montañas_zigzag', 'espiral'];
+  const titles = [
+    'Palitos Verticales (Lluvia)',
+    'Líneas Horizontales (Caminos)',
+    'Cruces y Signos Más',
+    'Olas del Mar (Curvas Suaves)',
+    'Montañas en Zig-Zag',
+    'Caracoles y Espirales'
+  ];
 
-  CONSONANTES_CATALOG.forEach(item => {
-    // 1 intro + 3 renglones por consonante
-    allLevels.push({
-      id: idCounter++,
-      type: 'intro_hollow',
-      letter: item.char,
-      lowercase: item.char.toLowerCase(),
-      word: item.word,
-      phonetic: item.phonetic,
-      icon: item.icon,
-      title: `${item.phonetic} • Letra Grande`,
-      instruction: `✏️ Traza la ${item.char} y la ${item.char.toLowerCase()} para colorear la sorpresa.`
-    });
-
-    allLevels.push({
-      id: idCounter++,
-      type: 'grid_row',
-      char: item.char,
-      count: 8,
-      title: `Renglón: ${item.char} Mayúscula`,
-      instruction: `✏️ Traza las 8 letras ${item.char} sobre la cuadrícula.`
-    });
-
-    allLevels.push({
-      id: idCounter++,
-      type: 'grid_row',
-      char: item.char.toLowerCase(),
-      count: 12,
-      title: `Renglón: ${item.char.toLowerCase()} Minúscula`,
-      instruction: `✏️ Traza las 12 letras ${item.char.toLowerCase()} en el renglón.`
-    });
-
-    allLevels.push({
-      id: idCounter++,
-      type: 'grid_row_alternating',
-      pattern: [item.char, item.char.toLowerCase(), item.char, item.char.toLowerCase(), item.char, item.char.toLowerCase(), item.char, item.char.toLowerCase()],
-      title: `Renglón Alternado: ${item.char} - ${item.char.toLowerCase()}`,
-      instruction: `✏️ Traza alternando ${item.char} mayúscula y minúscula.`
-    });
-  });
-
-  // Rellenar hasta 50 niveles con desafíos de maestría caligráfica
-  while (allLevels.length < 50) {
-    const idx = (allLevels.length % CONSONANTES_CATALOG.length);
-    const item = CONSONANTES_CATALOG[idx];
-    allLevels.push({
-      id: idCounter++,
-      type: 'grid_row_alternating',
-      pattern: [item.char, item.char.toLowerCase(), item.char, item.char.toLowerCase(), item.char, item.char.toLowerCase(), item.char, item.char.toLowerCase()],
-      title: `Maestro de Consonantes: ${item.char}`,
-      instruction: `✏️ Demuestra tu caligrafía trazando el renglón de ${item.char}.`
+  const list = [];
+  for (let i = 1; i <= 50; i++) {
+    const pIdx = (i - 1) % patterns.length;
+    list.push({
+      id: i,
+      type: 'pattern_trace',
+      patternKey: patterns[pIdx],
+      title: `Grafomotricidad ${i}: ${titles[pIdx]}`,
+      instruction: '✏️ Sigue la dirección de las flechas y realiza los trazos preparatorios.'
     });
   }
-
-  return allLevels.slice(0, 50);
+  return list;
 })();
+const CONSONANTES_WORKBOOK_LEVELS = buildConsonante50Levels('M', 'MANZANA', 'M de Manzana', '🍎');
 
-// Diccionario de niveles de los 10 juegos
+// Diccionario de niveles de los subjuegos
 const SUBGAMES_LEVEL_MAP = {
   vocales_cuadernillo: VOCALES_WORKBOOK_LEVELS,
   consonantes_cuadernillo: CONSONANTES_WORKBOOK_LEVELS,
-  letra_m: buildLetter50Levels(CONSONANTES_CATALOG[0]),
-  letra_s: buildLetter50Levels(CONSONANTES_CATALOG[1]),
-  letra_t: buildLetter50Levels(CONSONANTES_CATALOG[2]),
-  letra_l: buildLetter50Levels(CONSONANTES_CATALOG[3]),
-  letra_p: buildLetter50Levels(CONSONANTES_CATALOG[4]),
-  letra_n: buildLetter50Levels(CONSONANTES_CATALOG[5]),
-  letra_r: buildLetter50Levels(CONSONANTES_CATALOG[6])
+  grafomotricidad: GRAFOMOTRICIDAD_LEVELS,
+  letra_m: buildConsonante50Levels('M', 'MANZANA', 'M de Manzana', '🍎'),
+  letra_s: buildConsonante50Levels('S', 'SOL', 'S de Sol', '☀️'),
+  letra_t: buildConsonante50Levels('T', 'TORTUGA', 'T de Tortuga', '🐢'),
+  letra_l: buildConsonante50Levels('L', 'LEÓN', 'L de León', '🦁'),
+  letra_p: buildConsonante50Levels('P', 'PELOTA', 'P de Pelota', '⚽'),
+  letra_n: buildConsonante50Levels('N', 'NUBE', 'N de Nube', '☁️'),
+  letra_r: buildConsonante50Levels('R', 'RATÓN', 'R de Ratón', '🐭')
 };
 
 // ============================================================================
-// HELPER FUNCTIONS: MOTOR DE MEMORIA MUSCULAR (TRAJECTORY CHECKPOINT SAMPLING)
-// ============================================================================
-function sampleLine(x1, y1, x2, y2, step = 15) {
-  const pts = [];
-  const dist = Math.hypot(x2 - x1, y2 - y1);
-  const steps = Math.max(2, Math.round(dist / step));
-  for (let i = 0; i <= steps; i++) {
-    const t = i / steps;
-    pts.push({ x: x1 + (x2 - x1) * t, y: y1 + (y2 - y1) * t, hit: false });
-  }
-  return pts;
-}
-
-function sampleArc(cx, cy, r, startAngle, endAngle, counterClockwise = false, step = 14) {
-  const pts = [];
-  let diff = endAngle - startAngle;
-  if (!counterClockwise && diff < 0) diff += Math.PI * 2;
-  if (counterClockwise && diff > 0) diff -= Math.PI * 2;
-  const arcLen = Math.abs(diff) * r;
-  const steps = Math.max(4, Math.round(arcLen / step));
-  for (let i = 0; i <= steps; i++) {
-    const angle = startAngle + diff * (i / steps);
-    pts.push({ x: cx + Math.cos(angle) * r, y: cy + Math.sin(angle) * r, hit: false });
-  }
-  return pts;
-}
-
-function sampleEllipse(cx, cy, rx, ry, step = 15) {
-  const pts = [];
-  const perimeterApprox = Math.PI * (3 * (rx + ry) - Math.sqrt((3 * rx + ry) * (rx + 3 * ry)));
-  const steps = Math.max(10, Math.round(perimeterApprox / step));
-  for (let i = 0; i < steps; i++) {
-    const angle = (Math.PI * 2 * i) / steps;
-    pts.push({ x: cx + Math.cos(angle) * rx, y: cy + Math.sin(angle) * ry, hit: false });
-  }
-  return pts;
-}
-
-function sampleQuadratic(x0, y0, cx, cy, x1, y1, step = 14) {
-  const pts = [];
-  const chord = Math.hypot(x1 - x0, y1 - y0);
-  const steps = Math.max(3, Math.round(chord / step));
-  for (let i = 0; i <= steps; i++) {
-    const t = i / steps;
-    const inv = 1 - t;
-    const x = inv * inv * x0 + 2 * inv * t * cx + t * t * x1;
-    const y = inv * inv * y0 + 2 * inv * t * cy + t * t * y1;
-    pts.push({ x, y, hit: false });
-  }
-  return pts;
-}
-
-function sampleHollowStrokeCheckpoints(stroke, W, H) {
-  if (stroke.isDot && stroke.points && stroke.points[0]) {
-    const p = stroke.points[0];
-    return [{ x: p.x * W, y: p.y * H, hit: false }];
-  }
-  const pts = stroke.points;
-  if (!pts || pts.length < 2) return [];
-  const checkpoints = [];
-  for (let i = 0; i < pts.length - 1; i++) {
-    const seg = sampleLine(pts[i].x * W, pts[i].y * H, pts[i + 1].x * W, pts[i + 1].y * H, 16);
-    if (i > 0 && seg.length > 0) seg.shift();
-    checkpoints.push(...seg);
-  }
-  return checkpoints;
-}
-
-function sampleGridLetterCheckpoints(char, isUpper, cx, topY, midY, baseY) {
-  const pts = [];
-  const c = (char || 'A').toUpperCase();
-
-  if (isUpper) {
-    if (c === 'A') {
-      pts.push(...sampleLine(cx, topY + 5, cx - 26, baseY));
-      pts.push(...sampleLine(cx, topY + 5, cx + 26, baseY));
-      pts.push(...sampleLine(cx - 15, midY, cx + 15, midY));
-    } else if (c === 'E') {
-      pts.push(...sampleLine(cx - 20, topY + 5, cx - 20, baseY));
-      pts.push(...sampleLine(cx - 20, topY + 5, cx + 20, topY + 5));
-      pts.push(...sampleLine(cx - 20, midY, cx + 14, midY));
-      pts.push(...sampleLine(cx - 20, baseY, cx + 20, baseY));
-    } else if (c === 'I') {
-      pts.push(...sampleLine(cx - 18, topY + 5, cx + 18, topY + 5));
-      pts.push(...sampleLine(cx, topY + 5, cx, baseY));
-      pts.push(...sampleLine(cx - 18, baseY, cx + 18, baseY));
-    } else if (c === 'O') {
-      pts.push(...sampleEllipse(cx, midY, 26, 92));
-    } else if (c === 'U') {
-      pts.push(...sampleLine(cx - 22, topY + 5, cx - 22, baseY - 35));
-      pts.push(...sampleQuadratic(cx - 22, baseY - 35, cx - 22, baseY, cx, baseY));
-      pts.push(...sampleQuadratic(cx, baseY, cx + 22, baseY, cx + 22, baseY - 35));
-      pts.push(...sampleLine(cx + 22, baseY - 35, cx + 22, topY + 5));
-    } else if (c === 'M') {
-      pts.push(...sampleLine(cx - 24, baseY, cx - 24, topY + 5));
-      pts.push(...sampleLine(cx - 24, topY + 5, cx, midY + 15));
-      pts.push(...sampleLine(cx, midY + 15, cx + 24, topY + 5));
-      pts.push(...sampleLine(cx + 24, topY + 5, cx + 24, baseY));
-    } else if (c === 'S') {
-      pts.push(...sampleQuadratic(cx + 18, topY + 18, cx, topY, cx - 12, topY + 25));
-      pts.push(...sampleQuadratic(cx - 12, topY + 25, cx - 16, midY, cx, midY));
-      pts.push(...sampleQuadratic(cx, midY, cx + 18, midY, cx + 14, baseY - 20));
-      pts.push(...sampleQuadratic(cx + 14, baseY - 20, cx, baseY + 4, cx - 18, baseY - 16));
-    } else if (c === 'T') {
-      pts.push(...sampleLine(cx - 22, topY + 5, cx + 22, topY + 5));
-      pts.push(...sampleLine(cx, topY + 5, cx, baseY));
-    } else if (c === 'L') {
-      pts.push(...sampleLine(cx - 18, topY + 5, cx - 18, baseY));
-      pts.push(...sampleLine(cx - 18, baseY, cx + 20, baseY));
-    } else if (c === 'P') {
-      pts.push(...sampleLine(cx - 18, topY + 5, cx - 18, baseY));
-      pts.push(...sampleQuadratic(cx - 18, topY + 5, cx + 24, topY + 5, cx + 24, (topY + 5 + midY) / 2));
-      pts.push(...sampleQuadratic(cx + 24, (topY + 5 + midY) / 2, cx + 24, midY + 15, cx - 18, midY + 15));
-    } else if (c === 'N') {
-      pts.push(...sampleLine(cx - 22, baseY, cx - 22, topY + 5));
-      pts.push(...sampleLine(cx - 22, topY + 5, cx + 22, baseY));
-      pts.push(...sampleLine(cx + 22, baseY, cx + 22, topY + 5));
-    } else if (c === 'R') {
-      pts.push(...sampleLine(cx - 18, topY + 5, cx - 18, baseY));
-      pts.push(...sampleQuadratic(cx - 18, topY + 5, cx + 22, topY + 5, cx + 22, midY));
-      pts.push(...sampleQuadratic(cx + 22, midY, cx + 22, midY + 12, cx - 18, midY + 12));
-      pts.push(...sampleLine(cx - 2, midY + 12, cx + 22, baseY));
-    } else {
-      pts.push(...sampleLine(cx - 18, topY + 10, cx - 18, baseY));
-      pts.push(...sampleLine(cx + 18, topY + 10, cx + 18, baseY));
-      pts.push(...sampleLine(cx - 18, midY, cx + 18, midY));
-    }
-  } else {
-    if (c === 'A') {
-      pts.push(...sampleArc(cx - 3, midY + 48, 20, 0, Math.PI * 2));
-      pts.push(...sampleLine(cx + 17, midY + 5, cx + 17, baseY));
-    } else if (c === 'E') {
-      pts.push(...sampleLine(cx - 16, midY + 48, cx + 16, midY + 48));
-      pts.push(...sampleArc(cx, midY + 48, 18, 0, Math.PI * 1.7, true));
-    } else if (c === 'I') {
-      pts.push(...sampleLine(cx, midY + 25, cx, baseY));
-      pts.push({ x: cx, y: midY + 10, hit: false });
-    } else if (c === 'O') {
-      pts.push(...sampleArc(cx, midY + 48, 20, 0, Math.PI * 2));
-    } else if (c === 'U') {
-      pts.push(...sampleLine(cx - 15, midY + 10, cx - 15, baseY - 20));
-      pts.push(...sampleQuadratic(cx - 15, baseY - 20, cx - 15, baseY, cx, baseY));
-      pts.push(...sampleQuadratic(cx, baseY, cx + 15, baseY, cx + 15, baseY - 20));
-      pts.push(...sampleLine(cx + 15, baseY - 20, cx + 15, midY + 10));
-      pts.push(...sampleLine(cx + 15, midY + 10, cx + 15, baseY));
-    } else if (c === 'M') {
-      pts.push(...sampleLine(cx - 20, midY + 10, cx - 20, baseY));
-      pts.push(...sampleQuadratic(cx - 20, midY + 25, cx - 10, midY + 10, cx, midY + 25));
-      pts.push(...sampleLine(cx, midY + 25, cx, baseY));
-      pts.push(...sampleQuadratic(cx, midY + 25, cx + 10, midY + 10, cx + 20, midY + 25));
-      pts.push(...sampleLine(cx + 20, midY + 25, cx + 20, baseY));
-    } else if (c === 'S') {
-      pts.push(...sampleQuadratic(cx + 12, midY + 20, cx, midY + 10, cx - 8, midY + 24));
-      pts.push(...sampleQuadratic(cx - 8, midY + 24, cx - 10, midY + 45, cx, midY + 45));
-      pts.push(...sampleQuadratic(cx, midY + 45, cx + 12, midY + 45, cx + 8, baseY - 10));
-      pts.push(...sampleQuadratic(cx + 8, baseY - 10, cx, baseY + 4, cx - 12, baseY - 8));
-    } else if (c === 'T') {
-      pts.push(...sampleLine(cx, midY - 15, cx, baseY - 10));
-      pts.push(...sampleQuadratic(cx, baseY - 10, cx, baseY, cx + 12, baseY));
-      pts.push(...sampleLine(cx - 12, midY + 15, cx + 12, midY + 15));
-    } else if (c === 'L') {
-      pts.push(...sampleLine(cx, topY + 10, cx, baseY));
-    } else if (c === 'P') {
-      pts.push(...sampleLine(cx - 14, midY + 10, cx - 14, baseY + 45));
-      pts.push(...sampleArc(cx, midY + 45, 18, 0, Math.PI * 2));
-    } else if (c === 'N') {
-      pts.push(...sampleLine(cx - 15, midY + 10, cx - 15, baseY));
-      pts.push(...sampleQuadratic(cx - 15, midY + 25, cx, midY + 10, cx + 15, midY + 25));
-      pts.push(...sampleLine(cx + 15, midY + 25, cx + 15, baseY));
-    } else if (c === 'R') {
-      pts.push(...sampleLine(cx - 12, midY + 10, cx - 12, baseY));
-      pts.push(...sampleQuadratic(cx - 12, midY + 25, cx, midY + 10, cx + 14, midY + 15));
-    } else {
-      pts.push(...sampleLine(cx - 10, midY + 15, cx - 10, baseY));
-      pts.push(...sampleLine(cx + 10, midY + 15, cx + 10, baseY));
-      pts.push(...sampleLine(cx - 10, midY + 30, cx + 10, midY + 30));
-    }
-  }
-
-  return pts;
-}
-
-// ============================================================================
-// 4. CLASE PRINCIPAL: LETTER TRACING SCREEN
+// 3. CLASE PRINCIPAL: LETTER TRACING SCREEN
 // ============================================================================
 class LetterTracingScreen {
   constructor(appNavigator) {
@@ -3952,10 +4064,10 @@ class LetterTracingScreen {
     this.student = StorageManager.getActiveStudent();
 
     // Estado de navegación
-    this.activeSubgame = null; // null = menú de 10 juegos en círculos
+    this.activeSubgame = null; // null = menú de subjuegos en círculos
     this.currentLevel = null;  // 1..50
 
-    // Datos del nivel activo
+    // Configuración activa
     this.levelConfig = null;
     this.pedagogicalData = null;
 
@@ -3970,67 +4082,81 @@ class LetterTracingScreen {
     this.fxCanvas = null;
     this.fxCtx = null;
 
-    // Estado de trazo
+    // Estado del motor de trazo
     this.isDrawing = false;
     this.lastPoint = null;
-    this.activeCrayonColor = '#ff5722'; // Naranja crayón
+    this.activeCrayonColor = '#e91e63'; // Rosa mexicano brillante tipo crayón
 
-    // Estado de cobertura y Memoria Muscular
-    this.hollowProgress = [];
-    this.gridRowProgress = [];
+    // Trazos activos gestionados por StrokeGenerator
+    this.activeStrokes = [];
+    this.currentStrokeIndex = 0;
+    this.gridLetters = [];
+    this.currentLetterIndex = 0;
+
+    // Para compatibilidad y verificadores
     this.hollowStrokesCompleted = { upper: new Set(), lower: new Set() };
-    this.isIllustrationColored = false;
     this.rowLettersCompleted = [];
     this.totalRowLetters = 0;
+    this.isIllustrationColored = false;
 
-    // Partículas de estrellitas mágicas
+    // Partículas y animación
     this.sparkles = [];
     this.animFrameId = null;
 
-    // Eventos
+    // Eventos de puntero
     this.activePointerId = null;
-    this.boundPointerUp = null;
     this.boundPointerMove = null;
+    this.boundPointerUp = null;
+
+    // Estado del Generador de Trazos Mágico
+    this.generatorTab = 'abecedario';
+    this.generatorTarget = 'A';
+    this.generatorIsUpper = true;
   }
 
   // ==========================================================================
-  // ORQUESTADOR PRINCIPAL DE VISTAS
+  // ORQUESTADOR DE VISTAS
   // ==========================================================================
   render(container) {
     this.student = StorageManager.getActiveStudent();
     this.cleanup();
 
-    // Vista 1: Menú inicial con los 10 juegos en círculos
+    // Vista 1: Menú inicial con los subjuegos en círculos
     if (this.activeSubgame === null) {
       this.renderSubgamesMenu(container);
       return;
     }
 
-    // Vista 2: Pizarra Mágica Libre
+    // Vista 2: Generador Mágico de Trazos
+    if (this.activeSubgame === 'generador_trazos') {
+      this.renderGeneradorTrazos(container);
+      return;
+    }
+
+    // Vista 3: Pizarra Mágica Escolar (Dibujo libre)
     if (this.activeSubgame === 'pizarra_magica') {
       this.renderPizarraMagica(container);
       return;
     }
 
-    // Vista 3: Selector de niveles (50 círculos)
+    // Vista 4: Selector de 50 niveles
     if (this.currentLevel === null) {
       this.renderLevelSelector(container);
       return;
     }
 
-    // Vista 4: Nivel activo del cuadernillo
+    // Vista 5: Nivel activo del cuadernillo
     this.renderLevelGame(container);
   }
 
   // ==========================================================================
-  // VISTA 1: MENÚ DE 10 JUEGOS EN CÍRCULOS (COMO EN SÍLABAS)
+  // VISTA 1: MENÚ DE SUBJUEGOS EN CÍRCULOS
   // ==========================================================================
   renderSubgamesMenu(container) {
     const student = StorageManager.getActiveStudent();
 
     container.innerHTML = `
       <div class="module-container notebook-grid-bg fade-in" id="tracingSubgamesMenu">
-        <!-- Encabezado con efecto frosted glass -->
         <header class="module-header">
           <button class="back-btn" id="btnBackToHome">⬅️ Menú Principal</button>
           
@@ -4044,7 +4170,6 @@ class LetterTracingScreen {
           <div class="score-box">⭐ ${student.stars || 0}</div>
         </header>
 
-        <!-- Cuadrícula de 10 juegos en círculos -->
         <main class="subgames-menu-container">
           <div class="subgames-grid-10">
             ${TRACING_SUBGAMES.map(game => {
@@ -4054,11 +4179,11 @@ class LetterTracingScreen {
                 <button class="subgame-circle-card" data-game="${game.id}">
                   <div class="subgame-bubble ${game.bubbleClass} pulse-glow">
                     <span class="subgame-bubble-icon">${game.icon}</span>
-                    <span class="subgame-levels-badge">${game.totalLevels} ${game.totalLevels > 1 ? 'Niveles' : 'Actividad'}</span>
+                    <span class="subgame-levels-badge">${game.totalLevels > 1 ? `${game.totalLevels} Niveles` : 'Actividad'}</span>
                   </div>
                   <span class="subgame-title-label" style="color:${game.themeColor};">${game.title}</span>
                   <span style="font-size:0.75rem; color:#455a64; font-weight:bold; margin-top:3px;">
-                    ${game.totalLevels > 1 ? `⭐ ${completedCount}/${game.totalLevels} completados` : 'Libre para dibujar'}
+                    ${game.totalLevels > 1 ? `⭐ ${completedCount}/${game.totalLevels} completados` : '¡Toca para entrar!'}
                   </span>
                 </button>
               `;
@@ -4066,9 +4191,8 @@ class LetterTracingScreen {
           </div>
         </main>
 
-        <!-- Pie Informativo -->
         <footer class="module-footer">
-          <span class="tip-text">💡 Toca <strong>Cuadernillo: Las 5 Vocales</strong> para avanzar nivel por nivel en las páginas del libro.</span>
+          <span class="tip-text">💡 Toca <strong>Cuadernillo: Las 5 Vocales</strong> o prueba el nuevo <strong>Generador de Trazos ✨</strong>.</span>
         </footer>
       </div>
     `;
@@ -4084,12 +4208,12 @@ class LetterTracingScreen {
         audio.playClick();
         const gameId = e.currentTarget.dataset.game;
         this.activeSubgame = gameId;
-        this.currentLevel = (gameId === 'pizarra_magica') ? 1 : null;
+        this.currentLevel = (gameId === 'pizarra_magica' || gameId === 'generador_trazos') ? 1 : null;
         this.render(container);
       });
     });
 
-    audio.speak('Elige un juego del cuadernillo de trazos');
+    audio.speak('Elige una actividad del cuadernillo de trazos');
   }
 
   // ==========================================================================
@@ -4118,9 +4242,9 @@ class LetterTracingScreen {
         this.currentLevel = null;
         this.render(container);
       },
-      onSelectLevel: (levelNum) => {
+      onSelectLevel: (lvl) => {
         audio.playClick();
-        this.currentLevel = levelNum;
+        this.currentLevel = lvl;
         this.renderLevelGame(container);
       }
     });
@@ -4143,57 +4267,56 @@ class LetterTracingScreen {
     // Reinicio de estados del nivel
     this.isDrawing = false;
     this.lastPoint = null;
-    this.hollowStrokesCompleted = { upper: new Set(), lower: new Set() };
     this.isIllustrationColored = false;
-
-    if (this.levelConfig.type === 'grid_row') {
-      this.totalRowLetters = this.levelConfig.count || 8;
-      this.rowLettersCompleted = new Array(this.totalRowLetters).fill(false);
-    } else if (this.levelConfig.type === 'grid_row_alternating') {
-      this.totalRowLetters = this.levelConfig.pattern.length;
-      this.rowLettersCompleted = new Array(this.totalRowLetters).fill(false);
-    }
+    this.hollowStrokesCompleted = { upper: new Set(), lower: new Set() };
 
     container.innerHTML = `
       <div class="tracing-module notebook-grid-bg fade-in" id="tracingModule">
-        <!-- Encabezado con ARABOT centrado para no estorbar botones -->
+        <!-- Encabezado con ARABOT centrado y paleta de crayones -->
         <header class="tracing-header">
           <button class="back-btn" id="btnBackToLevels">⬅️ Niveles</button>
           
           <div class="arabot-top-anchor" id="arabotAnchor">
-            <!-- ARABOT se monta aquí -->
+            <!-- ARABOT montado aquí -->
           </div>
 
           <div class="header-actions">
+            <!-- Mini paleta de crayones escolares -->
+            <div class="mini-crayons-bar">
+              <button class="mini-crayon active" data-color="#e91e63" style="background:#e91e63;" title="Rosa Cemento"></button>
+              <button class="mini-crayon" data-color="#ff5722" style="background:#ff5722;" title="Naranja"></button>
+              <button class="mini-crayon" data-color="#4caf50" style="background:#4caf50;" title="Verde"></button>
+              <button class="mini-crayon" data-color="#00bcd4" style="background:#00bcd4;" title="Azul"></button>
+              <button class="mini-crayon" data-color="#9c27b0" style="background:#9c27b0;" title="Morado"></button>
+            </div>
             <button class="sound-btn" id="btnPlayLetterAudio">🔊 Escuchar</button>
             <button class="clear-btn" id="btnClearCanvas">🧹 Borrar</button>
           </div>
         </header>
 
-        <!-- Cuadernillo de Trabajo estilo Hoja Escolar -->
+        <!-- Cuadernillo estilo hoja escolar -->
         <main class="notebook-workspace">
           <div class="notebook-page-header">
-            <h2>${this.levelConfig.title.toUpperCase()}</h2>
+            <h2>${(this.levelConfig.title || 'TRAZOS ESCOLARES').toUpperCase()}</h2>
             <p class="notebook-instruction" id="levelInstructionText">
-              ${this.levelConfig.instruction || '✏️ Pasa tu dedito sobre las líneas punteadas como un crayón.'}
+              ${this.levelConfig.instruction || '✏️ Pasa tu dedito sobre las líneas punteadas guiadas.'}
             </p>
           </div>
 
           <div class="notebook-grid-container" id="notebookGridContainer">
-            <!-- Lienzos superpuestos alineados a 760x420 -->
             <canvas id="bgCanvas" width="760" height="420"></canvas>
             <canvas id="paintCanvas" width="760" height="420"></canvas>
             <canvas id="fxCanvas" width="760" height="420"></canvas>
 
-            <!-- Zona de la Sorpresa ilustrada (Árbol, Elefante, etc. solo en nivel intro) -->
+            <!-- Zona de sorpresa ilustrada (en niveles intro) -->
             ${isIntro ? `
               <div class="notebook-tree-zone" id="notebookTreeZone">
-                ${this.pedagogicalData.getSurpriseSvg()}
-                <div class="tree-caption" id="treeCaption">${this.pedagogicalData.phonetic} ${this.pedagogicalData.icon}</div>
+                ${this.pedagogicalData.getSurpriseSvg ? this.pedagogicalData.getSurpriseSvg() : ''}
+                <div class="tree-caption" id="treeCaption">${this.pedagogicalData.phonetic || ''} ${this.pedagogicalData.icon || '⭐'}</div>
               </div>
             ` : `
               <div class="row-progress-counter" id="rowProgressCounter">
-                ⭐ Letras: <span id="completedCountLabel">0</span> / ${this.totalRowLetters}
+                ⭐ Letras completadas: <span id="completedCountLabel">0</span> / <span id="totalLettersCountLabel">1</span>
               </div>
             `}
           </div>
@@ -4203,7 +4326,7 @@ class LetterTracingScreen {
         <div class="auto-transition-banner" id="autoTransitionBanner" style="display:none;">
           <div class="transition-card bounce-in">
             <div class="transition-stars">⭐⭐⭐</div>
-            <div class="transition-title">¡EXCELENTE!</div>
+            <div class="transition-title">¡EXCELENTE TRABAJO!</div>
             <div class="transition-msg" id="transitionMsg">¡Completaste este ejercicio del cuadernillo!</div>
             <div class="transition-progress-bar">
               <div class="progress-fill" id="transitionProgressFill"></div>
@@ -4215,54 +4338,74 @@ class LetterTracingScreen {
 
     this.setupArabot(container);
     this.setupCanvases(container);
-    this.initLevelProgress();
+    this.initLevelStrokes();
     this.drawBackground();
     this.startFxLoop();
     this.bindEvents(container);
 
-    // Instrucción de voz amigable
     setTimeout(() => {
       audio.speak(this.levelConfig.instruction || `Vamos a trazar la letra ${letterChar}`);
     }, 400);
   }
 
-  setupArabot(container) {
-    const anchor = container.querySelector('#arabotAnchor');
-    if (!anchor) return;
+  // ==========================================================================
+  // INICIALIZACIÓN DE TRAZOS CON STROKEGENERATOR
+  // ==========================================================================
+  initLevelStrokes() {
+    if (!this.paintCanvas) return;
+    const W = this.paintCanvas.width;
+    const H = this.paintCanvas.height;
 
-    this.arabot = new ArabotAssistant({
-      onHelpClick: () => {
-        this.playArabotHint();
-      }
-    });
+    this.activeStrokes = [];
+    this.currentStrokeIndex = 0;
+    this.gridLetters = [];
+    this.currentLetterIndex = 0;
 
-    this.arabot.mount(anchor);
-  }
-
-  playArabotHint() {
-    if (!this.arabot) return;
+    // Caso 1: Nivel de inicio de letra (Letra grande hueca con flechas + Árbol)
     if (this.levelConfig.type === 'intro_hollow') {
-      this.arabot.speak(`¡Pasa tu dedito siguiendo las flechas 1, 2 y 3 para colorear el ${this.pedagogicalData.word}!`);
-    } else {
-      this.arabot.speak(`¡Traza cada letra sobre los puntitos del renglón con tu dedito!`);
+      const upperBounds = { x: 50, y: 70, width: 200, height: 260 };
+      const lowerBounds = { x: 270, y: 110, width: 170, height: 220 };
+
+      const char = this.levelConfig.letter || 'A';
+      const uStrokes = StrokeGenerator.getStrokes(char, upperBounds, true).map(s => ({ ...s, isUpper: true }));
+      const lStrokes = StrokeGenerator.getStrokes(char.toLowerCase(), lowerBounds, false).map(s => ({ ...s, isUpper: false }));
+
+      this.activeStrokes = [...uStrokes, ...lStrokes];
+      this.totalRowLetters = this.activeStrokes.length;
     }
-    this.arabot.bounceHead();
-  }
+    // Caso 2: Renglón caligráfico de cuaderno (8 o 12 letras)
+    else if (this.levelConfig.type === 'grid_row' || this.levelConfig.type === 'grid_row_alternating') {
+      const isAlternating = (this.levelConfig.type === 'grid_row_alternating');
+      const chars = isAlternating
+        ? this.levelConfig.pattern
+        : new Array(this.levelConfig.count || 8).fill(this.levelConfig.char || 'A');
 
-  setupCanvases(container) {
-    this.bgCanvas = container.querySelector('#bgCanvas');
-    this.paintCanvas = container.querySelector('#paintCanvas');
-    this.fxCanvas = container.querySelector('#fxCanvas');
+      this.totalRowLetters = chars.length;
+      this.rowLettersCompleted = new Array(this.totalRowLetters).fill(false);
 
-    if (!this.bgCanvas || !this.paintCanvas || !this.fxCanvas) return;
+      const rowBounds = { x: 30, y: 110, width: 700, height: 210 };
+      this.gridLetters = StrokeGenerator.generateRowLayout(chars, rowBounds);
 
-    this.bgCtx = this.bgCanvas.getContext('2d');
-    this.paintCtx = this.paintCanvas.getContext('2d');
-    this.fxCtx = this.fxCanvas.getContext('2d');
+      // Los trazos activos son los de la primera letra no completada
+      this.currentLetterIndex = 0;
+      this.activeStrokes = this.gridLetters[0]?.strokes || [];
+      this.currentStrokeIndex = 0;
+
+      const totalLbl = document.getElementById('totalLettersCountLabel');
+      if (totalLbl) totalLbl.innerText = `${this.totalRowLetters}`;
+      const compLbl = document.getElementById('completedCountLabel');
+      if (compLbl) compLbl.innerText = '0';
+    }
+    // Caso 3: Grafomotricidad
+    else if (this.levelConfig.type === 'pattern_trace') {
+      const patternBounds = { x: 60, y: 80, width: 640, height: 260 };
+      this.activeStrokes = StrokeGenerator.getStrokes(this.levelConfig.patternKey || 'lineas_verticales', patternBounds);
+      this.totalRowLetters = this.activeStrokes.length;
+    }
   }
 
   // ==========================================================================
-  // DIBUJO DEL FONDO: CUADRÍCULA AZUL + CONTORNOS HUECOS O RENGLÓN PUNTEADO
+  // DIBUJO DEL FONDO: CUADRÍCULA AZUL + LÍNEAS DE RENGLÓN + GUÍAS DE TRAZO
   // ==========================================================================
   drawBackground() {
     if (!this.bgCtx || !this.bgCanvas) return;
@@ -4272,12 +4415,11 @@ class LetterTracingScreen {
 
     ctx.clearRect(0, 0, W, H);
 
-    // 1. Cuadrícula escolar con líneas azules suaves (38px x 38px auténticas de cuaderno)
+    // 1. Cuadrícula azul escolar (38px x 38px)
     const gridSize = 38;
     ctx.save();
     ctx.strokeStyle = 'rgba(41, 182, 246, 0.22)';
     ctx.lineWidth = 1;
-
     for (let x = 0; x <= W; x += gridSize) {
       ctx.beginPath();
       ctx.moveTo(x, 0);
@@ -4292,443 +4434,118 @@ class LetterTracingScreen {
     }
     ctx.restore();
 
-    // 2. Renderizar según el tipo de nivel del libro
-    if (this.levelConfig.type === 'intro_hollow') {
-      this.drawIntroHollowLetters(ctx, W, H);
-    } else if (this.levelConfig.type === 'grid_row') {
-      this.drawGridRowDotted(ctx, W, H, this.levelConfig.char, this.levelConfig.count);
-    } else if (this.levelConfig.type === 'grid_row_alternating') {
-      this.drawGridRowAlternating(ctx, W, H, this.levelConfig.pattern);
-    }
-  }
-
-  /**
-   * NIVEL TIPO 1: Letra grande hueca con flechas 1, 2, 3 (Imagen 1 del libro)
-   */
-  drawIntroHollowLetters(ctx, W, H) {
-    const upperStrokes = this.pedagogicalData.uppercaseStrokes || [];
-    const lowerStrokes = this.pedagogicalData.lowercaseStrokes || [];
-    const allStrokes = [...upperStrokes, ...lowerStrokes];
-
-    // Borde exterior negro grueso
-    ctx.save();
-    ctx.strokeStyle = '#212121';
-    ctx.lineWidth = 46;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-    this.renderStrokes(ctx, allStrokes, W, H);
-    ctx.restore();
-
-    // Canal hueco interior blanco
-    ctx.save();
-    ctx.strokeStyle = '#ffffff';
-    ctx.lineWidth = 38;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-    this.renderStrokes(ctx, allStrokes, W, H);
-    ctx.restore();
-
-    // Punto especial para la minúscula de la letra i
-    allStrokes.forEach(s => {
-      if (s.isDot && s.points[0]) {
-        const p = s.points[0];
-        ctx.save();
-        ctx.fillStyle = '#212121';
-        ctx.beginPath();
-        ctx.arc(p.x * W, p.y * H, 21, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#ffffff';
-        ctx.beginPath();
-        ctx.arc(p.x * W, p.y * H, 17, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-      }
-    });
-
-    // Líneas punteadas centrales
-    allStrokes.forEach(stroke => {
-      if (stroke.isDot) return;
-      const pts = stroke.points;
-      if (!pts || pts.length < 2) return;
+    // 2. Renglón caligráfico de cuaderno si es nivel de renglón
+    if (this.levelConfig.type === 'grid_row' || this.levelConfig.type === 'grid_row_alternating') {
+      const topY = 110;
+      const midY = 215;
+      const baseY = 320;
 
       ctx.save();
-      ctx.beginPath();
-      ctx.strokeStyle = '#546e7a';
-      ctx.lineWidth = 3.5;
-      ctx.setLineDash([7, 6]);
-      pts.forEach((p, idx) => {
-        const x = p.x * W;
-        const y = p.y * H;
-        if (idx === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-      });
-      ctx.stroke();
-      ctx.restore();
-    });
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.65)';
+      ctx.fillRect(0, topY, W, baseY - topY);
 
-    // Insignias circulares numeradas (1, 2, 3...) y flechas
-    allStrokes.forEach(stroke => {
-      const pts = stroke.points;
-      if (!pts || pts.length === 0) return;
-
-      const p0 = pts[0];
-      const sx = p0.x * W;
-      const sy = p0.y * H;
-
-      // Círculo blanco con borde
-      ctx.save();
-      ctx.fillStyle = '#ffffff';
-      ctx.beginPath();
-      ctx.arc(sx, sy, 14, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.strokeStyle = '#212121';
+      // Línea superior azul
+      ctx.strokeStyle = '#1565c0';
       ctx.lineWidth = 2.5;
-      ctx.stroke();
-
-      // Número
-      ctx.fillStyle = '#111111';
-      ctx.font = '900 13px "Fredoka", "Comic Sans MS", sans-serif';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(`${stroke.label}`, sx, sy);
-
-      // Flecha de dirección
-      if (!stroke.isDot && pts.length >= 2) {
-        const p1 = pts[1];
-        const nx = p1.x * W;
-        const ny = p1.y * H;
-        const midX = sx + (nx - sx) * 0.42;
-        const midY = sy + (ny - sy) * 0.42;
-        this.drawArrow(ctx, sx, sy, midX, midY);
-      }
-      ctx.restore();
-    });
-  }
-
-  renderStrokes(ctx, strokes, W, H) {
-    strokes.forEach(s => {
-      if (s.isDot) return;
-      const pts = s.points;
-      if (!pts || pts.length < 2) return;
       ctx.beginPath();
-      pts.forEach((p, i) => {
-        const x = p.x * W;
-        const y = p.y * H;
-        if (i === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-      });
+      ctx.moveTo(0, topY);
+      ctx.lineTo(W, topY);
       ctx.stroke();
-    });
-  }
 
-  drawArrow(ctx, fromX, fromY, toX, toY) {
-    const angle = Math.atan2(toY - fromY, toX - fromX);
-    ctx.save();
-    ctx.fillStyle = '#212121';
-    ctx.translate(toX, toY);
-    ctx.rotate(angle);
-    ctx.beginPath();
-    ctx.moveTo(0, 0);
-    ctx.lineTo(-11, -6);
-    ctx.lineTo(-11, 6);
-    ctx.closePath();
-    ctx.fill();
-    ctx.restore();
-  }
+      // Línea media punteada
+      ctx.strokeStyle = 'rgba(33, 150, 243, 0.6)';
+      ctx.lineWidth = 1.8;
+      ctx.setLineDash([8, 6]);
+      ctx.beginPath();
+      ctx.moveTo(0, midY);
+      ctx.lineTo(W, midY);
+      ctx.stroke();
 
-  /**
-   * NIVEL TIPO 2: Renglón caligráfico escolar con letras punteadas (Imágenes 2, 3 y 4 del libro)
-   */
-  drawGridRowDotted(ctx, W, H, char, count) {
-    const topY = 115;
-    const midY = 215;
-    const baseY = 315;
+      // Línea base azul marino
+      ctx.strokeStyle = '#0d47a1';
+      ctx.lineWidth = 3;
+      ctx.setLineDash([]);
+      ctx.beginPath();
+      ctx.moveTo(0, baseY);
+      ctx.lineTo(W, baseY);
+      ctx.stroke();
+      ctx.restore();
 
-    // Renglón de cuaderno con líneas guía
-    this.drawNotebookRowLines(ctx, W, topY, midY, baseY);
-
-    const isUpper = (char === char.toUpperCase() && char !== char.toLowerCase());
-    const stepX = W / count;
-
-    for (let i = 0; i < count; i++) {
-      const cx = (i + 0.5) * stepX;
-      this.drawSingleDottedLetter(ctx, char, cx, topY, midY, baseY, isUpper);
-    }
-  }
-
-  /**
-   * NIVEL TIPO 3: Renglón alternado (Imagen 5 del libro: A a A a A a...)
-   */
-  drawGridRowAlternating(ctx, W, H, pattern) {
-    const topY = 115;
-    const midY = 215;
-    const baseY = 315;
-
-    this.drawNotebookRowLines(ctx, W, topY, midY, baseY);
-
-    const count = pattern.length;
-    const stepX = W / count;
-
-    for (let i = 0; i < count; i++) {
-      const char = pattern[i];
-      const isUpper = (char === char.toUpperCase() && char !== char.toLowerCase());
-      const cx = (i + 0.5) * stepX;
-      this.drawSingleDottedLetter(ctx, char, cx, topY, midY, baseY, isUpper);
-    }
-  }
-
-  drawNotebookRowLines(ctx, W, topY, midY, baseY) {
-    ctx.save();
-    // Fondo tenue del renglón
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-    ctx.fillRect(0, topY, W, baseY - topY);
-
-    // Línea superior del renglón
-    ctx.strokeStyle = '#1565c0';
-    ctx.lineWidth = 2.5;
-    ctx.beginPath();
-    ctx.moveTo(0, topY);
-    ctx.lineTo(W, topY);
-    ctx.stroke();
-
-    // Línea media discontinua
-    ctx.strokeStyle = 'rgba(33, 150, 243, 0.6)';
-    ctx.lineWidth = 1.8;
-    ctx.setLineDash([8, 6]);
-    ctx.beginPath();
-    ctx.moveTo(0, midY);
-    ctx.lineTo(W, midY);
-    ctx.stroke();
-
-    // Línea base del renglón
-    ctx.strokeStyle = '#0d47a1';
-    ctx.lineWidth = 3;
-    ctx.setLineDash([]);
-    ctx.beginPath();
-    ctx.moveTo(0, baseY);
-    ctx.lineTo(W, baseY);
-    ctx.stroke();
-    ctx.restore();
-  }
-
-  drawSingleDottedLetter(ctx, char, cx, topY, midY, baseY, isUpper) {
-    ctx.save();
-    ctx.strokeStyle = '#37474f';
-    ctx.lineWidth = 2.8;
-    ctx.setLineDash([5, 4]);
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-
-    const c = char.toUpperCase();
-
-    if (isUpper) {
-      // Letras Mayúsculas (ocupan de baseY a topY)
-      if (c === 'A') {
-        ctx.beginPath();
-        ctx.moveTo(cx, topY + 5);
-        ctx.lineTo(cx - 26, baseY);
-        ctx.moveTo(cx, topY + 5);
-        ctx.lineTo(cx + 26, baseY);
-        ctx.moveTo(cx - 15, midY);
-        ctx.lineTo(cx + 15, midY);
-        ctx.stroke();
-      } else if (c === 'E') {
-        ctx.beginPath();
-        ctx.moveTo(cx - 20, topY + 5);
-        ctx.lineTo(cx - 20, baseY);
-        ctx.moveTo(cx - 20, topY + 5);
-        ctx.lineTo(cx + 20, topY + 5);
-        ctx.moveTo(cx - 20, midY);
-        ctx.lineTo(cx + 14, midY);
-        ctx.moveTo(cx - 20, baseY);
-        ctx.lineTo(cx + 20, baseY);
-        ctx.stroke();
-      } else if (c === 'I') {
-        ctx.beginPath();
-        ctx.moveTo(cx - 18, topY + 5);
-        ctx.lineTo(cx + 18, topY + 5);
-        ctx.moveTo(cx, topY + 5);
-        ctx.lineTo(cx, baseY);
-        ctx.moveTo(cx - 18, baseY);
-        ctx.lineTo(cx + 18, baseY);
-        ctx.stroke();
-      } else if (c === 'O') {
-        ctx.beginPath();
-        ctx.ellipse(cx, midY, 26, 92, 0, 0, Math.PI * 2);
-        ctx.stroke();
-      } else if (c === 'U') {
-        ctx.beginPath();
-        ctx.moveTo(cx - 22, topY + 5);
-        ctx.lineTo(cx - 22, baseY - 35);
-        ctx.quadraticCurveTo(cx - 22, baseY, cx, baseY);
-        ctx.quadraticCurveTo(cx + 22, baseY, cx + 22, baseY - 35);
-        ctx.lineTo(cx + 22, topY + 5);
-        ctx.stroke();
-      } else if (c === 'M') {
-        ctx.beginPath();
-        ctx.moveTo(cx - 24, baseY);
-        ctx.lineTo(cx - 24, topY + 5);
-        ctx.lineTo(cx, midY + 15);
-        ctx.lineTo(cx + 24, topY + 5);
-        ctx.lineTo(cx + 24, baseY);
-        ctx.stroke();
-      } else if (c === 'S') {
-        ctx.beginPath();
-        ctx.moveTo(cx + 18, topY + 18);
-        ctx.quadraticCurveTo(cx, topY, cx - 12, topY + 25);
-        ctx.quadraticCurveTo(cx - 16, midY, cx, midY);
-        ctx.quadraticCurveTo(cx + 18, midY, cx + 14, baseY - 20);
-        ctx.quadraticCurveTo(cx, baseY + 4, cx - 18, baseY - 16);
-        ctx.stroke();
-      } else if (c === 'T') {
-        ctx.beginPath();
-        ctx.moveTo(cx - 22, topY + 5);
-        ctx.lineTo(cx + 22, topY + 5);
-        ctx.moveTo(cx, topY + 5);
-        ctx.lineTo(cx, baseY);
-        ctx.stroke();
-      } else if (c === 'L') {
-        ctx.beginPath();
-        ctx.moveTo(cx - 18, topY + 5);
-        ctx.lineTo(cx - 18, baseY);
-        ctx.lineTo(cx + 20, baseY);
-        ctx.stroke();
-      } else if (c === 'P') {
-        ctx.beginPath();
-        ctx.moveTo(cx - 18, topY + 5);
-        ctx.lineTo(cx - 18, baseY);
-        ctx.moveTo(cx - 18, topY + 5);
-        ctx.quadraticCurveTo(cx + 24, topY + 5, cx + 24, midY);
-        ctx.quadraticCurveTo(cx + 24, midY + 15, cx - 18, midY + 15);
-        ctx.stroke();
-      } else if (c === 'N') {
-        ctx.beginPath();
-        ctx.moveTo(cx - 22, baseY);
-        ctx.lineTo(cx - 22, topY + 5);
-        ctx.lineTo(cx + 22, baseY);
-        ctx.lineTo(cx + 22, topY + 5);
-        ctx.stroke();
-      } else if (c === 'R') {
-        ctx.beginPath();
-        ctx.moveTo(cx - 18, topY + 5);
-        ctx.lineTo(cx - 18, baseY);
-        ctx.moveTo(cx - 18, topY + 5);
-        ctx.quadraticCurveTo(cx + 22, topY + 5, cx + 22, midY);
-        ctx.quadraticCurveTo(cx + 22, midY + 12, cx - 18, midY + 12);
-        ctx.moveTo(cx - 2, midY + 12);
-        ctx.lineTo(cx + 22, baseY);
-        ctx.stroke();
-      } else {
-        // Fallback punteado genérico mayúscula
-        ctx.font = 'bold 115px "Fredoka", sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'alphabetic';
-        ctx.strokeText(char, cx, baseY - 8);
-      }
+      // Dibujar todas las letras del renglón
+      this.gridLetters.forEach((letterItem, idx) => {
+        const isCurrentLetter = (idx === this.currentLetterIndex);
+        StrokeGenerator.renderStrokeGuides(
+          ctx,
+          letterItem.strokes,
+          isCurrentLetter ? this.currentStrokeIndex : -1,
+          '#1565c0'
+        );
+      });
     } else {
-      // Letras Minúsculas (ocupan de baseY a midY)
-      if (c === 'A') {
-        ctx.beginPath();
-        ctx.arc(cx - 3, midY + 48, 20, 0, Math.PI * 2);
-        ctx.moveTo(cx + 17, midY + 5);
-        ctx.lineTo(cx + 17, baseY);
-        ctx.stroke();
-      } else if (c === 'E') {
-        ctx.beginPath();
-        ctx.moveTo(cx - 16, midY + 48);
-        ctx.lineTo(cx + 16, midY + 48);
-        ctx.arc(cx, midY + 48, 18, 0, Math.PI * 1.7, true);
-        ctx.stroke();
-      } else if (c === 'I') {
-        ctx.beginPath();
-        ctx.moveTo(cx, midY + 25);
-        ctx.lineTo(cx, baseY);
-        ctx.stroke();
-        ctx.setLineDash([]);
-        ctx.fillStyle = '#37474f';
-        ctx.beginPath();
-        ctx.arc(cx, midY + 10, 4, 0, Math.PI * 2);
-        ctx.fill();
-      } else if (c === 'O') {
-        ctx.beginPath();
-        ctx.arc(cx, midY + 48, 20, 0, Math.PI * 2);
-        ctx.stroke();
-      } else if (c === 'U') {
-        ctx.beginPath();
-        ctx.moveTo(cx - 15, midY + 10);
-        ctx.lineTo(cx - 15, baseY - 20);
-        ctx.quadraticCurveTo(cx - 15, baseY, cx, baseY);
-        ctx.quadraticCurveTo(cx + 15, baseY, cx + 15, baseY - 20);
-        ctx.lineTo(cx + 15, midY + 10);
-        ctx.moveTo(cx + 15, midY + 10);
-        ctx.lineTo(cx + 15, baseY);
-        ctx.stroke();
-      } else if (c === 'M') {
-        ctx.beginPath();
-        ctx.moveTo(cx - 20, midY + 10);
-        ctx.lineTo(cx - 20, baseY);
-        ctx.moveTo(cx - 20, midY + 25);
-        ctx.quadraticCurveTo(cx - 10, midY + 10, cx, midY + 25);
-        ctx.lineTo(cx, baseY);
-        ctx.moveTo(cx, midY + 25);
-        ctx.quadraticCurveTo(cx + 10, midY + 10, cx + 20, midY + 25);
-        ctx.lineTo(cx + 20, baseY);
-        ctx.stroke();
-      } else if (c === 'S') {
-        ctx.beginPath();
-        ctx.moveTo(cx + 12, midY + 20);
-        ctx.quadraticCurveTo(cx, midY + 10, cx - 8, midY + 24);
-        ctx.quadraticCurveTo(cx - 10, midY + 45, cx, midY + 45);
-        ctx.quadraticCurveTo(cx + 12, midY + 45, cx + 8, baseY - 10);
-        ctx.quadraticCurveTo(cx, baseY + 4, cx - 12, baseY - 8);
-        ctx.stroke();
-      } else if (c === 'T') {
-        ctx.beginPath();
-        ctx.moveTo(cx, midY - 15);
-        ctx.lineTo(cx, baseY - 10);
-        ctx.quadraticCurveTo(cx, baseY, cx + 12, baseY);
-        ctx.moveTo(cx - 12, midY + 15);
-        ctx.lineTo(cx + 12, midY + 15);
-        ctx.stroke();
-      } else if (c === 'L') {
-        ctx.beginPath();
-        ctx.moveTo(cx, topY + 10);
-        ctx.lineTo(cx, baseY);
-        ctx.stroke();
-      } else if (c === 'P') {
-        ctx.beginPath();
-        ctx.moveTo(cx - 14, midY + 10);
-        ctx.lineTo(cx - 14, baseY + 45);
-        ctx.arc(cx, midY + 45, 18, 0, Math.PI * 2);
-        ctx.stroke();
-      } else if (c === 'N') {
-        ctx.beginPath();
-        ctx.moveTo(cx - 15, midY + 10);
-        ctx.lineTo(cx - 15, baseY);
-        ctx.moveTo(cx - 15, midY + 25);
-        ctx.quadraticCurveTo(cx, midY + 10, cx + 15, midY + 25);
-        ctx.lineTo(cx + 15, baseY);
-        ctx.stroke();
-      } else if (c === 'R') {
-        ctx.beginPath();
-        ctx.moveTo(cx - 12, midY + 10);
-        ctx.lineTo(cx - 12, baseY);
-        ctx.moveTo(cx - 12, midY + 25);
-        ctx.quadraticCurveTo(cx, midY + 10, cx + 14, midY + 15);
-        ctx.stroke();
-      } else {
-        // Fallback punteado genérico minúscula
-        ctx.font = 'bold 75px "Fredoka", sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'alphabetic';
-        ctx.strokeText(char, cx, baseY - 6);
-      }
+      // Dibujar guías de trazos del nivel intro o grafomotricidad
+      StrokeGenerator.renderStrokeGuides(ctx, this.activeStrokes, this.currentStrokeIndex, '#1565c0');
     }
-    ctx.restore();
   }
 
   // ==========================================================================
-  // MANEJO DE ENTRADA TÁCTIL Y DE RATÓN: PINTADO DE CRAYÓN EN TIEMPO REAL
+  // BUCLE DE EFECTOS Y GUÍA ANIMADA (ESTRELLITA VIAJERA)
+  // ==========================================================================
+  startFxLoop() {
+    const loop = () => {
+      this.renderFxFrame();
+      this.animFrameId = requestAnimationFrame(loop);
+    };
+    this.animFrameId = requestAnimationFrame(loop);
+  }
+
+  renderFxFrame() {
+    if (!this.fxCtx || !this.fxCanvas) return;
+    const ctx = this.fxCtx;
+    ctx.clearRect(0, 0, this.fxCanvas.width, this.fxCanvas.height);
+
+    // 1. Renderizar partículas mágicas
+    for (let i = this.sparkles.length - 1; i >= 0; i--) {
+      const p = this.sparkles[i];
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += 0.08;
+      p.life -= p.decay;
+
+      if (p.life <= 0) {
+        this.sparkles.splice(i, 1);
+        continue;
+      }
+
+      ctx.save();
+      ctx.globalAlpha = p.life;
+      ctx.fillStyle = p.color;
+      ctx.shadowColor = p.color;
+      ctx.shadowBlur = 6;
+      ctx.beginPath();
+      const s = p.size;
+      ctx.moveTo(p.x, p.y - s);
+      ctx.lineTo(p.x + s * 0.35, p.y - s * 0.35);
+      ctx.lineTo(p.x + s, p.y);
+      ctx.lineTo(p.x + s * 0.35, p.y + s * 0.35);
+      ctx.lineTo(p.x, p.y + s);
+      ctx.lineTo(p.x - s * 0.35, p.y + s * 0.35);
+      ctx.lineTo(p.x - s, p.y);
+      ctx.lineTo(p.x - s * 0.35, p.y - s * 0.35);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+
+    // 2. Renderizar la guía animada suave (estrellita viajera que muestra al niño hacia dónde trazar)
+    const activeStroke = this.activeStrokes[this.currentStrokeIndex];
+    if (activeStroke && !this.isDrawing) {
+      const t = (performance.now() % 2200) / 2200;
+      StrokeGenerator.renderAnimatedPointer(ctx, activeStroke, t);
+    }
+  }
+
+  // ==========================================================================
+  // GESTIÓN DE ENTRADA TÁCTIL Y DE RATÓN (CRAYÓN EN TIEMPO REAL)
   // ==========================================================================
   bindEvents(container) {
     container.querySelector('#btnBackToLevels')?.addEventListener('click', () => {
@@ -4743,14 +4560,24 @@ class LetterTracingScreen {
     });
 
     container.querySelector('#btnPlayLetterAudio')?.addEventListener('click', () => {
-      audio.speak(`Letra ${this.levelConfig.letter || this.levelConfig.char}, ${this.pedagogicalData.phonetic}`);
+      const char = this.levelConfig.letter || this.levelConfig.char || 'A';
+      audio.speak(`Letra ${char}, ${this.pedagogicalData.phonetic || ''}`);
       if (this.arabot) this.arabot.bounceHead();
+    });
+
+    // Selección de crayones de colores
+    container.querySelectorAll('.mini-crayon').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        audio.playClick();
+        container.querySelectorAll('.mini-crayon').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        this.activeCrayonColor = btn.dataset.color || '#e91e63';
+      });
     });
 
     const canvas = this.paintCanvas;
     if (!canvas) return;
 
-    // Pointer Events universales (ratón, dedos táctiles en tablets y stylus)
     canvas.addEventListener('pointerdown', (e) => {
       e.preventDefault();
       try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
@@ -4789,96 +4616,13 @@ class LetterTracingScreen {
     };
   }
 
-  // ==========================================================================
-  // INICIALIZACIÓN DE CHECKPOINTS DE MEMORIA MUSCULAR
-  // ==========================================================================
-  initLevelProgress() {
-    this.hollowProgress = [];
-    this.gridRowProgress = [];
-    this.hollowStrokesCompleted = { upper: new Set(), lower: new Set() };
-
-    if (!this.paintCanvas) return;
-    const W = this.paintCanvas.width;
-    const H = this.paintCanvas.height;
-
-    if (this.levelConfig.type === 'intro_hollow') {
-      const upperStrokes = this.pedagogicalData.uppercaseStrokes || [];
-      const lowerStrokes = this.pedagogicalData.lowercaseStrokes || [];
-
-      upperStrokes.forEach(stroke => {
-        const cps = sampleHollowStrokeCheckpoints(stroke, W, H);
-        this.hollowProgress.push({
-          id: stroke.id,
-          stroke,
-          isUpper: true,
-          isDot: stroke.isDot || false,
-          checkpoints: cps,
-          totalPoints: Math.max(1, cps.length),
-          hitCount: 0,
-          distanceDrawn: 0,
-          completed: false
-        });
-      });
-
-      lowerStrokes.forEach(stroke => {
-        const cps = sampleHollowStrokeCheckpoints(stroke, W, H);
-        this.hollowProgress.push({
-          id: stroke.id,
-          stroke,
-          isUpper: false,
-          isDot: stroke.isDot || false,
-          checkpoints: cps,
-          totalPoints: Math.max(1, cps.length),
-          hitCount: 0,
-          distanceDrawn: 0,
-          completed: false
-        });
-      });
-    } else if (this.levelConfig.type === 'grid_row' || this.levelConfig.type === 'grid_row_alternating') {
-      const topY = 115;
-      const midY = 215;
-      const baseY = 315;
-      const count = this.totalRowLetters;
-      const stepX = W / count;
-
-      for (let i = 0; i < count; i++) {
-        let char = '';
-        if (this.levelConfig.type === 'grid_row') {
-          char = this.levelConfig.char;
-        } else {
-          char = this.levelConfig.pattern[i];
-        }
-        const isUpper = (char === char.toUpperCase() && char !== char.toLowerCase());
-        const cx = (i + 0.5) * stepX;
-        const cps = sampleGridLetterCheckpoints(char, isUpper, cx, topY, midY, baseY);
-
-        this.gridRowProgress.push({
-          index: i,
-          char,
-          isUpper,
-          cx,
-          minX: cx - stepX * 0.48,
-          maxX: cx + stepX * 0.48,
-          checkpoints: cps,
-          totalPoints: Math.max(1, cps.length),
-          hitCount: 0,
-          distanceDrawn: 0,
-          completed: false
-        });
-      }
-    }
-  }
-
   handlePointerDown(x, y) {
     this.isDrawing = true;
     this.lastPoint = { x, y };
 
-    // Trazar un punto de crayón inicial donde tocó el niño
     this.drawCrayonPoint(x, y);
     audio.playBrush();
-
-    // IMPORTANTE: NO se valida ni completa trazos en pointerdown.
-    // El niño debe mover su dedito / crayón para desarrollar memoria muscular.
+    // NOTA: No se completa trazo en pointerdown para evitar el efecto "boom se llena"
   }
 
   handlePointerMove(x, y) {
@@ -4889,12 +4633,12 @@ class LetterTracingScreen {
     const stepDist = Math.hypot(dx, dy);
     if (stepDist < 2.5) return;
 
-    // Dibujar trazo de crayón suave en tiempo real
+    // Dibujar crayón en tiempo real
     this.drawCrayonSegment(this.lastPoint.x, this.lastPoint.y, x, y);
     this.lastPoint = { x, y };
 
-    // Validar avance en la trayectoria de la línea punteada
-    this.checkTracingProgress(x, y, stepDist);
+    // Evaluar con el motor StrokeGenerator
+    this.checkActiveStrokeProgress(x, y, stepDist);
   }
 
   handlePointerUp() {
@@ -4929,474 +4673,118 @@ class LetterTracingScreen {
   }
 
   // ==========================================================================
-  // DETECCIÓN DE AVANCE Y VALIDACIÓN DE MEMORIA MUSCULAR
+  // EVALUACIÓN DE TRAZO Y AVANCE GUIADO
   // ==========================================================================
-  checkTracingProgress(x, y, stepDist) {
-    if (this.levelConfig.type === 'intro_hollow') {
-      this.checkIntroHollowProgress(x, y, stepDist);
-    } else if (this.levelConfig.type === 'grid_row' || this.levelConfig.type === 'grid_row_alternating') {
-      this.checkGridRowProgress(x, y, stepDist);
+  checkActiveStrokeProgress(x, y, stepDist) {
+    const currentStroke = this.activeStrokes[this.currentStrokeIndex];
+    if (!currentStroke || currentStroke.completed) return;
+
+    // Validación tolerante de kínder
+    const res = StrokeGenerator.checkStrokeProgress(currentStroke, { x, y }, stepDist, 36);
+
+    if (res.isComplete) {
+      this.onStrokeCompleted(currentStroke, x, y);
     }
   }
 
-  /**
-   * Cobertura de la A/a grande hueca (Nivel 1): Trazo a trazo
-   */
-  checkIntroHollowProgress(x, y, stepDist) {
-    if (!this.hollowProgress) return;
-    const HIT_RADIUS = 34; // Radio ergonómico para dedito infantil
+  onStrokeCompleted(stroke, x, y) {
+    // 1. Efectos de logro inmediato
+    audio.playStar();
+    this.emitStarBurst(x, y);
 
-    for (const item of this.hollowProgress) {
-      if (item.completed) continue;
+    // 2. Fijar el trazo sólido y brillante
+    StrokeGenerator.renderCompletedStroke(this.paintCtx, stroke, this.activeCrayonColor);
 
-      // Caso especial: Punto de la letra 'i' minúscula
-      if (item.isDot) {
-        const cp = item.checkpoints[0];
-        if (cp && Math.hypot(x - cp.x, y - cp.y) <= 32) {
-          item.completed = true;
-          if (item.isUpper) this.hollowStrokesCompleted.upper.add(item.id);
-          else this.hollowStrokesCompleted.lower.add(item.id);
-          this.snapHollowStroke(item.stroke, item.isUpper);
-          this.emitStarBurst(cp.x, cp.y);
-          audio.playStar();
-          this.checkIntroCompletion();
-        }
-        continue;
-      }
-
-      // Trazos continuos: registrar puntos clave alcanzados
-      let newlyHit = false;
-      for (const cp of item.checkpoints) {
-        if (!cp.hit && Math.hypot(x - cp.x, y - cp.y) <= HIT_RADIUS) {
-          cp.hit = true;
-          item.hitCount++;
-          newlyHit = true;
-        }
-      }
-
-      if (newlyHit || this.isNearStroke(item, x, y, HIT_RADIUS + 12)) {
-        item.distanceDrawn += stepDist;
-      }
-
-      // Regla de memoria muscular:
-      // 1. Recorrer al menos el 70% de los checkpoints del trazo
-      // 2. Haber dibujado una distancia real mínima (evita toques rápidos)
-      // 3. Haber pasado cerca del inicio (flecha numerada) y del final
-      const coverage = item.hitCount / Math.max(1, item.totalPoints);
-      const minDistance = Math.max(45, item.totalPoints * 8);
-      const startPassed = item.checkpoints[0]?.hit || item.checkpoints[1]?.hit;
-      const endPassed = item.checkpoints[item.checkpoints.length - 1]?.hit || item.checkpoints[item.checkpoints.length - 2]?.hit;
-
-      if (coverage >= 0.70 && item.distanceDrawn >= minDistance && startPassed && endPassed) {
-        item.completed = true;
-        if (item.isUpper) this.hollowStrokesCompleted.upper.add(item.id);
-        else this.hollowStrokesCompleted.lower.add(item.id);
-
-        this.snapHollowStroke(item.stroke, item.isUpper);
-        this.emitStarBurst(x, y);
-        audio.playStar();
-
-        // Notificación pedagógica de ARABOT
-        const upperCount = (this.pedagogicalData.uppercaseStrokes || []).length;
-        if (item.isUpper && this.hollowStrokesCompleted.upper.size === upperCount) {
-          if (this.arabot) {
-            this.arabot.speak(`¡Genial! ¡Ahora traza la pequeña <strong>${this.pedagogicalData.lowercase}</strong>! ⭐`);
-            this.arabot.bounceHead();
-          }
-        }
-
-        this.checkIntroCompletion();
-      }
-    }
-  }
-
-  isNearStroke(item, x, y, maxDist = 45) {
-    if (!item.checkpoints) return false;
-    for (let i = 0; i < item.checkpoints.length; i++) {
-      const cp = item.checkpoints[i];
-      if (Math.hypot(x - cp.x, y - cp.y) <= maxDist) return true;
-    }
-    return false;
-  }
-
-  checkIntroCompletion() {
-    const upperStrokes = this.pedagogicalData.uppercaseStrokes || [];
-    const lowerStrokes = this.pedagogicalData.lowercaseStrokes || [];
-    if (this.hollowStrokesCompleted.upper.size === upperStrokes.length &&
-        this.hollowStrokesCompleted.lower.size === lowerStrokes.length) {
-      this.onIntroLevelComplete();
-    }
-  }
-
-  /**
-   * Auto-rellena el trazo con un bonito color sólido brillante (desaparece lo chuequito)
-   */
-  snapHollowStroke(stroke, isUpper) {
-    if (!this.paintCtx) return;
-    const ctx = this.paintCtx;
-    const W = this.paintCanvas.width;
-    const H = this.paintCanvas.height;
-
-    ctx.save();
-    ctx.lineWidth = 32;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-    ctx.strokeStyle = isUpper ? '#ff7043' : '#00bcd4';
-    ctx.shadowColor = isUpper ? 'rgba(255, 112, 67, 0.7)' : 'rgba(0, 188, 212, 0.7)';
-    ctx.shadowBlur = 12;
-
-    if (stroke.isDot) {
-      const p = stroke.points[0];
-      ctx.fillStyle = '#00bcd4';
-      ctx.beginPath();
-      ctx.arc(p.x * W, p.y * H, 16, 0, Math.PI * 2);
-      ctx.fill();
+    // Registrar en los sets de compatibilidad
+    if (stroke.isUpper !== false) {
+      this.hollowStrokesCompleted.upper.add(stroke.id);
     } else {
-      ctx.beginPath();
-      stroke.points.forEach((p, i) => {
-        const x = p.x * W;
-        const y = p.y * H;
-        if (i === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-      });
-      ctx.stroke();
+      this.hollowStrokesCompleted.lower.add(stroke.id);
     }
-    ctx.restore();
+
+    // 3. Avanzar al siguiente trazo
+    this.currentStrokeIndex++;
+    this.drawBackground();
+
+    // 4. Verificar si se completó el grupo actual
+    if (this.currentStrokeIndex >= this.activeStrokes.length) {
+      if (this.levelConfig.type === 'grid_row' || this.levelConfig.type === 'grid_row_alternating') {
+        this.onGridLetterCompleted();
+      } else if (this.levelConfig.type === 'intro_hollow') {
+        this.onIntroLevelComplete();
+      } else {
+        this.onLevelCompleted();
+      }
+    } else {
+      // Arabot anima al niño a seguir con el siguiente trazo
+      if (this.arabot) {
+        this.arabot.speak(`¡Bien! Sigue con el paso ${this.currentStrokeIndex + 1} ⭐`);
+      }
+    }
+  }
+
+  onGridLetterCompleted() {
+    this.rowLettersCompleted[this.currentLetterIndex] = true;
+
+    // Actualizar contador visual
+    const completedCount = this.rowLettersCompleted.filter(Boolean).length;
+    const compLbl = document.getElementById('completedCountLabel');
+    if (compLbl) compLbl.innerText = `${completedCount}`;
+
+    audio.playPop();
+    if (this.arabot) this.arabot.bounceHead();
+
+    this.currentLetterIndex++;
+
+    if (this.currentLetterIndex < this.gridLetters.length) {
+      this.activeStrokes = this.gridLetters[this.currentLetterIndex].strokes;
+      this.currentStrokeIndex = 0;
+      this.drawBackground();
+    } else {
+      this.onLevelCompleted();
+    }
   }
 
   onIntroLevelComplete() {
     this.isIllustrationColored = true;
-
-    // 1. Sonido de celebración y confeti
     audio.playCelebration();
     Confetti.shoot(3000);
 
-    // 2. Colorear mágicamente el Árbol (o elefante, isla, etc.)
     const treeZone = document.getElementById('notebookTreeZone');
-    if (treeZone) {
-      treeZone.classList.add('colored');
-    }
+    if (treeZone) treeZone.classList.add('colored');
+
     const caption = document.getElementById('treeCaption');
     if (caption) {
-      caption.innerHTML = `🎉 ¡${this.pedagogicalData.word} COLOREADO! ${this.pedagogicalData.icon}`;
+      caption.innerHTML = `🎉 ¡${this.pedagogicalData.word || 'COMPLETADO'} COLOREADO! ${this.pedagogicalData.icon || '⭐'}`;
       caption.classList.add('celebration-glow');
     }
 
-    // 3. Arabot celebra
     if (this.arabot) {
-      this.arabot.celebrate(`¡Excelente! ¡Completaste la ${this.pedagogicalData.letter} de ${this.pedagogicalData.word}! 🌳⭐`, 2800);
+      this.arabot.celebrate(`¡Excelente! ¡Completaste la letra ${this.pedagogicalData.letter}! ⭐⭐⭐`, 2800);
     }
 
-    // 4. Guardar progreso
-    const subgame = TRACING_SUBGAMES.find(g => g.id === this.activeSubgame) || TRACING_SUBGAMES[0];
-    StorageManager.completeModuleLevel(subgame.moduleKey, this.currentLevel, 3);
-    rewards.unlockReward('star_badge');
-
-    // 5. Transición automática suave al Nivel 2 (Renglón de cuadrícula)
-    setTimeout(() => {
-      this.showAutoTransitionBanner();
-    }, 2200);
+    this.saveProgressAndAdvance();
   }
 
-  /**
-   * Cobertura de letras en el renglón de cuadrícula (Niveles 2, 3, 4, 5...)
-   */
-  checkGridRowProgress(x, y, stepDist) {
-    if (!this.gridRowProgress) return;
-    const HIT_RADIUS = 28;
-
-    for (const item of this.gridRowProgress) {
-      if (item.completed) continue;
-
-      // La letra evaluada debe coincidir con la columna horizontal
-      if (x < item.minX || x > item.maxX) continue;
-
-      let newlyHit = false;
-      for (const cp of item.checkpoints) {
-        if (!cp.hit && Math.hypot(x - cp.x, y - cp.y) <= HIT_RADIUS) {
-          cp.hit = true;
-          item.hitCount++;
-          newlyHit = true;
-        }
-      }
-
-      if (newlyHit || (y >= 90 && y <= 335)) {
-        item.distanceDrawn += stepDist;
-      }
-
-      const coverage = item.hitCount / Math.max(1, item.totalPoints);
-      const minDistance = item.isUpper ? 60 : 45;
-
-      // Criterio de memoria muscular: Recorrer al menos el 65% de la letra punteada
-      if (coverage >= 0.65 && item.distanceDrawn >= minDistance) {
-        item.completed = true;
-        this.rowLettersCompleted[item.index] = true;
-
-        // Limpiar trazos rústicos de crayón en la casilla de esta letra
-        this.paintCtx.clearRect(item.minX, 85, item.maxX - item.minX, 255);
-
-        // Auto-rellenar esa letra en trazo sólido brillante
-        this.snapGridRowLetter(item.index, item.cx);
-        this.emitStarBurst(item.cx, 215);
-        audio.playPop();
-
-        // Actualizar contador visual
-        const completedCount = this.rowLettersCompleted.filter(Boolean).length;
-        const label = document.getElementById('completedCountLabel');
-        if (label) label.innerText = `${completedCount}`;
-
-        // Si completó todas las letras del renglón
-        if (completedCount === this.totalRowLetters) {
-          this.onRowLevelComplete();
-        }
-      }
-    }
-  }
-
-  snapGridRowLetter(index, cx) {
-    if (!this.paintCtx) return;
-    const ctx = this.paintCtx;
-    const topY = 115;
-    const midY = 215;
-    const baseY = 315;
-
-    let char = '';
-    let isUpper = true;
-
-    if (this.levelConfig.type === 'grid_row') {
-      char = this.levelConfig.char;
-      isUpper = (char === char.toUpperCase() && char !== char.toLowerCase());
-    } else if (this.levelConfig.type === 'grid_row_alternating') {
-      char = this.levelConfig.pattern[index];
-      isUpper = (char === char.toUpperCase() && char !== char.toLowerCase());
-    }
-
-    ctx.save();
-    ctx.strokeStyle = isUpper ? '#2e7d32' : '#00838f';
-    ctx.lineWidth = isUpper ? 6.5 : 5.5;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-    ctx.shadowColor = isUpper ? 'rgba(76, 175, 80, 0.7)' : 'rgba(0, 188, 212, 0.7)';
-    ctx.shadowBlur = 8;
-
-    const c = char.toUpperCase();
-
-    if (isUpper) {
-      if (c === 'A') {
-        ctx.beginPath();
-        ctx.moveTo(cx, topY + 5);
-        ctx.lineTo(cx - 26, baseY);
-        ctx.moveTo(cx, topY + 5);
-        ctx.lineTo(cx + 26, baseY);
-        ctx.moveTo(cx - 15, midY);
-        ctx.lineTo(cx + 15, midY);
-        ctx.stroke();
-      } else if (c === 'E') {
-        ctx.beginPath();
-        ctx.moveTo(cx - 20, topY + 5);
-        ctx.lineTo(cx - 20, baseY);
-        ctx.moveTo(cx - 20, topY + 5);
-        ctx.lineTo(cx + 20, topY + 5);
-        ctx.moveTo(cx - 20, midY);
-        ctx.lineTo(cx + 14, midY);
-        ctx.moveTo(cx - 20, baseY);
-        ctx.lineTo(cx + 20, baseY);
-        ctx.stroke();
-      } else if (c === 'I') {
-        ctx.beginPath();
-        ctx.moveTo(cx - 18, topY + 5);
-        ctx.lineTo(cx + 18, topY + 5);
-        ctx.moveTo(cx, topY + 5);
-        ctx.lineTo(cx, baseY);
-        ctx.moveTo(cx - 18, baseY);
-        ctx.lineTo(cx + 18, baseY);
-        ctx.stroke();
-      } else if (c === 'O') {
-        ctx.beginPath();
-        ctx.ellipse(cx, midY, 26, 92, 0, 0, Math.PI * 2);
-        ctx.stroke();
-      } else if (c === 'U') {
-        ctx.beginPath();
-        ctx.moveTo(cx - 22, topY + 5);
-        ctx.lineTo(cx - 22, baseY - 35);
-        ctx.quadraticCurveTo(cx - 22, baseY, cx, baseY);
-        ctx.quadraticCurveTo(cx + 22, baseY, cx + 22, baseY - 35);
-        ctx.lineTo(cx + 22, topY + 5);
-        ctx.stroke();
-      } else if (c === 'M') {
-        ctx.beginPath();
-        ctx.moveTo(cx - 24, baseY);
-        ctx.lineTo(cx - 24, topY + 5);
-        ctx.lineTo(cx, midY + 15);
-        ctx.lineTo(cx + 24, topY + 5);
-        ctx.lineTo(cx + 24, baseY);
-        ctx.stroke();
-      } else if (c === 'S') {
-        ctx.beginPath();
-        ctx.moveTo(cx + 18, topY + 18);
-        ctx.quadraticCurveTo(cx, topY, cx - 12, topY + 25);
-        ctx.quadraticCurveTo(cx - 16, midY, cx, midY);
-        ctx.quadraticCurveTo(cx + 18, midY, cx + 14, baseY - 20);
-        ctx.quadraticCurveTo(cx, baseY + 4, cx - 18, baseY - 16);
-        ctx.stroke();
-      } else if (c === 'T') {
-        ctx.beginPath();
-        ctx.moveTo(cx - 22, topY + 5);
-        ctx.lineTo(cx + 22, topY + 5);
-        ctx.moveTo(cx, topY + 5);
-        ctx.lineTo(cx, baseY);
-        ctx.stroke();
-      } else if (c === 'L') {
-        ctx.beginPath();
-        ctx.moveTo(cx - 18, topY + 5);
-        ctx.lineTo(cx - 18, baseY);
-        ctx.lineTo(cx + 20, baseY);
-        ctx.stroke();
-      } else if (c === 'P') {
-        ctx.beginPath();
-        ctx.moveTo(cx - 18, topY + 5);
-        ctx.lineTo(cx - 18, baseY);
-        ctx.moveTo(cx - 18, topY + 5);
-        ctx.quadraticCurveTo(cx + 24, topY + 5, cx + 24, midY);
-        ctx.quadraticCurveTo(cx + 24, midY + 15, cx - 18, midY + 15);
-        ctx.stroke();
-      } else if (c === 'N') {
-        ctx.beginPath();
-        ctx.moveTo(cx - 22, baseY);
-        ctx.lineTo(cx - 22, topY + 5);
-        ctx.lineTo(cx + 22, baseY);
-        ctx.lineTo(cx + 22, topY + 5);
-        ctx.stroke();
-      } else if (c === 'R') {
-        ctx.beginPath();
-        ctx.moveTo(cx - 18, topY + 5);
-        ctx.lineTo(cx - 18, baseY);
-        ctx.moveTo(cx - 18, topY + 5);
-        ctx.quadraticCurveTo(cx + 22, topY + 5, cx + 22, midY);
-        ctx.quadraticCurveTo(cx + 22, midY + 12, cx - 18, midY + 12);
-        ctx.moveTo(cx - 2, midY + 12);
-        ctx.lineTo(cx + 22, baseY);
-        ctx.stroke();
-      } else {
-        ctx.font = 'bold 115px "Fredoka", sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'alphabetic';
-        ctx.strokeText(char, cx, baseY - 8);
-      }
-    } else {
-      if (c === 'A') {
-        ctx.beginPath();
-        ctx.arc(cx - 3, midY + 48, 20, 0, Math.PI * 2);
-        ctx.moveTo(cx + 17, midY + 5);
-        ctx.lineTo(cx + 17, baseY);
-        ctx.stroke();
-      } else if (c === 'E') {
-        ctx.beginPath();
-        ctx.moveTo(cx - 16, midY + 48);
-        ctx.lineTo(cx + 16, midY + 48);
-        ctx.arc(cx, midY + 48, 18, 0, Math.PI * 1.7, true);
-        ctx.stroke();
-      } else if (c === 'I') {
-        ctx.beginPath();
-        ctx.moveTo(cx, midY + 25);
-        ctx.lineTo(cx, baseY);
-        ctx.stroke();
-        ctx.fillStyle = ctx.strokeStyle;
-        ctx.beginPath();
-        ctx.arc(cx, midY + 10, 5, 0, Math.PI * 2);
-        ctx.fill();
-      } else if (c === 'O') {
-        ctx.beginPath();
-        ctx.arc(cx, midY + 48, 20, 0, Math.PI * 2);
-        ctx.stroke();
-      } else if (c === 'U') {
-        ctx.beginPath();
-        ctx.moveTo(cx - 15, midY + 10);
-        ctx.lineTo(cx - 15, baseY - 20);
-        ctx.quadraticCurveTo(cx - 15, baseY, cx, baseY);
-        ctx.quadraticCurveTo(cx + 15, baseY, cx + 15, baseY - 20);
-        ctx.lineTo(cx + 15, midY + 10);
-        ctx.moveTo(cx + 15, midY + 10);
-        ctx.lineTo(cx + 15, baseY);
-        ctx.stroke();
-      } else if (c === 'M') {
-        ctx.beginPath();
-        ctx.moveTo(cx - 20, midY + 10);
-        ctx.lineTo(cx - 20, baseY);
-        ctx.moveTo(cx - 20, midY + 25);
-        ctx.quadraticCurveTo(cx - 10, midY + 10, cx, midY + 25);
-        ctx.lineTo(cx, baseY);
-        ctx.moveTo(cx, midY + 25);
-        ctx.quadraticCurveTo(cx + 10, midY + 10, cx + 20, midY + 25);
-        ctx.lineTo(cx + 20, baseY);
-        ctx.stroke();
-      } else if (c === 'S') {
-        ctx.beginPath();
-        ctx.moveTo(cx + 12, midY + 20);
-        ctx.quadraticCurveTo(cx, midY + 10, cx - 8, midY + 24);
-        ctx.quadraticCurveTo(cx - 10, midY + 45, cx, midY + 45);
-        ctx.quadraticCurveTo(cx + 12, midY + 45, cx + 8, baseY - 10);
-        ctx.quadraticCurveTo(cx, baseY + 4, cx - 12, baseY - 8);
-        ctx.stroke();
-      } else if (c === 'T') {
-        ctx.beginPath();
-        ctx.moveTo(cx, midY - 15);
-        ctx.lineTo(cx, baseY - 10);
-        ctx.quadraticCurveTo(cx, baseY, cx + 12, baseY);
-        ctx.moveTo(cx - 12, midY + 15);
-        ctx.lineTo(cx + 12, midY + 15);
-        ctx.stroke();
-      } else if (c === 'L') {
-        ctx.beginPath();
-        ctx.moveTo(cx, topY + 10);
-        ctx.lineTo(cx, baseY);
-        ctx.stroke();
-      } else if (c === 'P') {
-        ctx.beginPath();
-        ctx.moveTo(cx - 14, midY + 10);
-        ctx.lineTo(cx - 14, baseY + 45);
-        ctx.arc(cx, midY + 45, 18, 0, Math.PI * 2);
-        ctx.stroke();
-      } else if (c === 'N') {
-        ctx.beginPath();
-        ctx.moveTo(cx - 15, midY + 10);
-        ctx.lineTo(cx - 15, baseY);
-        ctx.moveTo(cx - 15, midY + 25);
-        ctx.quadraticCurveTo(cx, midY + 10, cx + 15, midY + 25);
-        ctx.lineTo(cx + 15, baseY);
-        ctx.stroke();
-      } else if (c === 'R') {
-        ctx.beginPath();
-        ctx.moveTo(cx - 12, midY + 10);
-        ctx.lineTo(cx - 12, baseY);
-        ctx.moveTo(cx - 12, midY + 25);
-        ctx.quadraticCurveTo(cx, midY + 10, cx + 14, midY + 15);
-        ctx.stroke();
-      } else {
-        ctx.font = 'bold 75px "Fredoka", sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'alphabetic';
-        ctx.strokeText(char, cx, baseY - 6);
-      }
-    }
-    ctx.restore();
-  }
-
-  onRowLevelComplete() {
+  onLevelCompleted() {
     audio.playCelebration();
-    Confetti.shoot(2800);
+    Confetti.shoot(3000);
 
     if (this.arabot) {
-      this.arabot.celebrate('¡Completaste todo el renglón caligráfico! ⭐⭐⭐', 2600);
+      this.arabot.celebrate('¡Completaste todo el ejercicio caligráfico! ⭐⭐⭐', 2600);
     }
 
+    this.saveProgressAndAdvance();
+  }
+
+  saveProgressAndAdvance() {
     const subgame = TRACING_SUBGAMES.find(g => g.id === this.activeSubgame) || TRACING_SUBGAMES[0];
     StorageManager.completeModuleLevel(subgame.moduleKey, this.currentLevel, 3);
     rewards.unlockReward('star_badge');
 
     setTimeout(() => {
       this.showAutoTransitionBanner();
-    }, 1800);
+    }, 2000);
   }
 
   showAutoTransitionBanner() {
@@ -5430,105 +4818,220 @@ class LetterTracingScreen {
       this.currentLevel++;
       this.renderLevelGame(container);
     } else {
-      // Al terminar los niveles del cuadernillo, volver al selector
       this.currentLevel = null;
       this.render(container);
     }
   }
 
   // ==========================================================================
-  // EFECTO MÁGICO DE ESTRELLITAS (SPARKLE BURST)
+  // VISTA 4: GENERADOR DE TRAZOS MÁGICO (HERRAMIENTA PARA CREAR CUALQUIER TRAZO)
   // ==========================================================================
-  emitStarBurst(x, y) {
-    const colors = ['#ffd700', '#ffeb3b', '#ff9800', '#00e5ff', '#76ff03', '#ff4081'];
-    for (let i = 0; i < 14; i++) {
-      const angle = (Math.PI * 2 * i) / 14 + (Math.random() - 0.5) * 0.4;
-      const speed = 2.5 + Math.random() * 4.5;
-      this.sparkles.push({
-        x,
-        y,
-        vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed,
-        size: 4 + Math.random() * 4,
-        color: colors[Math.floor(Math.random() * colors.length)],
-        life: 1.0,
-        decay: 0.035 + Math.random() * 0.02
+  renderGeneradorTrazos(container) {
+    this.cleanup();
+
+    const alphabetUpper = 'ABCDEFGHIJKLMNÑOPQRSTUVWXYZ'.split('');
+    const alphabetLower = 'abcdefghijklmnñopqrstuvwxyz'.split('');
+    const numbersList = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+
+    container.innerHTML = `
+      <div class="tracing-module notebook-grid-bg fade-in" id="generatorModule">
+        <header class="tracing-header">
+          <button class="back-btn" id="btnBackFromGenerator">⬅️ Menú</button>
+          
+          <div style="text-align:center;">
+            <h2 style="color:#6a1b9a; margin:0; font-size:clamp(1.1rem, 2.5vw, 1.5rem);">GENERADOR MÁGICO DE TRAZOS ✨</h2>
+            <div style="font-size:0.8rem; font-weight:bold; color:#e65100;">Elige o escribe cualquier letra o palabra para generar su guía escolar</div>
+          </div>
+
+          <div class="header-actions">
+            <div class="mini-crayons-bar">
+              <button class="mini-crayon active" data-color="#e91e63" style="background:#e91e63;"></button>
+              <button class="mini-crayon" data-color="#ff5722" style="background:#ff5722;"></button>
+              <button class="mini-crayon" data-color="#4caf50" style="background:#4caf50;"></button>
+              <button class="mini-crayon" data-color="#00bcd4" style="background:#00bcd4;"></button>
+              <button class="mini-crayon" data-color="#9c27b0" style="background:#9c27b0;"></button>
+            </div>
+            <button class="clear-btn" id="btnClearGeneratorCanvas">🧹 Limpiar</button>
+          </div>
+        </header>
+
+        <!-- Barra selectora de pestañas del generador -->
+        <div class="generator-tabs-bar">
+          <button class="gen-tab-btn ${this.generatorTab === 'abecedario' ? 'active' : ''}" data-tab="abecedario">🔤 Abecedario</button>
+          <button class="gen-tab-btn ${this.generatorTab === 'numeros' ? 'active' : ''}" data-tab="numeros">🔢 Números</button>
+          <button class="gen-tab-btn ${this.generatorTab === 'palabra' ? 'active' : ''}" data-tab="palabra">✏️ Escribe Palabra</button>
+        </div>
+
+        <!-- Panel selector de caracteres -->
+        <div class="generator-palette-box" id="generatorPaletteBox">
+          ${this.generatorTab === 'abecedario' ? `
+            <div class="gen-char-grid">
+              ${alphabetUpper.map(ch => `
+                <button class="gen-char-pill ${this.generatorTarget === ch && this.generatorIsUpper ? 'active' : ''}" data-char="${ch}" data-upper="true">${ch}</button>
+              `).join('')}
+            </div>
+            <div class="gen-char-grid" style="margin-top:6px;">
+              ${alphabetLower.map(ch => `
+                <button class="gen-char-pill ${this.generatorTarget === ch && !this.generatorIsUpper ? 'active' : ''}" data-char="${ch}" data-upper="false">${ch}</button>
+              `).join('')}
+            </div>
+          ` : this.generatorTab === 'numeros' ? `
+            <div class="gen-char-grid numbers-grid">
+              ${numbersList.map(num => `
+                <button class="gen-char-pill ${this.generatorTarget === num ? 'active' : ''}" data-char="${num}" data-upper="true">${num}</button>
+              `).join('')}
+            </div>
+          ` : `
+            <div class="gen-custom-word-bar">
+              <input type="text" id="genWordInput" class="gen-word-input" maxlength="10" placeholder="Escribe aquí (ej. MAMA)" value="${this.generatorTarget}" />
+              <button class="gen-action-btn" id="btnGenerateCustomWord">Generar Trazos ✨</button>
+            </div>
+          `}
+        </div>
+
+        <!-- Cuaderno de dibujo del generador -->
+        <main class="notebook-workspace" style="flex:1;">
+          <div class="notebook-grid-container" id="generatorGridContainer">
+            <canvas id="bgCanvas" width="760" height="420"></canvas>
+            <canvas id="paintCanvas" width="760" height="420"></canvas>
+            <canvas id="fxCanvas" width="760" height="420"></canvas>
+          </div>
+        </main>
+      </div>
+    `;
+
+    this.setupCanvases(container);
+    this.loadGeneratorTarget();
+    this.drawBackground();
+    this.startFxLoop();
+    this.bindGeneratorEvents(container);
+
+    audio.speak(`Generador de trazos listo para la letra ${this.generatorTarget}`);
+  }
+
+  loadGeneratorTarget() {
+    if (!this.paintCanvas) return;
+    const W = this.paintCanvas.width;
+    const H = this.paintCanvas.height;
+
+    this.activeStrokes = [];
+    this.currentStrokeIndex = 0;
+    this.gridLetters = [];
+    this.currentLetterIndex = 0;
+
+    // Si es una palabra de varias letras
+    if (this.generatorTarget.length > 1) {
+      const chars = this.generatorTarget.split('');
+      this.totalRowLetters = chars.length;
+      this.rowLettersCompleted = new Array(this.totalRowLetters).fill(false);
+
+      const rowBounds = { x: 30, y: 110, width: 700, height: 210 };
+      this.gridLetters = StrokeGenerator.generateRowLayout(chars, rowBounds);
+
+      this.currentLetterIndex = 0;
+      this.activeStrokes = this.gridLetters[0]?.strokes || [];
+      this.levelConfig = { type: 'grid_row', char: chars[0] };
+    } else {
+      // Letra o número único grande centrado
+      const bounds = { x: (W - 320) / 2, y: 50, width: 320, height: 320 };
+      this.activeStrokes = StrokeGenerator.getStrokes(this.generatorTarget, bounds, this.generatorIsUpper);
+      this.levelConfig = { type: 'generator_single', char: this.generatorTarget };
+      this.totalRowLetters = this.activeStrokes.length;
+    }
+
+    if (this.paintCtx) {
+      this.paintCtx.clearRect(0, 0, W, H);
+    }
+  }
+
+  bindGeneratorEvents(container) {
+    container.querySelector('#btnBackFromGenerator')?.addEventListener('click', () => {
+      audio.playClick();
+      this.activeSubgame = null;
+      this.currentLevel = null;
+      this.render(container);
+    });
+
+    container.querySelector('#btnClearGeneratorCanvas')?.addEventListener('click', () => {
+      audio.playClick();
+      this.clearPaintCanvas();
+    });
+
+    container.querySelectorAll('.gen-tab-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        audio.playClick();
+        this.generatorTab = e.currentTarget.dataset.tab;
+        this.renderGeneradorTrazos(container);
       });
-    }
-  }
+    });
 
-  startFxLoop() {
-    const loop = () => {
-      this.renderFxFrame();
-      this.animFrameId = requestAnimationFrame(loop);
+    container.querySelectorAll('.gen-char-pill').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        audio.playClick();
+        this.generatorTarget = e.currentTarget.dataset.char;
+        this.generatorIsUpper = (e.currentTarget.dataset.upper === 'true');
+        container.querySelectorAll('.gen-char-pill').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        this.loadGeneratorTarget();
+        this.drawBackground();
+        audio.speak(`Traza la letra ${this.generatorTarget}`);
+      });
+    });
+
+    container.querySelector('#btnGenerateCustomWord')?.addEventListener('click', () => {
+      const input = container.querySelector('#genWordInput');
+      const val = (input?.value || 'SOL').trim().toUpperCase();
+      if (!val) return;
+
+      audio.playCelebration();
+      this.generatorTarget = val;
+      this.loadGeneratorTarget();
+      this.drawBackground();
+      audio.speak(`Generando trazos para la palabra ${val}`);
+    });
+
+    // Crayones
+    container.querySelectorAll('.mini-crayon').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        audio.playClick();
+        container.querySelectorAll('.mini-crayon').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        this.activeCrayonColor = btn.dataset.color || '#e91e63';
+      });
+    });
+
+    const canvas = this.paintCanvas;
+    if (!canvas) return;
+
+    canvas.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
+      this.activePointerId = e.pointerId;
+      const pt = this.getCanvasPoint(e);
+      this.handlePointerDown(pt.x, pt.y);
+    }, { passive: false });
+
+    this.boundPointerMove = (e) => {
+      e.preventDefault();
+      if (!this.isDrawing || (this.activePointerId !== null && e.pointerId !== this.activePointerId)) return;
+      const pt = this.getCanvasPoint(e);
+      this.handlePointerMove(pt.x, pt.y);
     };
-    this.animFrameId = requestAnimationFrame(loop);
-  }
 
-  renderFxFrame() {
-    if (!this.fxCtx || !this.fxCanvas) return;
-    const ctx = this.fxCtx;
-    ctx.clearRect(0, 0, this.fxCanvas.width, this.fxCanvas.height);
+    this.boundPointerUp = (e) => {
+      if (this.activePointerId !== null && e.pointerId !== undefined && e.pointerId !== this.activePointerId) return;
+      this.activePointerId = null;
+      this.handlePointerUp();
+    };
 
-    for (let i = this.sparkles.length - 1; i >= 0; i--) {
-      const p = this.sparkles[i];
-      p.x += p.vx;
-      p.y += p.vy;
-      p.vy += 0.08; // Gravedad suave
-      p.life -= p.decay;
-
-      if (p.life <= 0) {
-        this.sparkles.splice(i, 1);
-        continue;
-      }
-
-      ctx.save();
-      ctx.globalAlpha = p.life;
-      ctx.fillStyle = p.color;
-      ctx.shadowColor = p.color;
-      ctx.shadowBlur = 6;
-      ctx.beginPath();
-      // Dibujar estrellita de 4 puntas
-      const s = p.size;
-      ctx.moveTo(p.x, p.y - s);
-      ctx.lineTo(p.x + s * 0.35, p.y - s * 0.35);
-      ctx.lineTo(p.x + s, p.y);
-      ctx.lineTo(p.x + s * 0.35, p.y + s * 0.35);
-      ctx.lineTo(p.x, p.y + s);
-      ctx.lineTo(p.x - s * 0.35, p.y + s * 0.35);
-      ctx.lineTo(p.x - s, p.y);
-      ctx.lineTo(p.x - s * 0.35, p.y - s * 0.35);
-      ctx.closePath();
-      ctx.fill();
-      ctx.restore();
-    }
-  }
-
-  clearPaintCanvas() {
-    if (this.paintCtx && this.paintCanvas) {
-      this.paintCtx.clearRect(0, 0, this.paintCanvas.width, this.paintCanvas.height);
-    }
-    this.hollowStrokesCompleted = { upper: new Set(), lower: new Set() };
-    if (this.rowLettersCompleted) {
-      this.rowLettersCompleted.fill(false);
-    }
-    this.initLevelProgress();
-    const label = document.getElementById('completedCountLabel');
-    if (label) label.innerText = '0';
-
-    const treeZone = document.getElementById('notebookTreeZone');
-    if (treeZone) {
-      treeZone.classList.remove('colored');
-    }
-    const treeCaption = document.getElementById('treeCaption');
-    if (treeCaption && this.pedagogicalData) {
-      treeCaption.innerHTML = `${this.pedagogicalData.phonetic} ${this.pedagogicalData.icon}`;
-      treeCaption.classList.remove('celebration-glow');
-    }
+    canvas.addEventListener('pointermove', this.boundPointerMove, { passive: false });
+    canvas.addEventListener('pointerup', this.boundPointerUp, { passive: false });
+    canvas.addEventListener('pointercancel', this.boundPointerUp, { passive: false });
   }
 
   // ==========================================================================
-  // VISTA 4: PIZARRA MÁGICA ESCOLAR (DIBUJO LIBRE)
+  // VISTA 5: PIZARRA MÁGICA ESCOLAR (DIBUJO LIBRE)
   // ==========================================================================
   renderPizarraMagica(container) {
     this.cleanup();
@@ -5566,10 +5069,9 @@ class LetterTracingScreen {
     `;
 
     this.setupCanvases(container);
-    this.drawPizarraBackground();
+    this.drawNotebookGridOnly();
     this.startFxLoop();
 
-    // Eventos de selección de crayones
     container.querySelectorAll('.crayon-pill').forEach(btn => {
       btn.addEventListener('click', (e) => {
         audio.playClick();
@@ -5620,15 +5122,13 @@ class LetterTracingScreen {
     canvas.addEventListener('pointercancel', stopDraw);
   }
 
-  drawPizarraBackground() {
+  drawNotebookGridOnly() {
     if (!this.bgCtx || !this.bgCanvas) return;
     const ctx = this.bgCtx;
     const W = this.bgCanvas.width;
     const H = this.bgCanvas.height;
 
     ctx.clearRect(0, 0, W, H);
-
-    // Cuadrícula azul escolar completa
     const gridSize = 38;
     ctx.strokeStyle = 'rgba(41, 182, 246, 0.25)';
     ctx.lineWidth = 1;
@@ -5644,6 +5144,78 @@ class LetterTracingScreen {
       ctx.moveTo(0, y);
       ctx.lineTo(W, y);
       ctx.stroke();
+    }
+  }
+
+  // ==========================================================================
+  // HELPERS Y LIMPIEZA
+  // ==========================================================================
+  setupArabot(container) {
+    const anchor = container.querySelector('#arabotAnchor');
+    if (!anchor) return;
+
+    this.arabot = new ArabotAssistant({
+      onHelpClick: () => {
+        if (this.arabot) {
+          this.arabot.speak(`¡Sigue las flechas y la estrellita dorada para hacer tu trazo! ⭐`);
+          this.arabot.bounceHead();
+        }
+      }
+    });
+
+    this.arabot.mount(anchor);
+  }
+
+  setupCanvases(container) {
+    this.bgCanvas = container.querySelector('#bgCanvas');
+    this.paintCanvas = container.querySelector('#paintCanvas');
+    this.fxCanvas = container.querySelector('#fxCanvas');
+
+    if (!this.bgCanvas || !this.paintCanvas || !this.fxCanvas) return;
+
+    this.bgCtx = this.bgCanvas.getContext('2d');
+    this.paintCtx = this.paintCanvas.getContext('2d');
+    this.fxCtx = this.fxCanvas.getContext('2d');
+  }
+
+  clearPaintCanvas() {
+    if (this.paintCtx && this.paintCanvas) {
+      this.paintCtx.clearRect(0, 0, this.paintCanvas.width, this.paintCanvas.height);
+    }
+    this.hollowStrokesCompleted = { upper: new Set(), lower: new Set() };
+    if (this.rowLettersCompleted) {
+      this.rowLettersCompleted.fill(false);
+    }
+    if (this.activeSubgame === 'generador_trazos') {
+      this.loadGeneratorTarget();
+    } else {
+      this.initLevelStrokes();
+    }
+    this.drawBackground();
+
+    const label = document.getElementById('completedCountLabel');
+    if (label) label.innerText = '0';
+
+    const treeZone = document.getElementById('notebookTreeZone');
+    if (treeZone) treeZone.classList.remove('colored');
+  }
+
+  emitStarBurst(x, y) {
+    const colors = ['#ffd700', '#ffeb3b', '#ff9800', '#00e5ff', '#76ff03', '#ff4081'];
+    for (let i = 0; i < 16; i++) {
+      const angle = (Math.PI * 2 * i) / 16 + (Math.random() - 0.5) * 0.4;
+      const speed = 2.5 + Math.random() * 4.5;
+      this.sparkles.push({
+        x,
+        y,
+        vx: Math.cos(angle) * speed,
+        y: y,
+        vy: Math.sin(angle) * speed,
+        size: 4 + Math.random() * 4,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        life: 1.0,
+        decay: 0.035 + Math.random() * 0.02
+      });
     }
   }
 
@@ -7155,7 +6727,7 @@ class App {
 // Inicializar la aplicación cuando el DOM esté listo
 
 
-  // InicializaciÃ³n inmediata y segura en cualquier entorno
+  // Inicialización inmediata y segura en cualquier entorno
   function bootstrap() {
     if (!window.__APP_INSTANCE) {
       window.__APP_INSTANCE = new App();

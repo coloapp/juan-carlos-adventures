@@ -1,4 +1,4 @@
-# build_bundle.ps1 - Generador universal de bundle.js para Juan Carlos's Adventures
+﻿# build_bundle.ps1 - Generador universal de bundle.js para Juan Carlos's Adventures
 $files = @(
     "src/core/StorageManager.js",
     "src/core/AudioManager.js",
@@ -7,6 +7,7 @@ $files = @(
     "src/components/Modal.js",
     "src/components/LevelSelector.js",
     "src/components/ArabotAssistant.js",
+    "src/core/StrokeGenerator.js",
     "src/core/LetterWaypoints.js",
     "src/modules/HomeScreen.js",
     "src/modules/NameTracingScreen.js",

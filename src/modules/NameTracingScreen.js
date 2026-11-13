@@ -2,12 +2,13 @@
  * NameTracingScreen.js - Módulo de Trazado de Nombre y Palabras Clave
  * Digitalización interactiva y fiel al cuaderno escolar de preescolar (SEP / Gonvill).
  * 
- * Características:
- * - 50 Niveles en Círculos (Nivel 1: "JUAN CARLOS", seguido de palabras clave y vocabulario).
- * - Lienzo de Cuaderno Escolar con Cuadrícula Azul y Renglones Caligráficos Guiados.
- * - Asistente ARABOT interactivo ubicado en la parte central superior.
- * - Motor de Trazo Táctil en Tiempo Real (sensibilidad alta, cero frustración para niños).
- * - Auto-relleno suave con destello de estrellitas mágicas al completar los trazos.
+ * Recreado con el Motor Universal StrokeGenerator:
+ * - Soporte dinámico de trazos continuos para todo el abecedario A-Z.
+ * - Validación pedagógica por recorrido continuo (desarrollo de memoria muscular).
+ * - Cero "boom se llena" al primer toque: el niño traza el recorrido real.
+ * - Guía visual animada (estrellita viajera) y números secuenciales 1, 2, 3...
+ * - Paleta de colores de crayón en tiempo real.
+ * - 50 Niveles en Círculos (Nivel 1: "JUAN CARLOS", seguido de palabras de kínder).
  * - Cinta 3D del Nombre Completo con fichas táctiles que avanzan letra por letra.
  * - Cero alertas emergentes (alert/confirm), transición automática fluida y celebración festiva.
  */
@@ -17,7 +18,7 @@ import { rewards } from '../core/RewardManager.js';
 import { Confetti } from '../components/Confetti.js';
 import { LevelSelector } from '../components/LevelSelector.js';
 import { ArabotAssistant } from '../components/ArabotAssistant.js';
-import { getWaypointsForLetter } from '../core/LetterWaypoints.js';
+import { StrokeGenerator } from '../core/StrokeGenerator.js';
 
 // Catálogo de 50 niveles de trazado de nombre y palabras de preescolar
 export const NAME_TRACING_LEVELS = [
@@ -56,8 +57,8 @@ export class NameTracingScreen {
     this.isDrawing = false;
     this.lastPoint = null;
     this.activeCrayonColor = '#e91e63'; // Rosa mexicano brillante tipo crayón
-    this.waypoints = [];
-    this.currentWaypointIndex = 0;
+    this.activeStrokes = [];
+    this.currentStrokeIndex = 0;
     this.isLetterCompleted = false;
 
     // Partículas de estrellitas mágicas
@@ -68,6 +69,12 @@ export class NameTracingScreen {
     this.activePointerId = null;
     this.boundPointerMove = null;
     this.boundPointerUp = null;
+  }
+
+  resetState() {
+    this.currentLevel = null;
+    this.currentLetterIndex = 0;
+    this.cleanup();
   }
 
   // ==========================================================================
@@ -126,7 +133,7 @@ export class NameTracingScreen {
 
     container.innerHTML = `
       <div class="tracing-module notebook-grid-bg fade-in" id="nameTracingModule">
-        <!-- Encabezado con ARABOT centrado para no estorbar botones -->
+        <!-- Encabezado con ARABOT centrado y controles infantiles -->
         <header class="tracing-header">
           <button class="back-btn" id="btnBackToLevels">⬅️ Niveles</button>
           
@@ -135,6 +142,14 @@ export class NameTracingScreen {
           </div>
 
           <div class="header-actions">
+            <!-- Paleta de crayones en miniatura -->
+            <div class="mini-crayons-bar">
+              <button class="mini-crayon active" data-color="#e91e63" style="background:#e91e63;" title="Rosa"></button>
+              <button class="mini-crayon" data-color="#ff5722" style="background:#ff5722;" title="Naranja"></button>
+              <button class="mini-crayon" data-color="#4caf50" style="background:#4caf50;" title="Verde"></button>
+              <button class="mini-crayon" data-color="#00bcd4" style="background:#00bcd4;" title="Celeste"></button>
+              <button class="mini-crayon" data-color="#9c27b0" style="background:#9c27b0;" title="Morado"></button>
+            </div>
             <button class="sound-btn" id="btnPlayPhonics">🔊 Escuchar</button>
             <button class="clear-btn" id="btnClearCanvas">🧹 Borrar</button>
           </div>
@@ -145,7 +160,7 @@ export class NameTracingScreen {
           <div class="notebook-page-header">
             <h2>TRAZA TU NOMBRE: <span class="letter-highlight" id="currentLetterDisplay">J</span></h2>
             <p class="notebook-instruction" id="nameInstructionText">
-              Paso <strong id="currentStepNum">1</strong> de <span id="totalStepsNum">5</span> • Sigue las flechas y los círculos numerados.
+              Paso <strong id="currentStepNum">1</strong> de <span id="totalStepsNum">2</span> • Sigue la guía punteada con tu dedito.
             </p>
           </div>
 
@@ -241,7 +256,7 @@ export class NameTracingScreen {
   // ==========================================================================
   loadCurrentLetter(container) {
     // Si es un espacio en blanco, saltarlo automáticamente
-    if (this.targetName[this.currentLetterIndex] === ' ') {
+    while (this.currentLetterIndex < this.targetName.length && this.targetName[this.currentLetterIndex] === ' ') {
       this.currentLetterIndex++;
     }
 
@@ -252,9 +267,11 @@ export class NameTracingScreen {
     }
 
     const currentChar = this.targetName[this.currentLetterIndex];
-    this.rawWaypoints = getWaypointsForLetter(currentChar);
-    this.scaleWaypointsToNotebook();
-    this.currentWaypointIndex = 0;
+    
+    // Generar trazos dinámicos con StrokeGenerator centrados en el cuaderno
+    const bounds = { x: (760 - 280) / 2, y: 70, width: 280, height: 260 };
+    this.activeStrokes = StrokeGenerator.getStrokes(currentChar, bounds, true);
+    this.currentStrokeIndex = 0;
     this.isLetterCompleted = false;
 
     // Actualizar indicador de letra
@@ -274,33 +291,15 @@ export class NameTracingScreen {
     audio.speak(`Traza la letra ${currentChar}`);
   }
 
-  scaleWaypointsToNotebook() {
-    if (!this.bgCanvas) return;
-    const W = this.bgCanvas.width;
-    const H = this.bgCanvas.height;
-
-    // Área de la letra centrada en el cuaderno escolar
-    const areaW = 390;
-    const areaH = 290;
-    const startX = (W - areaW) / 2;
-    const startY = 60;
-
-    this.waypoints = this.rawWaypoints.map((wp, idx) => ({
-      x: startX + wp.x * areaW,
-      y: startY + wp.y * areaH,
-      label: wp.label || (idx + 1).toString()
-    }));
-  }
-
   updateStatusPill(container) {
     const curElem = container.querySelector('#currentStepNum');
     const totalElem = container.querySelector('#totalStepsNum');
-    if (curElem) curElem.innerText = Math.min(this.currentWaypointIndex + 1, this.waypoints.length);
-    if (totalElem) totalElem.innerText = this.waypoints.length;
+    if (curElem) curElem.innerText = Math.min(this.currentStrokeIndex + 1, Math.max(1, this.activeStrokes.length));
+    if (totalElem) totalElem.innerText = Math.max(1, this.activeStrokes.length);
   }
 
   // ==========================================================================
-  // DIBUJO DEL FONDO: CUADRÍCULA AZUL + RENGLONES + LETRA PUNTEADA + WAYPOINTS
+  // DIBUJO DEL FONDO: CUADRÍCULA AZUL + RENGLONES + GUÍAS GENERADAS
   // ==========================================================================
   drawNotebookBackground(currentChar) {
     if (!this.bgCtx || !this.bgCanvas) return;
@@ -366,88 +365,8 @@ export class NameTracingScreen {
     ctx.stroke();
     ctx.restore();
 
-    // 3. Letra punteada grande en el centro del renglón
-    ctx.save();
-    ctx.font = 'bold 270px "Fredoka", "Comic Sans MS", sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'alphabetic';
-    ctx.strokeStyle = '#90a4ae';
-    ctx.lineWidth = 4;
-    ctx.setLineDash([8, 8]);
-    ctx.strokeText(currentChar, W / 2, baseY - 10);
-    ctx.restore();
-
-    // 4. Guías entre los waypoints con flechas direccionales
-    if (this.waypoints.length > 1) {
-      ctx.save();
-      ctx.strokeStyle = 'rgba(0, 188, 212, 0.4)';
-      ctx.lineWidth = 3.5;
-      ctx.setLineDash([8, 6]);
-      ctx.beginPath();
-      this.waypoints.forEach((wp, i) => {
-        if (i === 0) ctx.moveTo(wp.x, wp.y);
-        else ctx.lineTo(wp.x, wp.y);
-      });
-      ctx.stroke();
-      ctx.restore();
-    }
-
-    // 5. Dibujar cada waypoint circular numerado (Paso 1, 2, 3...)
-    this.waypoints.forEach((wp, idx) => {
-      ctx.save();
-      if (idx < this.currentWaypointIndex) {
-        // Waypoint superado: círculo verde esmeralda con palomita
-        ctx.fillStyle = '#4caf50';
-        ctx.beginPath();
-        ctx.arc(wp.x, wp.y, 16, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 2.5;
-        ctx.stroke();
-
-        ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 15px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText('✓', wp.x, wp.y);
-      } else if (idx === this.currentWaypointIndex) {
-        // Waypoint activo: halo brillante naranja y número grande
-        ctx.fillStyle = 'rgba(255, 152, 0, 0.35)';
-        ctx.beginPath();
-        ctx.arc(wp.x, wp.y, 28, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.fillStyle = '#ff9800';
-        ctx.beginPath();
-        ctx.arc(wp.x, wp.y, 18, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 3;
-        ctx.stroke();
-
-        ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 16px "Fredoka", sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(wp.label || (idx + 1).toString(), wp.x, wp.y);
-      } else {
-        // Waypoint futuro: círculo translúcido
-        ctx.fillStyle = 'rgba(0, 188, 212, 0.45)';
-        ctx.beginPath();
-        ctx.arc(wp.x, wp.y, 14, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 2;
-        ctx.stroke();
-
-        ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 12px "Fredoka", sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText((idx + 1).toString(), wp.x, wp.y);
-      }
-      ctx.restore();
-    });
+    // 3. Guías direccionales generadas por StrokeGenerator
+    StrokeGenerator.renderStrokeGuides(ctx, this.activeStrokes, this.currentStrokeIndex, '#1565c0');
   }
 
   // ==========================================================================
@@ -463,7 +382,7 @@ export class NameTracingScreen {
     container.querySelector('#btnClearCanvas')?.addEventListener('click', () => {
       audio.playClick();
       this.clearPaintCanvas();
-      this.currentWaypointIndex = 0;
+      this.currentStrokeIndex = 0;
       this.isLetterCompleted = false;
       this.updateStatusPill(container);
       const char = this.targetName[this.currentLetterIndex] || 'A';
@@ -476,6 +395,16 @@ export class NameTracingScreen {
       if (this.arabot) this.arabot.bounceHead();
     });
 
+    // Selección de colores de crayón
+    container.querySelectorAll('.mini-crayon').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        audio.playClick();
+        container.querySelectorAll('.mini-crayon').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        this.activeCrayonColor = btn.dataset.color || '#e91e63';
+      });
+    });
+
     const canvas = this.paintCanvas;
     if (!canvas) return;
 
@@ -485,7 +414,7 @@ export class NameTracingScreen {
       try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
       this.activePointerId = e.pointerId;
       const pt = this.getCanvasPoint(e);
-      this.handlePointerDown(pt.x, pt.y, container);
+      this.handlePointerDown(pt.x, pt.y);
     }, { passive: false });
 
     this.boundPointerMove = (e) => {
@@ -518,22 +447,35 @@ export class NameTracingScreen {
     };
   }
 
-  handlePointerDown(x, y, container) {
+  handlePointerDown(x, y) {
     if (this.isLetterCompleted) return;
     this.isDrawing = true;
     this.lastPoint = { x, y };
 
     this.drawCrayonPoint(x, y);
     audio.playBrush();
-    this.checkWaypointHit(x, y, container);
+    // No se completa en pointerdown para obligar al trazo por recorrido continuo (memoria muscular)
   }
 
   handlePointerMove(x, y, container) {
     if (!this.isDrawing || !this.lastPoint || this.isLetterCompleted) return;
 
+    const dx = x - this.lastPoint.x;
+    const dy = y - this.lastPoint.y;
+    const stepDist = Math.hypot(dx, dy);
+    if (stepDist < 2.5) return;
+
     this.drawCrayonSegment(this.lastPoint.x, this.lastPoint.y, x, y);
     this.lastPoint = { x, y };
-    this.checkWaypointHit(x, y, container);
+
+    // Evaluar progreso con StrokeGenerator
+    const currentStroke = this.activeStrokes[this.currentStrokeIndex];
+    if (!currentStroke || currentStroke.completed) return;
+
+    const res = StrokeGenerator.checkStrokeProgress(currentStroke, { x, y }, stepDist, 36);
+    if (res.isComplete) {
+      this.onStrokeCompleted(currentStroke, x, y, container);
+    }
   }
 
   handlePointerUp() {
@@ -557,7 +499,7 @@ export class NameTracingScreen {
     const ctx = this.paintCtx;
     ctx.save();
     ctx.strokeStyle = this.activeCrayonColor;
-    ctx.lineWidth = 26;
+    ctx.lineWidth = 24;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     ctx.beginPath();
@@ -568,85 +510,56 @@ export class NameTracingScreen {
   }
 
   // ==========================================================================
-  // DETECCIÓN DE WAYPOINTS Y AUTO-RELLENO LIMPIO
+  // COMPLETADO DE TRAZO Y AVANCE DE LETRA
   // ==========================================================================
-  checkWaypointHit(x, y, container) {
-    if (this.isLetterCompleted) return;
-    if (this.currentWaypointIndex >= this.waypoints.length) return;
+  onStrokeCompleted(stroke, x, y, container) {
+    audio.playStar();
+    this.emitStarBurst(x, y);
 
-    const targetWp = this.waypoints[this.currentWaypointIndex];
+    // Fijar trazo completo nítido en el lienzo
+    StrokeGenerator.renderCompletedStroke(this.paintCtx, stroke, this.activeCrayonColor);
 
-    // Radio de captura generoso para niños pequeños (52px)
-    const distance = Math.hypot(x - targetWp.x, y - targetWp.y);
+    this.currentStrokeIndex++;
+    this.updateStatusPill(container);
 
-    if (distance <= 52) {
-      this.currentWaypointIndex++;
-      audio.playPop();
-      this.emitStarBurst(targetWp.x, targetWp.y);
-      this.updateStatusPill(container);
+    const currentChar = this.targetName[this.currentLetterIndex];
+    this.drawNotebookBackground(currentChar);
 
-      const currentChar = this.targetName[this.currentLetterIndex];
-      this.drawNotebookBackground(currentChar);
-
-      // Si completó todos los pasos de la letra actual
-      if (this.currentWaypointIndex >= this.waypoints.length) {
-        this.onLetterCompleted(container, currentChar);
+    if (this.currentStrokeIndex >= this.activeStrokes.length) {
+      this.onLetterCompleted(container, currentChar);
+    } else {
+      if (this.arabot) {
+        this.arabot.speak(`¡Bien! Sigue con el paso ${this.currentStrokeIndex + 1} ⭐`);
       }
     }
   }
 
-  /**
-   * Auto-rellena la letra con un trazo sólido luminoso (desaparece lo chuequito)
-   */
   onLetterCompleted(container, currentChar) {
     this.isLetterCompleted = true;
     this.isDrawing = false;
     this.lastPoint = null;
 
-    // 1. Auto-relleno suave sobre paintCanvas
-    this.snapFullLetter(currentChar);
-    this.emitStarBurst(this.paintCanvas.width / 2, this.paintCanvas.height / 2);
     audio.playSuccess();
+    this.emitStarBurst(this.paintCanvas.width / 2, this.paintCanvas.height / 2);
 
-    // 2. Iluminar la ficha de la letra en la cinta
+    // Iluminar la ficha de la letra en la cinta
     const currentSlot = container.querySelector(`.slot-${this.currentLetterIndex}`);
     if (currentSlot) {
       currentSlot.classList.remove('active');
       currentSlot.classList.add('completed');
     }
 
-    // 3. Celebración de Arabot
     if (this.arabot) {
-      this.arabot.celebrate(`¡Excelente! ¡Completaste la letra <strong>${currentChar}</strong>! ⭐`, 1800);
+      this.arabot.celebrate(`¡Excelente! ¡Completaste la letra <strong>${currentChar}</strong>! ⭐`, 1600);
     }
 
     StorageManager.addStars(1);
 
-    // 4. Avanzar a la siguiente letra después de 650ms
+    // Avanzar a la siguiente letra después de 650ms
     setTimeout(() => {
       this.currentLetterIndex++;
       this.loadCurrentLetter(container);
     }, 650);
-  }
-
-  snapFullLetter(char) {
-    if (!this.paintCtx || !this.paintCanvas) return;
-    const ctx = this.paintCtx;
-    const W = this.paintCanvas.width;
-    const baseY = 345;
-
-    ctx.save();
-    ctx.font = 'bold 270px "Fredoka", sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'alphabetic';
-    ctx.strokeStyle = '#e91e63';
-    ctx.lineWidth = 14;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-    ctx.shadowColor = 'rgba(233, 30, 99, 0.7)';
-    ctx.shadowBlur = 16;
-    ctx.strokeText(char, W / 2, baseY - 10);
-    ctx.restore();
   }
 
   // ==========================================================================
@@ -703,10 +616,10 @@ export class NameTracingScreen {
         y,
         vx: Math.cos(angle) * speed,
         vy: Math.sin(angle) * speed,
-        size: 4 + Math.random() * 4,
-        color: colors[Math.floor(Math.random() * colors.length)],
-        life: 1.0,
-        decay: 0.035 + Math.random() * 0.02
+        color: colors[i % colors.length],
+        size: 5 + Math.random() * 6,
+        life: 1,
+        decay: 0.035 + Math.random() * 0.025
       });
     }
   }
@@ -724,6 +637,7 @@ export class NameTracingScreen {
     const ctx = this.fxCtx;
     ctx.clearRect(0, 0, this.fxCanvas.width, this.fxCanvas.height);
 
+    // 1. Partículas mágicas
     for (let i = this.sparkles.length - 1; i >= 0; i--) {
       const p = this.sparkles[i];
       p.x += p.vx;
@@ -755,12 +669,18 @@ export class NameTracingScreen {
       ctx.fill();
       ctx.restore();
     }
+
+    // 2. Guía animada suave con estrellita viajera
+    const activeStroke = this.activeStrokes[this.currentStrokeIndex];
+    if (activeStroke && !this.isDrawing && !this.isLetterCompleted) {
+      const t = (performance.now() % 2200) / 2200;
+      StrokeGenerator.renderAnimatedPointer(ctx, activeStroke, t);
+    }
   }
 
   clearPaintCanvas() {
-    if (this.paintCtx && this.paintCanvas) {
-      this.paintCtx.clearRect(0, 0, this.paintCanvas.width, this.paintCanvas.height);
-    }
+    if (!this.paintCtx || !this.paintCanvas) return;
+    this.paintCtx.clearRect(0, 0, this.paintCanvas.width, this.paintCanvas.height);
   }
 
   cleanup() {
@@ -768,17 +688,12 @@ export class NameTracingScreen {
       cancelAnimationFrame(this.animFrameId);
       this.animFrameId = null;
     }
-    if (this.paintCanvas && this.boundPointerUp) {
-      this.paintCanvas.removeEventListener('pointermove', this.boundPointerMove);
-      this.paintCanvas.removeEventListener('pointerup', this.boundPointerUp);
-      this.paintCanvas.removeEventListener('pointercancel', this.boundPointerUp);
-      this.boundPointerUp = null;
-      this.boundPointerMove = null;
-    }
     if (this.arabot) {
-      this.arabot.destroy();
+      this.arabot.unmount();
       this.arabot = null;
     }
     this.sparkles = [];
+    this.isDrawing = false;
+    this.activePointerId = null;
   }
 }

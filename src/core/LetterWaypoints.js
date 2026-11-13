@@ -4,6 +4,7 @@
  * para validar que el niño realice el recorrido completo y en el orden correcto
  * según los métodos pedagógicos SEP y Gonvill.
  */
+import { StrokeGenerator } from './StrokeGenerator.js';
 
 export const LETTER_WAYPOINTS = {
   // A (Sube diagonal izquierda, baja diagonal derecha y barra horizontal)
@@ -771,6 +772,140 @@ export const PEDAGOGICAL_LETTERS = {
         </g>
       </svg>
     `
+  },
+  'M': {
+    letter: 'M',
+    lowercase: 'm',
+    word: 'MANZANA',
+    phonetic: 'M de Manzana',
+    icon: '🍎',
+    getSurpriseSvg: () => `
+      <svg class="surprise-svg apple-illustration" viewBox="0 0 200 220" width="100%" height="100%">
+        <path d="M 100 45 Q 105 25 120 18" stroke="#5d4037" stroke-width="5" stroke-linecap="round" fill="none"/>
+        <ellipse cx="118" cy="32" rx="16" ry="9" fill="#4caf50" transform="rotate(-30 118 32)"/>
+        <path d="M 100 65 C 80 50 40 60 40 110 C 40 165 75 195 100 195 C 125 195 160 165 160 110 C 160 60 120 50 100 65 Z" fill="#e53935" stroke="#b71c1c" stroke-width="3"/>
+        <ellipse cx="75" cy="95" rx="10" ry="18" fill="#ff8a80" opacity="0.6"/>
+      </svg>
+    `
+  },
+  'S': {
+    letter: 'S',
+    lowercase: 's',
+    word: 'SOL',
+    phonetic: 'S de Sol',
+    icon: '☀️',
+    getSurpriseSvg: () => `
+      <svg class="surprise-svg sun-illustration" viewBox="0 0 200 220" width="100%" height="100%">
+        <g stroke="#f57c00" stroke-width="4" stroke-linecap="round">
+          <line x1="100" y1="25" x2="100" y2="45"/>
+          <line x1="100" y1="175" x2="100" y2="195"/>
+          <line x1="25" y1="110" x2="45" y2="110"/>
+          <line x1="155" y1="110" x2="175" y2="110"/>
+          <line x1="45" y1="55" x2="60" y2="70"/>
+          <line x1="140" y1="150" x2="155" y2="165"/>
+          <line x1="155" y1="55" x2="140" y2="70"/>
+          <line x1="45" y1="165" x2="60" y2="150"/>
+        </g>
+        <circle cx="100" cy="110" r="50" fill="#fbc02d" stroke="#f57c00" stroke-width="3"/>
+        <circle cx="85" cy="100" r="6" fill="#e65100"/>
+        <circle cx="115" cy="100" r="6" fill="#e65100"/>
+        <path d="M 85 122 Q 100 138 115 122" stroke="#e65100" stroke-width="4" fill="none" stroke-linecap="round"/>
+      </svg>
+    `
+  },
+  'T': {
+    letter: 'T',
+    lowercase: 't',
+    word: 'TORTUGA',
+    phonetic: 'T de Tortuga',
+    icon: '🐢',
+    getSurpriseSvg: () => `
+      <svg class="surprise-svg turtle-illustration" viewBox="0 0 200 220" width="100%" height="100%">
+        <!-- Patitas -->
+        <ellipse cx="65" cy="85" rx="14" ry="10" fill="#81c784"/>
+        <ellipse cx="135" cy="85" rx="14" ry="10" fill="#81c784"/>
+        <ellipse cx="65" cy="145" rx="14" ry="10" fill="#81c784"/>
+        <ellipse cx="135" cy="145" rx="14" ry="10" fill="#81c784"/>
+        <!-- Cabeza -->
+        <ellipse cx="100" cy="60" rx="16" ry="18" fill="#81c784" stroke="#388e3c" stroke-width="2"/>
+        <circle cx="94" cy="55" r="3" fill="#1b5e20"/>
+        <circle cx="106" cy="55" r="3" fill="#1b5e20"/>
+        <!-- Caparazón -->
+        <ellipse cx="100" cy="115" rx="45" ry="38" fill="#4caf50" stroke="#2e7d32" stroke-width="3"/>
+        <polygon points="100,90 120,105 112,130 88,130 80,105" fill="#66bb6a" stroke="#2e7d32" stroke-width="2"/>
+      </svg>
+    `
+  },
+  'L': {
+    letter: 'L',
+    lowercase: 'l',
+    word: 'LEÓN',
+    phonetic: 'L de León',
+    icon: '🦁',
+    getSurpriseSvg: () => `
+      <svg class="surprise-svg lion-illustration" viewBox="0 0 200 220" width="100%" height="100%">
+        <!-- Melena -->
+        <circle cx="100" cy="110" r="58" fill="#ff9800" stroke="#e65100" stroke-width="3"/>
+        <!-- Cara -->
+        <circle cx="100" cy="110" r="42" fill="#ffd54f" stroke="#f57f17" stroke-width="2.5"/>
+        <circle cx="86" cy="100" r="5" fill="#3e2723"/>
+        <circle cx="114" cy="100" r="5" fill="#3e2723"/>
+        <polygon points="100,110 93,122 107,122" fill="#d84315"/>
+        <path d="M 93 125 Q 100 132 107 125" stroke="#3e2723" stroke-width="3" fill="none"/>
+      </svg>
+    `
+  },
+  'P': {
+    letter: 'P',
+    lowercase: 'p',
+    word: 'PELOTA',
+    phonetic: 'P de Pelota',
+    icon: '⚽',
+    getSurpriseSvg: () => `
+      <svg class="surprise-svg ball-illustration" viewBox="0 0 200 220" width="100%" height="100%">
+        <circle cx="100" cy="110" r="52" fill="#ffffff" stroke="#212121" stroke-width="3"/>
+        <polygon points="100,85 118,98 111,118 89,118 82,98" fill="#212121"/>
+        <line x1="100" y1="85" x2="100" y2="58" stroke="#212121" stroke-width="2.5"/>
+        <line x1="118" y1="98" x2="145" y2="90" stroke="#212121" stroke-width="2.5"/>
+        <line x1="111" y1="118" x2="135" y2="142" stroke="#212121" stroke-width="2.5"/>
+        <line x1="89" y1="118" x2="65" y2="142" stroke="#212121" stroke-width="2.5"/>
+        <line x1="82" y1="98" x2="55" y2="90" stroke="#212121" stroke-width="2.5"/>
+      </svg>
+    `
+  },
+  'N': {
+    letter: 'N',
+    lowercase: 'n',
+    word: 'NUBE',
+    phonetic: 'N de Nube',
+    icon: '☁️',
+    getSurpriseSvg: () => `
+      <svg class="surprise-svg cloud-illustration" viewBox="0 0 200 220" width="100%" height="100%">
+        <path d="M 60 130 C 45 130 35 118 35 105 C 35 92 48 82 62 82 C 68 65 85 52 105 52 C 128 52 145 68 150 88 C 162 90 172 100 172 112 C 172 125 160 130 148 130 Z" fill="#e1f5fe" stroke="#0288d1" stroke-width="3"/>
+        <circle cx="85" cy="98" r="4" fill="#0277bd"/>
+        <circle cx="120" cy="98" r="4" fill="#0277bd"/>
+        <path d="M 95 110 Q 102 118 110 110" stroke="#0277bd" stroke-width="3" fill="none" stroke-linecap="round"/>
+      </svg>
+    `
+  },
+  'R': {
+    letter: 'R',
+    lowercase: 'r',
+    word: 'RATÓN',
+    phonetic: 'R de Ratón',
+    icon: '🐭',
+    getSurpriseSvg: () => `
+      <svg class="surprise-svg mouse-illustration" viewBox="0 0 200 220" width="100%" height="100%">
+        <circle cx="68" cy="75" r="22" fill="#b0bec5" stroke="#546e7a" stroke-width="2"/>
+        <circle cx="68" cy="75" r="13" fill="#ffab91"/>
+        <circle cx="132" cy="75" r="22" fill="#b0bec5" stroke="#546e7a" stroke-width="2"/>
+        <circle cx="132" cy="75" r="13" fill="#ffab91"/>
+        <ellipse cx="100" cy="115" rx="38" ry="32" fill="#cfd8dc" stroke="#546e7a" stroke-width="2.5"/>
+        <circle cx="88" cy="108" r="4" fill="#263238"/>
+        <circle cx="112" cy="108" r="4" fill="#263238"/>
+        <polygon points="100,118 94,126 106,126" fill="#e91e63"/>
+      </svg>
+    `
   }
 };
 
@@ -779,50 +914,43 @@ export const PEDAGOGICAL_LETTERS = {
  */
 export function getPedagogicalLetter(letter) {
   const char = (letter || 'A').toUpperCase();
+  const lower = char.toLowerCase();
+
+  // Bounding boxes escolares estándar (W=760, H=420)
+  // Letra mayúscula a la izquierda, minúscula a la derecha
+  const upperBounds = { x: 70, y: 70, width: 200, height: 260 };
+  const lowerBounds = { x: 290, y: 110, width: 170, height: 220 };
+
+  const upperStrokes = StrokeGenerator.getStrokes(char, upperBounds, true);
+  const lowerStrokes = StrokeGenerator.getStrokes(lower, lowerBounds, false);
+
   if (PEDAGOGICAL_LETTERS[char]) {
-    return PEDAGOGICAL_LETTERS[char];
+    const p = PEDAGOGICAL_LETTERS[char];
+    return {
+      letter: char,
+      lowercase: lower,
+      word: p.word,
+      phonetic: p.phonetic,
+      icon: p.icon,
+      uppercaseStrokes: upperStrokes,
+      lowercaseStrokes: lowerStrokes,
+      getSurpriseSvg: p.getSurpriseSvg
+    };
   }
 
   // Generador dinámico para cualquier otra letra del abecedario
-  const wp = getWaypointsForLetter(char);
   return {
     letter: char,
-    lowercase: char.toLowerCase(),
-    word: `${char}`,
-    phonetic: `Letra ${char}`,
+    lowercase: lower,
+    word: `LETRA ${char}`,
+    phonetic: `${char} de Estrella`,
     icon: '⭐',
-    tutorialStrokes: [
-      { name: `Paso 1: Trazo de la ${char}`, from: { x: wp[0].x * 0.6, y: wp[0].y }, to: { x: wp[wp.length - 1].x * 0.6, y: wp[wp.length - 1].y } }
-    ],
-    uppercaseStrokes: [
-      {
-        id: `${char}1`,
-        step: 1,
-        arrow: '➔',
-        label: '1',
-        description: `Trazo de la letra ${char}`,
-        points: wp.map(p => ({ x: p.x * 0.55 + 0.05, y: p.y }))
-      }
-    ],
-    lowercaseStrokes: [
-      {
-        id: `${char.toLowerCase()}1`,
-        step: 1,
-        arrow: '↓',
-        label: '1',
-        description: `Minúscula ${char.toLowerCase()}`,
-        points: [
-          { x: 0.75, y: 0.40 },
-          { x: 0.65, y: 0.60 },
-          { x: 0.75, y: 0.80 },
-          { x: 0.85, y: 0.60 }
-        ]
-      }
-    ],
+    uppercaseStrokes: upperStrokes,
+    lowercaseStrokes: lowerStrokes,
     getSurpriseSvg: () => `
       <svg class="surprise-svg generic-illustration" viewBox="0 0 200 220" width="100%" height="100%">
-        <circle cx="100" cy="110" r="50" fill="#ffb74d" stroke="#f57c00" stroke-width="4"/>
-        <text x="100" y="130" font-size="64" font-weight="900" fill="#ffffff" text-anchor="middle">${char}</text>
+        <polygon points="100,25 123,75 178,83 138,122 148,176 100,150 52,176 62,122 22,83 77,75" fill="#ffd54f" stroke="#ff8f00" stroke-width="4"/>
+        <text x="100" y="125" font-size="44" font-weight="900" fill="#e65100" text-anchor="middle">${char}</text>
       </svg>
     `
   };

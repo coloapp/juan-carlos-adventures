@@ -74,7 +74,7 @@ class MockElement {
   }
 
   click() {
-    this.dispatchEvent({ type: 'click', target: this, currentTarget: this, preventDefault: () => {} });
+    this.dispatchEvent({ type: 'click', target: this, currentTarget: this, preventDefault: () => { } });
   }
 
   querySelector(selector) {
@@ -112,24 +112,24 @@ class MockElement {
 
   getContext(type) {
     return {
-      clearRect: () => {},
-      fillRect: () => {},
-      beginPath: () => {},
-      moveTo: () => {},
-      lineTo: () => {},
-      stroke: () => {},
-      fill: () => {},
-      arc: () => {},
-      ellipse: () => {},
-      quadraticCurveTo: () => {},
-      save: () => {},
-      restore: () => {},
-      strokeText: () => {},
-      fillText: () => {},
-      setLineDash: () => {},
-      translate: () => {},
-      rotate: () => {},
-      closePath: () => {}
+      clearRect: () => { },
+      fillRect: () => { },
+      beginPath: () => { },
+      moveTo: () => { },
+      lineTo: () => { },
+      stroke: () => { },
+      fill: () => { },
+      arc: () => { },
+      ellipse: () => { },
+      quadraticCurveTo: () => { },
+      save: () => { },
+      restore: () => { },
+      strokeText: () => { },
+      fillText: () => { },
+      setLineDash: () => { },
+      translate: () => { },
+      rotate: () => { },
+      closePath: () => { }
     };
   }
 
@@ -137,7 +137,7 @@ class MockElement {
     return { left: 0, top: 0, width: 760, height: 420, right: 760, bottom: 420 };
   }
 
-  setPointerCapture() {}
+  setPointerCapture() { }
 
   // Parser simple de tags para generar árbol DOM básico
   parseSimpleHTML(html) {
@@ -183,7 +183,7 @@ const documentMock = {
     return windowMock.__appRoot.querySelector(sel);
   },
   querySelectorAll: (sel) => windowMock.__appRoot.querySelectorAll(sel),
-  addEventListener: () => {},
+  addEventListener: () => { },
   body: new MockElement('body')
 };
 
@@ -198,11 +198,11 @@ const localStorageMock = {
 const windowMock = {
   document: documentMock,
   localStorage: localStorageMock,
-  addEventListener: () => {},
-  removeEventListener: () => {},
+  addEventListener: () => { },
+  removeEventListener: () => { },
   history: {
-    pushState: () => {},
-    replaceState: () => {}
+    pushState: () => { },
+    replaceState: () => { }
   },
   location: { hash: '' },
   setTimeout: setTimeout,
@@ -213,15 +213,15 @@ const windowMock = {
   cancelAnimationFrame: (id) => clearTimeout(id),
   AudioContext: class {
     constructor() { this.state = 'running'; }
-    createOscillator() { return { connect: () => {}, start: () => {}, stop: () => {}, type: 'sine', frequency: { setValueAtTime: () => {}, exponentialRampToValueAtTime: () => {} } }; }
-    createGain() { return { connect: () => {}, gain: { setValueAtTime: () => {}, exponentialRampToValueAtTime: () => {}, linearRampToValueAtTime: () => {} } }; }
+    createOscillator() { return { connect: () => { }, start: () => { }, stop: () => { }, type: 'sine', frequency: { setValueAtTime: () => { }, exponentialRampToValueAtTime: () => { } } }; }
+    createGain() { return { connect: () => { }, gain: { setValueAtTime: () => { }, exponentialRampToValueAtTime: () => { }, linearRampToValueAtTime: () => { } } }; }
   },
   speechSynthesis: {
-    speak: () => {},
-    cancel: () => {},
+    speak: () => { },
+    cancel: () => { },
     getVoices: () => []
   },
-  SpeechSynthesisUtterance: class {},
+  SpeechSynthesisUtterance: class { },
   HTMLElement: MockElement,
   Event: class { constructor(type) { this.type = type; } },
   CustomEvent: class { constructor(type, opt) { this.type = type; this.detail = opt?.detail; } }
@@ -364,19 +364,19 @@ const tests = [
           pointerId: 1,
           clientX: 200,
           clientY: 200,
-          preventDefault: () => {}
+          preventDefault: () => { }
         });
         paintCanvas.dispatchEvent({
           type: 'pointermove',
           pointerId: 1,
           clientX: 210,
           clientY: 210,
-          preventDefault: () => {}
+          preventDefault: () => { }
         });
         paintCanvas.dispatchEvent({
           type: 'pointerup',
           pointerId: 1,
-          preventDefault: () => {}
+          preventDefault: () => { }
         });
       }
     }
@@ -577,6 +577,117 @@ const tests = [
 
       const ribbon = appRoot.querySelector('#nameProgressContainer');
       if (!ribbon) throw new Error('No se renderizó la cinta de letras del nombre');
+    }
+  },
+  {
+    name: 'Módulo de Traza tu Nombre: Trazado Continuo de la Letra J y Memoria Muscular',
+    run: () => {
+      const screen = app.screens['name-tracing'];
+      const paintCanvas = appRoot.querySelector('#paintCanvas');
+      if (!paintCanvas) throw new Error('No se encontró paintCanvas en NameTracingScreen');
+
+      const initialStroke = screen.activeStrokes[0];
+      if (!initialStroke) throw new Error('No hay trazos activos generados para la letra J');
+
+      // 1. Toque simple (tap): NO debe autocompletar
+      paintCanvas.dispatchEvent({
+        type: 'pointerdown',
+        pointerId: 1,
+        clientX: initialStroke.startPoint.x,
+        clientY: initialStroke.startPoint.y,
+        preventDefault: () => {}
+      });
+      paintCanvas.dispatchEvent({
+        type: 'pointerup',
+        pointerId: 1,
+        preventDefault: () => {}
+      });
+
+      if (screen.currentStrokeIndex > 0 || initialStroke.completed) {
+        throw new Error('Fallo de memoria muscular: Un simple toque autocompletó el trazo en Traza tu Nombre');
+      }
+
+      // 2. Trazo continuo siguiendo todos los checkpoints generados
+      paintCanvas.dispatchEvent({
+        type: 'pointerdown',
+        pointerId: 1,
+        clientX: initialStroke.startPoint.x,
+        clientY: initialStroke.startPoint.y,
+        preventDefault: () => {}
+      });
+
+      for (const pt of initialStroke.checkpoints) {
+        paintCanvas.dispatchEvent({
+          type: 'pointermove',
+          pointerId: 1,
+          clientX: pt.x,
+          clientY: pt.y,
+          preventDefault: () => {}
+        });
+      }
+
+      paintCanvas.dispatchEvent({
+        type: 'pointerup',
+        pointerId: 1,
+        preventDefault: () => {}
+      });
+
+      // El trazo 1 de la J debe completarse con éxito
+      if (!initialStroke.completed) {
+        throw new Error('Fallo en StrokeGenerator: El recorrido completo no validó el trazo de la letra J');
+      }
+    }
+  },
+  {
+    name: 'Generador Mágico de Trazos: Generación de Trazos para Letras, Números y Palabras',
+    run: () => {
+      app.screens['letter-tracing'].resetState();
+      app.navigate('letter-tracing');
+      const genCard = appRoot.querySelector('[data-game="generador_trazos"]');
+      if (!genCard) throw new Error('No se encontró la tarjeta generador_trazos');
+      genCard.click();
+
+      const genModule = appRoot.querySelector('#generatorModule');
+      if (!genModule) throw new Error('No se abrió la pantalla del Generador de Trazos');
+
+      const screen = app.screens['letter-tracing'];
+      if (screen.activeSubgame !== 'generador_trazos') {
+        throw new Error('El estado activeSubgame no es generador_trazos');
+      }
+
+      // Probar selección de letra en abecedario
+      const btnB = appRoot.querySelector('[data-char="B"]');
+      if (btnB) {
+        btnB.click();
+        if (screen.generatorTarget !== 'B') throw new Error('No seleccionó la letra B en el generador');
+        if (screen.activeStrokes.length === 0) throw new Error('No generó trazos para la letra B');
+      }
+
+      // Probar pestaña de Números
+      const tabNum = appRoot.querySelector('[data-tab="numeros"]');
+      if (tabNum) {
+        tabNum.click();
+        const btn5 = appRoot.querySelector('[data-char="5"]');
+        if (btn5) {
+          btn5.click();
+          if (screen.generatorTarget !== '5') throw new Error('No seleccionó el número 5');
+          if (screen.activeStrokes.length === 0) throw new Error('No generó trazos para el número 5');
+        }
+      }
+
+      // Probar pestaña de Palabra Personalizada
+      const tabWord = appRoot.querySelector('[data-tab="palabra"]');
+      if (tabWord) {
+        tabWord.click();
+        const input = appRoot.querySelector('#genWordInput');
+        const btnGen = appRoot.querySelector('#btnGenerateCustomWord');
+        if (input && btnGen) {
+          input.value = 'HOLA';
+          btnGen.click();
+          if (screen.generatorTarget !== 'HOLA') throw new Error('No asignó la palabra HOLA');
+          if (screen.gridLetters.length !== 4) throw new Error('No generó el layout de 4 letras para HOLA');
+        }
+      }
     }
   },
   {
