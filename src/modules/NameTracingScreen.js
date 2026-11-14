@@ -513,6 +513,11 @@ export class NameTracingScreen {
   // COMPLETADO DE TRAZO Y AVANCE DE LETRA
   // ==========================================================================
   onStrokeCompleted(stroke, x, y, container) {
+    // Desactivar dibujo inmediatamente para obligar al niño a levantar el dedito
+    this.isDrawing = false;
+    this.lastPoint = null;
+    this.activePointerId = null;
+
     audio.playStar();
     this.emitStarBurst(x, y);
 

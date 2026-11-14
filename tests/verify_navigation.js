@@ -450,20 +450,26 @@ const tests = [
         throw new Error('Fallo de memoria muscular: El recorrido continuo no validó el trazo A1.');
       }
 
-      // 3. Probar Nivel 2 (Renglón de cuadrícula de 8 letras A)
+      // 3. Probar Nivel 2 (Renglón de cuadrícula de 4 letras A amplias)
       screen.currentLevel = 2;
       screen.renderLevelGame(appRoot);
 
       const paintCanvas2 = appRoot.querySelector('#paintCanvas');
       if (!paintCanvas2) throw new Error('No se encontró paintCanvas en nivel 2');
 
-      // Letra 0 está en cx = (0 + 0.5) * (760/8) = 47.5
-      // Simular tap simple: NO debe completarse
+      const letter0 = screen.gridLetters[0];
+      if (!letter0 || letter0.strokes.length !== 3) {
+        throw new Error('La letra A del renglón debe tener exactamente 3 trazos');
+      }
+
+      const [s1, s2, s3] = letter0.strokes;
+
+      // 3.1 Simular tap simple en el inicio del trazo 1: NO debe completarse
       paintCanvas2.dispatchEvent({
         type: 'pointerdown',
         pointerId: 1,
-        clientX: 47,
-        clientY: 120,
+        clientX: s1.startPoint.x,
+        clientY: s1.startPoint.y,
         preventDefault: () => {}
       });
       paintCanvas2.dispatchEvent({
@@ -472,62 +478,99 @@ const tests = [
         preventDefault: () => {}
       });
 
-      if (screen.rowLettersCompleted[0]) {
-        throw new Error('Fallo de memoria muscular: Un simple toque autocompletó la letra en el renglón.');
+      if (s1.completed || screen.rowLettersCompleted[0]) {
+        throw new Error('Fallo de memoria muscular: Un simple toque autocompletó el trazo en el renglón.');
       }
 
-      // Simular trazo real de la A en el renglón (diagonal izq, diagonal der y barra central)
+      // 3.2 Trazar Paso 1 continuo (diagonal izquierda)
       paintCanvas2.dispatchEvent({
         type: 'pointerdown',
         pointerId: 1,
-        clientX: 47,
-        clientY: 120,
+        clientX: s1.startPoint.x,
+        clientY: s1.startPoint.y,
         preventDefault: () => {}
       });
-
-      // Diagonal izquierda (47, 120) a (21, 315)
-      for (let s = 1; s <= 15; s++) {
-        const t = s / 15;
+      for (const pt of s1.checkpoints) {
         paintCanvas2.dispatchEvent({
           type: 'pointermove',
           pointerId: 1,
-          clientX: 47 + (21 - 47) * t,
-          clientY: 120 + (315 - 120) * t,
+          clientX: pt.x,
+          clientY: pt.y,
           preventDefault: () => {}
         });
       }
-      // Diagonal derecha (47, 120) a (73, 315)
-      for (let s = 1; s <= 15; s++) {
-        const t = s / 15;
-        paintCanvas2.dispatchEvent({
-          type: 'pointermove',
-          pointerId: 1,
-          clientX: 47 + (73 - 47) * t,
-          clientY: 120 + (315 - 120) * t,
-          preventDefault: () => {}
-        });
-      }
-      // Barra central (32, 215) a (62, 215)
-      for (let s = 1; s <= 10; s++) {
-        const t = s / 10;
-        paintCanvas2.dispatchEvent({
-          type: 'pointermove',
-          pointerId: 1,
-          clientX: 32 + (62 - 32) * t,
-          clientY: 215,
-          preventDefault: () => {}
-        });
-      }
-
       paintCanvas2.dispatchEvent({
         type: 'pointerup',
         pointerId: 1,
         preventDefault: () => {}
       });
 
-      // Ahora sí debe estar completada la letra 0
+      if (!s1.completed) {
+        throw new Error('El trazo 1 (diagonal izquierda) de la A no se completó tras el recorrido.');
+      }
+
+      // 3.3 Trazar Paso 2 continuo (diagonal derecha)
+      paintCanvas2.dispatchEvent({
+        type: 'pointerdown',
+        pointerId: 1,
+        clientX: s2.startPoint.x,
+        clientY: s2.startPoint.y,
+        preventDefault: () => {}
+      });
+      for (const pt of s2.checkpoints) {
+        paintCanvas2.dispatchEvent({
+          type: 'pointermove',
+          pointerId: 1,
+          clientX: pt.x,
+          clientY: pt.y,
+          preventDefault: () => {}
+        });
+      }
+      paintCanvas2.dispatchEvent({
+        type: 'pointerup',
+        pointerId: 1,
+        preventDefault: () => {}
+      });
+
+      if (!s2.completed) {
+        throw new Error('El trazo 2 (diagonal derecha) de la A no se completó tras el recorrido.');
+      }
+
+      // 3.4 VERIFICACIÓN CRÍTICA: Tras completar paso 1 y 2, la letra NO debe avanzar sin el paso 3
+      if (screen.rowLettersCompleted[0] || screen.currentStrokeIndex !== 2) {
+        throw new Error('ERROR CRÍTICO: La letra A avanzó antes de trazar el paso 3 (barra central).');
+      }
+
+      // 3.5 Trazar Paso 3 continuo (barra central horizontal de izquierda a derecha)
+      paintCanvas2.dispatchEvent({
+        type: 'pointerdown',
+        pointerId: 1,
+        clientX: s3.startPoint.x,
+        clientY: s3.startPoint.y,
+        preventDefault: () => {}
+      });
+      for (const pt of s3.checkpoints) {
+        paintCanvas2.dispatchEvent({
+          type: 'pointermove',
+          pointerId: 1,
+          clientX: pt.x,
+          clientY: pt.y,
+          preventDefault: () => {}
+        });
+      }
+      paintCanvas2.dispatchEvent({
+        type: 'pointerup',
+        pointerId: 1,
+        preventDefault: () => {}
+      });
+
+      if (!s3.completed) {
+        throw new Error('El trazo 3 (barra central) de la A no se completó tras el recorrido.');
+      }
+
+      // Ahora que se completaron los 3 pasos, la letra 0 sí debe estar completada y avanzar
       if (!screen.rowLettersCompleted[0]) {
-        throw new Error('Fallo de memoria muscular: El trazo continuo del renglón no validó la letra.');
+        throw new Error('La letra A debió completarse al finalizar los 3 pasos.');
       }
     }
   },

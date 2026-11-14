@@ -154,40 +154,40 @@ export const TRACING_SUBGAMES = [
 // 2. NIVELES PEDAGÓGICOS DEL CUADERNILLO DE VOCALES (50 NIVELES EXACTOS AL LIBRO)
 // ============================================================================
 export const VOCALES_WORKBOOK_LEVELS = [
-  // Letra A (Página 3 de MundoABC)
+  // Letra A (Página 3 de MundoABC) - Espaciadas y grandes para preescolar
   { id: 1, type: 'intro_hollow', letter: 'A', lowercase: 'a', word: 'ÁRBOL', phonetic: 'A de Árbol', icon: '🌳', title: 'A de Árbol • Letra Grande', instruction: '✏️ Sigue las flechas 1, 2 y 3 para trazar la A y colorear el Árbol.' },
-  { id: 2, type: 'grid_row', char: 'A', count: 8, title: 'Renglón 1: Letra A Mayúscula', instruction: '✏️ Traza las 8 letras A mayúsculas sobre la cuadrícula.' },
-  { id: 3, type: 'grid_row', char: 'a', count: 12, title: 'Renglón 2: Letra a Minúscula', instruction: '✏️ Traza las 12 letras a redonditas con su palito vertical.' },
-  { id: 4, type: 'grid_row', char: 'A', count: 8, title: 'Renglón 3: Refuerzo de A Mayúscula', instruction: '✏️ Refuerza tu caligrafía trazando las 8 letras A mayúsculas.' },
-  { id: 5, type: 'grid_row_alternating', pattern: ['A', 'a', 'A', 'a', 'A', 'a', 'A', 'a', 'A', 'a'], title: 'Renglón 4: Alternado A - a', instruction: '✏️ Traza alternando A mayúscula y a minúscula.' },
+  { id: 2, type: 'grid_row', char: 'A', count: 4, title: 'Renglón 1: Letra A Mayúscula', instruction: '✏️ Traza las 4 letras A mayúsculas grandes sobre la cuadrícula.' },
+  { id: 3, type: 'grid_row', char: 'a', count: 5, title: 'Renglón 2: Letra a Minúscula', instruction: '✏️ Traza las 5 letras a redonditas con su palito vertical.' },
+  { id: 4, type: 'grid_row', char: 'A', count: 4, title: 'Renglón 3: Refuerzo de A Mayúscula', instruction: '✏️ Refuerza tu caligrafía trazando las 4 letras A mayúsculas.' },
+  { id: 5, type: 'grid_row_alternating', pattern: ['A', 'a', 'A', 'a'], title: 'Renglón 4: Alternado A - a', instruction: '✏️ Traza alternando A mayúscula y a minúscula.' },
 
   // Letra E (Página 6)
   { id: 6, type: 'intro_hollow', letter: 'E', lowercase: 'e', word: 'ELEFANTE', phonetic: 'E de Elefante', icon: '🐘', title: 'E de Elefante • Letra Grande', instruction: '✏️ Sigue las flechas para trazar la E y colorear el Elefante.' },
-  { id: 7, type: 'grid_row', char: 'E', count: 8, title: 'Renglón 1: Letra E Mayúscula', instruction: '✏️ Traza las 8 letras E mayúsculas sobre la cuadrícula.' },
-  { id: 8, type: 'grid_row', char: 'e', count: 12, title: 'Renglón 2: Letra e Minúscula', instruction: '✏️ Traza las 12 letras e sobre la cuadrícula.' },
-  { id: 9, type: 'grid_row', char: 'E', count: 8, title: 'Renglón 3: Refuerzo de E Mayúscula', instruction: '✏️ Refuerza tu caligrafía trazando las 8 letras E.' },
-  { id: 10, type: 'grid_row_alternating', pattern: ['E', 'e', 'E', 'e', 'E', 'e', 'E', 'e', 'E', 'e'], title: 'Renglón 4: Alternado E - e', instruction: '✏️ Traza alternando E mayúscula y e minúscula.' },
+  { id: 7, type: 'grid_row', char: 'E', count: 4, title: 'Renglón 1: Letra E Mayúscula', instruction: '✏️ Traza las 4 letras E mayúsculas sobre la cuadrícula.' },
+  { id: 8, type: 'grid_row', char: 'e', count: 5, title: 'Renglón 2: Letra e Minúscula', instruction: '✏️ Traza las 5 letras e sobre la cuadrícula.' },
+  { id: 9, type: 'grid_row', char: 'E', count: 4, title: 'Renglón 3: Refuerzo de E Mayúscula', instruction: '✏️ Refuerza tu caligrafía trazando las 4 letras E.' },
+  { id: 10, type: 'grid_row_alternating', pattern: ['E', 'e', 'E', 'e'], title: 'Renglón 4: Alternado E - e', instruction: '✏️ Traza alternando E mayúscula y e minúscula.' },
 
   // Letra I (Página 9)
   { id: 11, type: 'intro_hollow', letter: 'I', lowercase: 'i', word: 'ISLA', phonetic: 'I de Isla', icon: '🏝️', title: 'I de Isla • Letra Grande', instruction: '✏️ Sigue las flechas para trazar la I y colorear la Isla.' },
-  { id: 12, type: 'grid_row', char: 'I', count: 8, title: 'Renglón 1: Letra I Mayúscula', instruction: '✏️ Traza las 8 letras I mayúsculas sobre el renglón.' },
-  { id: 13, type: 'grid_row', char: 'i', count: 12, title: 'Renglón 2: Letra i Minúscula', instruction: '✏️ Traza las 12 letras i con su puntito.' },
-  { id: 14, type: 'grid_row', char: 'I', count: 8, title: 'Renglón 3: Refuerzo de I Mayúscula', instruction: '✏️ Refuerza tu caligrafía trazando la I.' },
-  { id: 15, type: 'grid_row_alternating', pattern: ['I', 'i', 'I', 'i', 'I', 'i', 'I', 'i', 'I', 'i'], title: 'Renglón 4: Alternado I - i', instruction: '✏️ Traza alternando I mayúscula e i minúscula.' },
+  { id: 12, type: 'grid_row', char: 'I', count: 4, title: 'Renglón 1: Letra I Mayúscula', instruction: '✏️ Traza las 4 letras I mayúsculas sobre el renglón.' },
+  { id: 13, type: 'grid_row', char: 'i', count: 5, title: 'Renglón 2: Letra i Minúscula', instruction: '✏️ Traza las 5 letras i con su puntito.' },
+  { id: 14, type: 'grid_row', char: 'I', count: 4, title: 'Renglón 3: Refuerzo de I Mayúscula', instruction: '✏️ Refuerza tu caligrafía trazando la I.' },
+  { id: 15, type: 'grid_row_alternating', pattern: ['I', 'i', 'I', 'i'], title: 'Renglón 4: Alternado I - i', instruction: '✏️ Traza alternando I mayúscula e i minúscula.' },
 
   // Letra O (Página 12)
   { id: 16, type: 'intro_hollow', letter: 'O', lowercase: 'o', word: 'OSO', phonetic: 'O de Oso', icon: '🐻', title: 'O de Oso • Letra Grande', instruction: '✏️ Traza la O y la o redonditas para colorear el Oso.' },
-  { id: 17, type: 'grid_row', char: 'O', count: 8, title: 'Renglón 1: Letra O Mayúscula', instruction: '✏️ Traza los 8 círculos grandes de la O mayúscula.' },
-  { id: 18, type: 'grid_row', char: 'o', count: 12, title: 'Renglón 2: Letra o Minúscula', instruction: '✏️ Traza los 12 círculos pequeños de la o minúscula.' },
-  { id: 19, type: 'grid_row', char: 'O', count: 8, title: 'Renglón 3: Refuerzo de O Mayúscula', instruction: '✏️ Refuerza tu caligrafía trazando la O.' },
-  { id: 20, type: 'grid_row_alternating', pattern: ['O', 'o', 'O', 'o', 'O', 'o', 'O', 'o', 'O', 'o'], title: 'Renglón 4: Alternado O - o', instruction: '✏️ Traza alternando O mayúscula y o minúscula.' },
+  { id: 17, type: 'grid_row', char: 'O', count: 4, title: 'Renglón 1: Letra O Mayúscula', instruction: '✏️ Traza los 4 círculos grandes de la O mayúscula.' },
+  { id: 18, type: 'grid_row', char: 'o', count: 5, title: 'Renglón 2: Letra o Minúscula', instruction: '✏️ Traza los 5 círculos de la o minúscula.' },
+  { id: 19, type: 'grid_row', char: 'O', count: 4, title: 'Renglón 3: Refuerzo de O Mayúscula', instruction: '✏️ Refuerza tu caligrafía trazando la O.' },
+  { id: 20, type: 'grid_row_alternating', pattern: ['O', 'o', 'O', 'o'], title: 'Renglón 4: Alternado O - o', instruction: '✏️ Traza alternando O mayúscula y o minúscula.' },
 
   // Letra U (Página 15)
   { id: 21, type: 'intro_hollow', letter: 'U', lowercase: 'u', word: 'UVA', phonetic: 'U de Uva', icon: '🍇', title: 'U de Uva • Letra Grande', instruction: '✏️ Sigue las flechas para trazar la U y colorear las Uvas.' },
-  { id: 22, type: 'grid_row', char: 'U', count: 8, title: 'Renglón 1: Letra U Mayúscula', instruction: '✏️ Traza las 8 curvas de la U mayúscula.' },
-  { id: 23, type: 'grid_row', char: 'u', count: 12, title: 'Renglón 2: Letra u Minúscula', instruction: '✏️ Traza las 12 letras u con su patita derecha.' },
-  { id: 24, type: 'grid_row', char: 'U', count: 8, title: 'Renglón 3: Refuerzo de U Mayúscula', instruction: '✏️ Refuerza tu caligrafía con la letra U.' },
-  { id: 25, type: 'grid_row_alternating', pattern: ['U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u'], title: 'Renglón 4: Alternado U - u', instruction: '✏️ Traza alternando U mayúscula y u minúscula.' }
+  { id: 22, type: 'grid_row', char: 'U', count: 4, title: 'Renglón 1: Letra U Mayúscula', instruction: '✏️ Traza las 4 curvas grandes de la U mayúscula.' },
+  { id: 23, type: 'grid_row', char: 'u', count: 5, title: 'Renglón 2: Letra u Minúscula', instruction: '✏️ Traza las 5 letras u con su patita derecha.' },
+  { id: 24, type: 'grid_row', char: 'U', count: 4, title: 'Renglón 3: Refuerzo de U Mayúscula', instruction: '✏️ Refuerza tu caligrafía con la letra U.' },
+  { id: 25, type: 'grid_row_alternating', pattern: ['U', 'u', 'U', 'u'], title: 'Renglón 4: Alternado U - u', instruction: '✏️ Traza alternando U mayúscula y u minúscula.' }
 ];
 
 // Completar los 50 niveles de vocales con series combinadas y desafíos
@@ -198,15 +198,15 @@ export const VOCALES_WORKBOOK_LEVELS = [
   for (let i = 26; i <= 50; i++) {
     const isPair = (i % 2 === 0);
     const pattern = isPair
-      ? ['A', 'a', 'E', 'e', 'I', 'i', 'O', 'o', 'U', 'u']
-      : ['A', 'E', 'I', 'O', 'U', 'a', 'e', 'i', 'o', 'u'];
+      ? ['A', 'a', 'E', 'e']
+      : ['A', 'E', 'I', 'O', 'U'];
 
     VOCALES_WORKBOOK_LEVELS.push({
       id: i,
       type: 'grid_row_alternating',
       pattern: pattern,
       title: `Desafío Vocálico ${i}: Serie Completa`,
-      instruction: '✏️ Traza con precisión la serie completa de las 5 vocales.'
+      instruction: '✏️ Traza con precisión la serie espaciada de las vocales.'
     });
   }
 })();
@@ -230,46 +230,46 @@ function buildConsonante50Levels(letterChar, word, phonetic, icon) {
     instruction: `✏️ Sigue las flechas numeradas para trazar la ${c} y colorear el dibujo.`
   });
 
-  // Nivel 2: Renglón mayúsculas (8)
+  // Nivel 2: Renglón mayúsculas (4 letras grandes)
   levels.push({
     id: 2,
     type: 'grid_row',
     char: c,
-    count: 8,
+    count: 4,
     title: `Renglón 1: Letra ${c} Mayúscula`,
-    instruction: `✏️ Traza las 8 letras ${c} sobre la cuadrícula del cuaderno.`
+    instruction: `✏️ Traza las 4 letras ${c} sobre la cuadrícula del cuaderno.`
   });
 
-  // Nivel 3: Renglón minúsculas (12)
+  // Nivel 3: Renglón minúsculas (5 letras)
   levels.push({
     id: 3,
     type: 'grid_row',
     char: lower,
-    count: 12,
+    count: 5,
     title: `Renglón 2: Letra ${lower} Minúscula`,
-    instruction: `✏️ Traza las 12 letras ${lower} sobre el renglón escolar.`
+    instruction: `✏️ Traza las 5 letras ${lower} sobre el renglón escolar.`
   });
 
-  // Nivel 4: Refuerzo mayúsculas (8)
+  // Nivel 4: Refuerzo mayúsculas (4)
   levels.push({
     id: 4,
     type: 'grid_row',
     char: c,
-    count: 8,
+    count: 4,
     title: `Renglón 3: Refuerzo de ${c}`,
     instruction: `✏️ Refuerza tu caligrafía trazando la ${c}.`
   });
 
-  // Nivel 5: Alternado mayúscula / minúscula
+  // Nivel 5: Alternado mayúscula / minúscula (4)
   levels.push({
     id: 5,
     type: 'grid_row_alternating',
-    pattern: [c, lower, c, lower, c, lower, c, lower],
+    pattern: [c, lower, c, lower],
     title: `Renglón 4: Alternado ${c} - ${lower}`,
     instruction: `✏️ Traza alternando ${c} mayúscula y ${lower} minúscula.`
   });
 
-  // Niveles 6 a 50: Sílabas y combinaciones
+  // Niveles 6 a 50: Sílabas y combinaciones espaciadas (4 por renglón)
   const vowels = ['A', 'E', 'I', 'O', 'U'];
   const lowerVowels = ['a', 'e', 'i', 'o', 'u'];
 
@@ -282,7 +282,7 @@ function buildConsonante50Levels(letterChar, word, phonetic, icon) {
       levels.push({
         id: i,
         type: 'grid_row_alternating',
-        pattern: [c, v, c, v, c, v, c, v],
+        pattern: [c, v, c, v],
         title: `Renglón Sílaba: ${c}${v}`,
         instruction: `✏️ Traza la sílaba ${c}${v} sobre la cuadrícula.`
       });
@@ -290,7 +290,7 @@ function buildConsonante50Levels(letterChar, word, phonetic, icon) {
       levels.push({
         id: i,
         type: 'grid_row_alternating',
-        pattern: [lower, lv, lower, lv, lower, lv, lower, lv],
+        pattern: [lower, lv, lower, lv],
         title: `Renglón Sílaba Minúscula: ${lower}${lv}`,
         instruction: `✏️ Traza las sílabas minúsculas ${lower}${lv}.`
       });
@@ -298,7 +298,7 @@ function buildConsonante50Levels(letterChar, word, phonetic, icon) {
       levels.push({
         id: i,
         type: 'grid_row_alternating',
-        pattern: [c, lower, c, lower, c, lower, c, lower],
+        pattern: [c, lower, c, lower],
         title: `Desafío de Caligrafía ${i}: Letra ${c}`,
         instruction: `✏️ Completa el renglón ${i} del cuaderno escolar.`
       });
@@ -668,12 +668,12 @@ export class LetterTracingScreen {
       this.activeStrokes = [...uStrokes, ...lStrokes];
       this.totalRowLetters = this.activeStrokes.length;
     }
-    // Caso 2: Renglón caligráfico de cuaderno (8 o 12 letras)
+    // Caso 2: Renglón caligráfico de cuaderno (4 o 5 letras amplias)
     else if (this.levelConfig.type === 'grid_row' || this.levelConfig.type === 'grid_row_alternating') {
       const isAlternating = (this.levelConfig.type === 'grid_row_alternating');
       const chars = isAlternating
         ? this.levelConfig.pattern
-        : new Array(this.levelConfig.count || 8).fill(this.levelConfig.char || 'A');
+        : new Array(this.levelConfig.count || 4).fill(this.levelConfig.char || 'A');
 
       this.totalRowLetters = chars.length;
       this.rowLettersCompleted = new Array(this.totalRowLetters).fill(false);
@@ -983,7 +983,13 @@ export class LetterTracingScreen {
   }
 
   onStrokeCompleted(stroke, x, y) {
-    // 1. Efectos de logro inmediato
+    // 1. REQUERIMIENTO VITAL: Desactivar dibujo inmediatamente para obligar
+    // al niño a levantar el dedito y tocar el círculo del siguiente paso
+    this.isDrawing = false;
+    this.lastPoint = null;
+    this.activePointerId = null;
+
+    // Efectos de logro inmediato
     audio.playStar();
     this.emitStarBurst(x, y);
 
@@ -1013,7 +1019,7 @@ export class LetterTracingScreen {
     } else {
       // Arabot anima al niño a seguir con el siguiente trazo
       if (this.arabot) {
-        this.arabot.speak(`¡Bien! Sigue con el paso ${this.currentStrokeIndex + 1} ⭐`);
+        this.arabot.speak(`¡Bien! Ahora toca el círculo ${this.currentStrokeIndex + 1} ⭐`);
       }
     }
   }
