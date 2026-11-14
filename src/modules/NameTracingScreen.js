@@ -507,7 +507,7 @@ export class NameTracingScreen {
     ctx.restore();
 
     // 3. Guías circulares auténticas generadas por StrokeGenerator
-    StrokeGenerator.renderStrokeGuides(ctx, this.activeStrokes, this.currentStrokeIndex, '#1565c0');
+    StrokeGenerator.renderDottedPaths(ctx, this.activeStrokes, this.currentStrokeIndex, '#1565c0');
   }
 
   bindEvents(container) {
@@ -796,8 +796,20 @@ export class NameTracingScreen {
 
     const activeStroke = this.activeStrokes[this.currentStrokeIndex];
     if (activeStroke && !this.isDrawing && !this.isLetterCompleted) {
-      const t = (performance.now() % 2200) / 2200;
+      const now = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+      const t = (now % 2200) / 2200;
       StrokeGenerator.renderAnimatedPointer(ctx, activeStroke, t);
+    }
+
+    // 3. RENDERIZAR LAS INSIGNIAS DE PASO DELANTE DE TODO (fxCanvas z-index: 4)
+    // Garantiza que el número del paso (1, 2, 3...) NUNCA quede tapado por el color del trazo
+    if (this.activeStrokes && this.activeStrokes.length > 0 && !this.isLetterCompleted) {
+      StrokeGenerator.renderStepBadges(
+        ctx,
+        this.activeStrokes,
+        this.currentStrokeIndex,
+        '#1565c0'
+      );
     }
   }
 

@@ -766,10 +766,10 @@ export class LetterTracingScreen {
       ctx.stroke();
       ctx.restore();
 
-      // Dibujar todas las letras del renglón
+      // Dibujar todas las líneas punteadas del renglón sobre bgCanvas
       this.gridLetters.forEach((letterItem, idx) => {
         const isCurrentLetter = (idx === this.currentLetterIndex);
-        StrokeGenerator.renderStrokeGuides(
+        StrokeGenerator.renderDottedPaths(
           ctx,
           letterItem.strokes,
           isCurrentLetter ? this.currentStrokeIndex : -1,
@@ -777,8 +777,8 @@ export class LetterTracingScreen {
         );
       });
     } else {
-      // Dibujar guías de trazos del nivel intro o grafomotricidad
-      StrokeGenerator.renderStrokeGuides(ctx, this.activeStrokes, this.currentStrokeIndex, '#1565c0');
+      // Dibujar guías de trazos del nivel intro o grafomotricidad sobre bgCanvas
+      StrokeGenerator.renderDottedPaths(ctx, this.activeStrokes, this.currentStrokeIndex, '#1565c0');
     }
   }
 
@@ -834,8 +834,30 @@ export class LetterTracingScreen {
     // 2. Renderizar la guía animada suave (estrellita viajera que muestra al niño hacia dónde trazar)
     const activeStroke = this.activeStrokes[this.currentStrokeIndex];
     if (activeStroke && !this.isDrawing) {
-      const t = (performance.now() % 2200) / 2200;
+      const now = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+      const t = (now % 2200) / 2200;
       StrokeGenerator.renderAnimatedPointer(ctx, activeStroke, t);
+    }
+
+    // 3. RENDERIZAR LAS INSIGNIAS DE PASO DELANTE DEL COLOR TRAZADO (fxCanvas z-index: 4)
+    // Garantiza que los números que indican el paso (1, 2, 3...) NUNCA queden tapados por el color del trazo
+    if (this.levelConfig && (this.levelConfig.type === 'grid_row' || this.levelConfig.type === 'grid_row_alternating')) {
+      this.gridLetters.forEach((letterItem, idx) => {
+        const isCurrentLetter = (idx === this.currentLetterIndex);
+        StrokeGenerator.renderStepBadges(
+          ctx,
+          letterItem.strokes,
+          isCurrentLetter ? this.currentStrokeIndex : -1,
+          '#1565c0'
+        );
+      });
+    } else if (this.activeStrokes && this.activeStrokes.length > 0) {
+      StrokeGenerator.renderStepBadges(
+        ctx,
+        this.activeStrokes,
+        this.currentStrokeIndex,
+        '#1565c0'
+      );
     }
   }
 

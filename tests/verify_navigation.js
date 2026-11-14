@@ -127,6 +127,8 @@ class MockElement {
       strokeText: () => { },
       fillText: () => { },
       setLineDash: () => { },
+      createRadialGradient: () => ({ addColorStop: () => { } }),
+      createLinearGradient: () => ({ addColorStop: () => { } }),
       translate: () => { },
       rotate: () => { },
       closePath: () => { }
@@ -211,6 +213,7 @@ const windowMock = {
   clearInterval: clearInterval,
   requestAnimationFrame: (cb) => setTimeout(cb, 16),
   cancelAnimationFrame: (id) => clearTimeout(id),
+  performance: { now: () => Date.now() },
   AudioContext: class {
     constructor() { this.state = 'running'; }
     createOscillator() { return { connect: () => { }, start: () => { }, stop: () => { }, type: 'sine', frequency: { setValueAtTime: () => { }, exponentialRampToValueAtTime: () => { } } }; }
@@ -448,6 +451,21 @@ const tests = [
       // Ahora que hizo el recorrido completo con su dedo, el trazo A1 debe completarse exitosamente
       if (!screen.hollowStrokesCompleted.upper.has('A1')) {
         throw new Error('Fallo de memoria muscular: El recorrido continuo no validó el trazo A1.');
+      }
+
+      // Verificación de visualización en primer plano del número del paso 2:
+      // Las insignias 1 y 2 NO deben estar encimadas, y deben renderizarse sobre fxCanvas (delante de la pintura)
+      const strokeA1 = screen.activeStrokes[0];
+      const strokeA2 = screen.activeStrokes[1];
+      const distBadges = Math.hypot(strokeA2.badgePoint.x - strokeA1.badgePoint.x, strokeA2.badgePoint.y - strokeA1.badgePoint.y);
+      if (distBadges < 20) {
+        throw new Error(`Las insignias 1 y 2 están demasiado juntas (${distBadges}px) y pueden solaparse.`);
+      }
+
+      // Verificar que renderFxFrame renderiza las insignias flotantes sobre fxCanvas (z-index: 4)
+      screen.renderFxFrame();
+      if (screen.currentStrokeIndex !== 1) {
+        throw new Error('El siguiente trazo activo debería ser el 2.');
       }
 
       // 3. Probar Nivel 2 (Renglón de cuadrícula de 4 letras A amplias)

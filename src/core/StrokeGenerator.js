@@ -17,32 +17,32 @@
 // ============================================================================
 const UPPERCASE_STROKES = {
   'A': [
-    { id: 'A1', label: '1', arrow: '↙', type: 'line', pts: [{ x: 0.50, y: 0.12 }, { x: 0.18, y: 0.88 }] },
-    { id: 'A2', label: '2', arrow: '↘', type: 'line', pts: [{ x: 0.50, y: 0.12 }, { x: 0.82, y: 0.88 }] },
-    { id: 'A3', label: '3', arrow: '➔', type: 'line', pts: [{ x: 0.28, y: 0.60 }, { x: 0.72, y: 0.60 }] }
+    { id: 'A1', label: '1', arrow: '↙', type: 'line', pts: [{ x: 0.50, y: 0.12 }, { x: 0.18, y: 0.88 }], badgePos: { x: 0.43, y: 0.20 } },
+    { id: 'A2', label: '2', arrow: '↘', type: 'line', pts: [{ x: 0.50, y: 0.12 }, { x: 0.82, y: 0.88 }], badgePos: { x: 0.57, y: 0.20 } },
+    { id: 'A3', label: '3', arrow: '➔', type: 'line', pts: [{ x: 0.28, y: 0.60 }, { x: 0.72, y: 0.60 }], badgePos: { x: 0.28, y: 0.60 } }
   ],
   'B': [
-    { id: 'B1', label: '1', arrow: '↓', type: 'line', pts: [{ x: 0.26, y: 0.12 }, { x: 0.26, y: 0.88 }] },
-    { id: 'B2', label: '2', arrow: '↷', type: 'curve', pts: [{ x: 0.26, y: 0.12 }, { x: 0.58, y: 0.12 }, { x: 0.78, y: 0.30 }, { x: 0.58, y: 0.48 }, { x: 0.26, y: 0.48 }] },
-    { id: 'B3', label: '3', arrow: '↷', type: 'curve', pts: [{ x: 0.26, y: 0.48 }, { x: 0.62, y: 0.48 }, { x: 0.84, y: 0.68 }, { x: 0.62, y: 0.88 }, { x: 0.26, y: 0.88 }] }
+    { id: 'B1', label: '1', arrow: '↓', type: 'line', pts: [{ x: 0.26, y: 0.12 }, { x: 0.26, y: 0.88 }], badgePos: { x: 0.18, y: 0.14 } },
+    { id: 'B2', label: '2', arrow: '↷', type: 'curve', pts: [{ x: 0.26, y: 0.12 }, { x: 0.58, y: 0.12 }, { x: 0.78, y: 0.30 }, { x: 0.58, y: 0.48 }, { x: 0.26, y: 0.48 }], badgePos: { x: 0.36, y: 0.14 } },
+    { id: 'B3', label: '3', arrow: '↷', type: 'curve', pts: [{ x: 0.26, y: 0.48 }, { x: 0.62, y: 0.48 }, { x: 0.84, y: 0.68 }, { x: 0.62, y: 0.88 }, { x: 0.26, y: 0.88 }], badgePos: { x: 0.36, y: 0.48 } }
   ],
   'C': [
     { id: 'C1', label: '1', arrow: '↺', type: 'curve', pts: [{ x: 0.80, y: 0.24 }, { x: 0.50, y: 0.12 }, { x: 0.18, y: 0.50 }, { x: 0.50, y: 0.88 }, { x: 0.80, y: 0.76 }] }
   ],
   'D': [
-    { id: 'D1', label: '1', arrow: '↓', type: 'line', pts: [{ x: 0.26, y: 0.12 }, { x: 0.26, y: 0.88 }] },
-    { id: 'D2', label: '2', arrow: '↷', type: 'curve', pts: [{ x: 0.26, y: 0.12 }, { x: 0.62, y: 0.14 }, { x: 0.84, y: 0.50 }, { x: 0.62, y: 0.86 }, { x: 0.26, y: 0.88 }] }
+    { id: 'D1', label: '1', arrow: '↓', type: 'line', pts: [{ x: 0.26, y: 0.12 }, { x: 0.26, y: 0.88 }], badgePos: { x: 0.18, y: 0.14 } },
+    { id: 'D2', label: '2', arrow: '↷', type: 'curve', pts: [{ x: 0.26, y: 0.12 }, { x: 0.62, y: 0.14 }, { x: 0.84, y: 0.50 }, { x: 0.62, y: 0.86 }, { x: 0.26, y: 0.88 }], badgePos: { x: 0.36, y: 0.14 } }
   ],
   'E': [
-    { id: 'E1', label: '1', arrow: '↓', type: 'line', pts: [{ x: 0.26, y: 0.12 }, { x: 0.26, y: 0.88 }] },
-    { id: 'E2', label: '2', arrow: '➔', type: 'line', pts: [{ x: 0.26, y: 0.12 }, { x: 0.76, y: 0.12 }] },
-    { id: 'E3', label: '3', arrow: '➔', type: 'line', pts: [{ x: 0.26, y: 0.50 }, { x: 0.66, y: 0.50 }] },
-    { id: 'E4', label: '4', arrow: '➔', type: 'line', pts: [{ x: 0.26, y: 0.88 }, { x: 0.76, y: 0.88 }] }
+    { id: 'E1', label: '1', arrow: '↓', type: 'line', pts: [{ x: 0.26, y: 0.12 }, { x: 0.26, y: 0.88 }], badgePos: { x: 0.18, y: 0.14 } },
+    { id: 'E2', label: '2', arrow: '➔', type: 'line', pts: [{ x: 0.26, y: 0.12 }, { x: 0.76, y: 0.12 }], badgePos: { x: 0.38, y: 0.12 } },
+    { id: 'E3', label: '3', arrow: '➔', type: 'line', pts: [{ x: 0.26, y: 0.50 }, { x: 0.66, y: 0.50 }], badgePos: { x: 0.38, y: 0.50 } },
+    { id: 'E4', label: '4', arrow: '➔', type: 'line', pts: [{ x: 0.26, y: 0.88 }, { x: 0.76, y: 0.88 }], badgePos: { x: 0.38, y: 0.88 } }
   ],
   'F': [
-    { id: 'F1', label: '1', arrow: '↓', type: 'line', pts: [{ x: 0.26, y: 0.12 }, { x: 0.26, y: 0.88 }] },
-    { id: 'F2', label: '2', arrow: '➔', type: 'line', pts: [{ x: 0.26, y: 0.12 }, { x: 0.76, y: 0.12 }] },
-    { id: 'F3', label: '3', arrow: '➔', type: 'line', pts: [{ x: 0.26, y: 0.50 }, { x: 0.66, y: 0.50 }] }
+    { id: 'F1', label: '1', arrow: '↓', type: 'line', pts: [{ x: 0.26, y: 0.12 }, { x: 0.26, y: 0.88 }], badgePos: { x: 0.18, y: 0.14 } },
+    { id: 'F2', label: '2', arrow: '➔', type: 'line', pts: [{ x: 0.26, y: 0.12 }, { x: 0.76, y: 0.12 }], badgePos: { x: 0.38, y: 0.12 } },
+    { id: 'F3', label: '3', arrow: '➔', type: 'line', pts: [{ x: 0.26, y: 0.50 }, { x: 0.66, y: 0.50 }], badgePos: { x: 0.38, y: 0.50 } }
   ],
   'G': [
     { id: 'G1', label: '1', arrow: '↺', type: 'curve', pts: [{ x: 0.80, y: 0.24 }, { x: 0.50, y: 0.12 }, { x: 0.18, y: 0.50 }, { x: 0.50, y: 0.88 }, { x: 0.78, y: 0.78 }] },
@@ -93,24 +93,24 @@ const UPPERCASE_STROKES = {
     { id: 'O1', label: '1', arrow: '↺', type: 'curve', pts: [{ x: 0.50, y: 0.12 }, { x: 0.18, y: 0.50 }, { x: 0.50, y: 0.88 }, { x: 0.82, y: 0.50 }, { x: 0.50, y: 0.12 }] }
   ],
   'P': [
-    { id: 'P1', label: '1', arrow: '↓', type: 'line', pts: [{ x: 0.26, y: 0.12 }, { x: 0.26, y: 0.88 }] },
-    { id: 'P2', label: '2', arrow: '↷', type: 'curve', pts: [{ x: 0.26, y: 0.12 }, { x: 0.60, y: 0.12 }, { x: 0.82, y: 0.32 }, { x: 0.60, y: 0.52 }, { x: 0.26, y: 0.52 }] }
+    { id: 'P1', label: '1', arrow: '↓', type: 'line', pts: [{ x: 0.26, y: 0.12 }, { x: 0.26, y: 0.88 }], badgePos: { x: 0.18, y: 0.14 } },
+    { id: 'P2', label: '2', arrow: '↷', type: 'curve', pts: [{ x: 0.26, y: 0.12 }, { x: 0.60, y: 0.12 }, { x: 0.82, y: 0.32 }, { x: 0.60, y: 0.52 }, { x: 0.26, y: 0.52 }], badgePos: { x: 0.36, y: 0.14 } }
   ],
   'Q': [
     { id: 'Q1', label: '1', arrow: '↺', type: 'curve', pts: [{ x: 0.50, y: 0.12 }, { x: 0.18, y: 0.50 }, { x: 0.50, y: 0.88 }, { x: 0.82, y: 0.50 }, { x: 0.50, y: 0.12 }] },
     { id: 'Q2', label: '2', arrow: '↘', type: 'line', pts: [{ x: 0.56, y: 0.68 }, { x: 0.85, y: 0.92 }] }
   ],
   'R': [
-    { id: 'R1', label: '1', arrow: '↓', type: 'line', pts: [{ x: 0.26, y: 0.12 }, { x: 0.26, y: 0.88 }] },
-    { id: 'R2', label: '2', arrow: '↷', type: 'curve', pts: [{ x: 0.26, y: 0.12 }, { x: 0.60, y: 0.12 }, { x: 0.80, y: 0.30 }, { x: 0.60, y: 0.50 }, { x: 0.26, y: 0.50 }] },
-    { id: 'R3', label: '3', arrow: '↘', type: 'line', pts: [{ x: 0.48, y: 0.50 }, { x: 0.80, y: 0.88 }] }
+    { id: 'R1', label: '1', arrow: '↓', type: 'line', pts: [{ x: 0.26, y: 0.12 }, { x: 0.26, y: 0.88 }], badgePos: { x: 0.18, y: 0.14 } },
+    { id: 'R2', label: '2', arrow: '↷', type: 'curve', pts: [{ x: 0.26, y: 0.12 }, { x: 0.60, y: 0.12 }, { x: 0.80, y: 0.30 }, { x: 0.60, y: 0.50 }, { x: 0.26, y: 0.50 }], badgePos: { x: 0.36, y: 0.14 } },
+    { id: 'R3', label: '3', arrow: '↘', type: 'line', pts: [{ x: 0.48, y: 0.50 }, { x: 0.80, y: 0.88 }], badgePos: { x: 0.44, y: 0.52 } }
   ],
   'S': [
     { id: 'S1', label: '1', arrow: '↺', type: 'curve', pts: [{ x: 0.76, y: 0.24 }, { x: 0.50, y: 0.12 }, { x: 0.24, y: 0.30 }, { x: 0.50, y: 0.50 }, { x: 0.76, y: 0.70 }, { x: 0.50, y: 0.88 }, { x: 0.24, y: 0.76 }] }
   ],
   'T': [
-    { id: 'T1', label: '1', arrow: '➔', type: 'line', pts: [{ x: 0.18, y: 0.12 }, { x: 0.82, y: 0.12 }] },
-    { id: 'T2', label: '2', arrow: '↓', type: 'line', pts: [{ x: 0.50, y: 0.12 }, { x: 0.50, y: 0.88 }] }
+    { id: 'T1', label: '1', arrow: '➔', type: 'line', pts: [{ x: 0.18, y: 0.12 }, { x: 0.82, y: 0.12 }], badgePos: { x: 0.18, y: 0.12 } },
+    { id: 'T2', label: '2', arrow: '↓', type: 'line', pts: [{ x: 0.50, y: 0.12 }, { x: 0.50, y: 0.88 }], badgePos: { x: 0.50, y: 0.22 } }
   ],
   'U': [
     { id: 'U1', label: '1', arrow: '∪', type: 'curve', pts: [{ x: 0.24, y: 0.12 }, { x: 0.24, y: 0.65 }, { x: 0.50, y: 0.88 }, { x: 0.76, y: 0.65 }, { x: 0.76, y: 0.12 }] }
@@ -146,8 +146,8 @@ const UPPERCASE_STROKES = {
 // ============================================================================
 const LOWERCASE_STROKES = {
   'a': [
-    { id: 'a1', label: '1', arrow: '↺', type: 'curve', pts: [{ x: 0.68, y: 0.48 }, { x: 0.48, y: 0.40 }, { x: 0.26, y: 0.65 }, { x: 0.48, y: 0.88 }, { x: 0.68, y: 0.78 }] },
-    { id: 'a2', label: '2', arrow: '↓', type: 'line', pts: [{ x: 0.68, y: 0.40 }, { x: 0.68, y: 0.88 }] }
+    { id: 'a1', label: '1', arrow: '↺', type: 'curve', pts: [{ x: 0.68, y: 0.48 }, { x: 0.48, y: 0.40 }, { x: 0.26, y: 0.65 }, { x: 0.48, y: 0.88 }, { x: 0.68, y: 0.78 }], badgePos: { x: 0.56, y: 0.42 } },
+    { id: 'a2', label: '2', arrow: '↓', type: 'line', pts: [{ x: 0.68, y: 0.40 }, { x: 0.68, y: 0.88 }], badgePos: { x: 0.74, y: 0.36 } }
   ],
   'b': [
     { id: 'b1', label: '1', arrow: '↓', type: 'line', pts: [{ x: 0.28, y: 0.12 }, { x: 0.28, y: 0.88 }] },
@@ -400,6 +400,12 @@ export class StrokeGenerator {
         ? this.interpolateCatmullRom(scaledPts, 16)
         : this.interpolatePolyline(scaledPts, 12);
 
+      const startPt = checkpoints[0] || scaledPts[0];
+      const badgePoint = stroke.badgePos ? {
+        x: bx + stroke.badgePos.x * bw,
+        y: by + stroke.badgePos.y * bh
+      } : startPt;
+
       return {
         id: stroke.id || `S_${sIdx}`,
         label: stroke.label || `${sIdx + 1}`,
@@ -410,7 +416,8 @@ export class StrokeGenerator {
         points: scaledPts,
         checkpoints: checkpoints,
         totalPoints: checkpoints.length,
-        startPoint: checkpoints[0] || scaledPts[0],
+        startPoint: startPt,
+        badgePoint: badgePoint,
         endPoint: checkpoints[checkpoints.length - 1] || scaledPts[scaledPts.length - 1],
         minDistance: Math.max(30, checkpoints.length * 7),
         started: false,
@@ -557,10 +564,13 @@ export class StrokeGenerator {
     }
 
     // 1. REGLA ESTRICTA DE INICIO:
-    // El trazo NO puede comenzar a registrar avance si el dedito no tocó primero cerca del inicio
+    // El trazo NO puede comenzar a registrar avance si el dedito no tocó primero cerca del inicio o de la insignia
     if (!strokeData.started) {
       const distToStart = Math.hypot(cursorPt.x - strokeData.startPoint.x, cursorPt.y - strokeData.startPoint.y);
-      if (distToStart <= Math.max(28, hitRadius * 1.15)) {
+      const distToBadge = strokeData.badgePoint
+        ? Math.hypot(cursorPt.x - strokeData.badgePoint.x, cursorPt.y - strokeData.badgePoint.y)
+        : Infinity;
+      if (Math.min(distToStart, distToBadge) <= Math.max(28, hitRadius * 1.25)) {
         strokeData.started = true;
         strokeData.currentCpIndex = 0;
         strokeData.hitCount = 1;
@@ -609,9 +619,9 @@ export class StrokeGenerator {
   }
 
   /**
-   * Dibuja las guías con PUNTOS CIRCULARES AUTÉNTICOS (Round Dots) sobre la curva suave
+   * Dibuja EXCLUSIVAMENTE las líneas punteadas (Round Dots) sobre el fondo (bgCanvas)
    */
-  static renderStrokeGuides(ctx, strokes, activeIndex = 0, themeColor = '#1565c0') {
+  static renderDottedPaths(ctx, strokes, activeIndex = 0, themeColor = '#1565c0') {
     if (!ctx || !strokes) return;
 
     strokes.forEach((stroke, idx) => {
@@ -622,7 +632,7 @@ export class StrokeGenerator {
 
       ctx.save();
 
-      // 1. Línea punteada circular auténtica (Round Dots)
+      // Línea punteada circular auténtica (Round Dots)
       ctx.beginPath();
       ctx.lineWidth = isActive ? 7 : 5;
       ctx.lineCap = 'round';
@@ -645,48 +655,162 @@ export class StrokeGenerator {
         ctx.fill();
       }
 
-      // 2. Insignia circular numerada con flecha de inicio (Paso 1, 2, 3...)
-      if (!isDone && checkpoints.length > 0) {
-        const start = stroke.startPoint;
-        const r = isActive ? 16 : 13;
+      ctx.restore();
+    });
+  }
 
-        // Círculo base con relieve
-        ctx.setLineDash([]);
-        ctx.fillStyle = isActive ? '#ff5722' : '#ffffff';
-        ctx.shadowColor = isActive ? 'rgba(255, 87, 34, 0.65)' : 'rgba(0, 0, 0, 0.18)';
-        ctx.shadowBlur = isActive ? 12 : 5;
+  /**
+   * Renderiza las insignias numeradas (Paso 1, 2, 3...) EN EL LIENZO SUPERIOR (fxCanvas, z-index 4),
+   * garantizando que NUNCA sean tapadas por el crayón o el color trazado por el niño.
+   */
+  static renderStepBadges(ctx, strokes, activeIndex = 0, themeColor = '#1565c0') {
+    if (!ctx || !strokes || strokes.length === 0) return;
+
+    const time = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+
+    strokes.forEach((stroke, idx) => {
+      const isActive = (idx === activeIndex);
+      const isDone = !!stroke.completed;
+      const isUpcoming = (idx > activeIndex);
+      const checkpoints = stroke.checkpoints;
+      if (!checkpoints || checkpoints.length === 0) return;
+
+      const pos = stroke.badgePoint || stroke.startPoint;
+      ctx.save();
+      ctx.setLineDash([]);
+
+      // ====================================================================
+      // 1. PASO ACTIVO: Círculo brillante con pulsación suave y flecha direccional
+      // ====================================================================
+      if (isActive && !isDone) {
+        const pulse = Math.sin(time / 180) * 2.2;
+        const r = 18 + pulse;
+
+        // Aura de luz y relieve 3D
+        ctx.shadowColor = 'rgba(255, 87, 34, 0.85)';
+        ctx.shadowBlur = 16 + pulse * 2;
+
+        if (ctx.createRadialGradient) {
+          const grad = ctx.createRadialGradient(pos.x, pos.y, 2, pos.x, pos.y, r);
+          grad.addColorStop(0, '#ff9100');
+          grad.addColorStop(1, '#ff3d00');
+          ctx.fillStyle = grad;
+        } else {
+          ctx.fillStyle = '#ff5722';
+        }
         ctx.beginPath();
-        ctx.arc(start.x, start.y, r, 0, Math.PI * 2);
+        ctx.arc(pos.x, pos.y, r, 0, Math.PI * 2);
         ctx.fill();
 
-        ctx.strokeStyle = isActive ? '#ffffff' : '#37474f';
+        // Borde blanco de alto contraste
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        // Número de paso en blanco nítido
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '900 16px "Fredoka", "Comic Sans MS", Arial, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(stroke.label, pos.x, pos.y);
+
+        // Flecha o chevron direccional indicando hacia dónde trazar
+        if (checkpoints.length >= 2 && !stroke.isDot) {
+          const next = checkpoints[Math.min(checkpoints.length - 1, 4)];
+          const ang = Math.atan2(next.y - stroke.startPoint.y, next.x - stroke.startPoint.x);
+          const arrowDist = r + 10;
+          const tipX = pos.x + Math.cos(ang) * (arrowDist + 6);
+          const tipY = pos.y + Math.sin(ang) * (arrowDist + 6);
+          const leftX = pos.x + Math.cos(ang - 0.55) * arrowDist;
+          const leftY = pos.y + Math.sin(ang - 0.55) * arrowDist;
+          const rightX = pos.x + Math.cos(ang + 0.55) * arrowDist;
+          const rightY = pos.y + Math.sin(ang + 0.55) * arrowDist;
+
+          ctx.fillStyle = '#ff6d00';
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(tipX, tipY);
+          ctx.lineTo(leftX, leftY);
+          ctx.lineTo(rightX, rightY);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+        }
+      }
+      // ====================================================================
+      // 2. PASO SIGUIENTE (UPCOMING): Disco blanco 100% OPACO DELANTE DEL COLOR
+      // ====================================================================
+      else if (isUpcoming && !isDone) {
+        const r = 15;
+
+        // Sombra suave para despegarse del trazo que haya debajo
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.35)';
+        ctx.shadowBlur = 8;
+
+        // Fondo blanco sólido para que NUNCA sea tapado por el crayón
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(pos.x, pos.y, r, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Borde azul marino escolar
+        ctx.strokeStyle = '#1565c0';
         ctx.lineWidth = 2.5;
         ctx.stroke();
 
-        // Número de paso
-        ctx.fillStyle = isActive ? '#ffffff' : '#263238';
-        ctx.font = `900 ${isActive ? 14 : 12}px "Fredoka", "Comic Sans MS", sans-serif`;
+        // Número en azul marino visible
+        ctx.fillStyle = '#0d47a1';
+        ctx.font = '900 14px "Fredoka", "Comic Sans MS", Arial, sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(stroke.label, start.x, start.y);
+        ctx.fillText(stroke.label, pos.x, pos.y);
 
-        // Flecha direccional orientada en la dirección inicial del trazo
-        if (checkpoints.length >= 3 && !stroke.isDot) {
-          const next = checkpoints[Math.min(checkpoints.length - 1, 3)];
-          const ang = Math.atan2(next.y - start.y, next.x - start.x);
-          const arrowDist = r + 9;
-          const ax = start.x + Math.cos(ang) * arrowDist;
-          const ay = start.y + Math.sin(ang) * arrowDist;
-
-          ctx.fillStyle = isActive ? '#ff5722' : '#546e7a';
+        // Punto guía de dirección
+        if (checkpoints.length >= 2 && !stroke.isDot) {
+          const next = checkpoints[Math.min(checkpoints.length - 1, 4)];
+          const ang = Math.atan2(next.y - stroke.startPoint.y, next.x - stroke.startPoint.x);
+          const pipDist = r + 7;
+          ctx.fillStyle = '#1976d2';
           ctx.beginPath();
-          ctx.arc(ax, ay, 4, 0, Math.PI * 2);
+          ctx.arc(pos.x + Math.cos(ang) * pipDist, pos.y + Math.sin(ang) * pipDist, 3.5, 0, Math.PI * 2);
           ctx.fill();
         }
+      }
+      // ====================================================================
+      // 3. PASO COMPLETADO: Medalla verde con palomita blanca (✓)
+      // ====================================================================
+      else if (isDone || idx < activeIndex) {
+        const r = 13;
+        ctx.shadowColor = 'rgba(76, 175, 80, 0.45)';
+        ctx.shadowBlur = 6;
+
+        ctx.fillStyle = '#4caf50';
+        ctx.beginPath();
+        ctx.arc(pos.x, pos.y, r, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '900 13px "Fredoka", Arial, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('✓', pos.x, pos.y);
       }
 
       ctx.restore();
     });
+  }
+
+  /**
+   * Renderiza guías completas (para compatibilidad hacia atrás si se usa un solo canvas)
+   */
+  static renderStrokeGuides(ctx, strokes, activeIndex = 0, themeColor = '#1565c0') {
+    this.renderDottedPaths(ctx, strokes, activeIndex, themeColor);
+    this.renderStepBadges(ctx, strokes, activeIndex, themeColor);
   }
 
   /**
