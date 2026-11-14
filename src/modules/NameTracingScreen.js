@@ -2,13 +2,18 @@
  * NameTracingScreen.js - Módulo de Trazado de Nombre y Palabras Clave
  * Digitalización interactiva y fiel al cuaderno escolar de preescolar (SEP / Gonvill).
  * 
+ * Arquitectura Multi-Juegos en Círculos:
+ * 1. "Mi Nombre Completo" (50 niveles: JUAN CARLOS y variaciones del alumno)
+ * 2. "Palabras de Kínder" (50 niveles: vocabulario escolar y primeras palabras)
+ * 3. "Mi Familia" (50 niveles: Mamá, Papá, Abuelo y seres queridos)
+ * 4. "Mis Cosas Favoritas" (50 niveles: pelota, juguete, dulce, parque...)
+ * 
  * Recreado con el Motor Universal StrokeGenerator:
  * - Soporte dinámico de trazos continuos para todo el abecedario A-Z.
  * - Validación pedagógica por recorrido continuo (desarrollo de memoria muscular).
  * - Cero "boom se llena" al primer toque: el niño traza el recorrido real.
  * - Guía visual animada (estrellita viajera) y números secuenciales 1, 2, 3...
  * - Paleta de colores de crayón en tiempo real.
- * - 50 Niveles en Círculos (Nivel 1: "JUAN CARLOS", seguido de palabras de kínder).
  * - Cinta 3D del Nombre Completo con fichas táctiles que avanzan letra por letra.
  * - Cero alertas emergentes (alert/confirm), transición automática fluida y celebración festiva.
  */
@@ -20,25 +25,88 @@ import { LevelSelector } from '../components/LevelSelector.js';
 import { ArabotAssistant } from '../components/ArabotAssistant.js';
 import { StrokeGenerator } from '../core/StrokeGenerator.js';
 
-// Catálogo de 50 niveles de trazado de nombre y palabras de preescolar
-export const NAME_TRACING_LEVELS = [
-  'JUAN CARLOS', 'JUAN', 'CARLOS', 'JC', 'MAMA',
-  'PAPA', 'AMOR', 'CASA', 'SOL', 'LUNA',
-  'OSO', 'PERRO', 'GATO', 'AGUA', 'KINDER',
-  'AMIGO', 'ESCUELA', 'MAESTRA', 'JUGAR', 'DIBUJO',
-  'FELIZ', 'BEBE', 'HERMANO', 'ABUELO', 'FAMILIA',
-  'JUGUETE', 'PELOTA', 'DULCE', 'PARQUE', 'RISA',
-  'FIESTA', 'CIELO', 'NUBE', 'FLOR', 'PAZ',
-  'VIDA', 'MANO', 'PIE', 'OJO', 'BOCA',
-  'TREN', 'BARCO', 'AVION', 'MUSICA', 'CANCION',
-  'CUENTO', 'MAGIA', 'SUEÑO', 'ESTRELLA', 'CAMPEON'
+export const NAME_TRACING_SUBGAMES = [
+  {
+    id: 'mi_nombre',
+    moduleKey: 'name_tracing_propio',
+    title: 'MI NOMBRE COMPLETO',
+    subtitle: '50 Niveles: Traza tu nombre letra por letra',
+    icon: '⭐',
+    totalLevels: 50,
+    bubbleClass: 'subgame-bubble-vocales',
+    themeColor: '#e91e63'
+  },
+  {
+    id: 'palabras_kinder',
+    moduleKey: 'name_tracing_kinder',
+    title: 'PALABRAS DE KÍNDER',
+    subtitle: '50 Niveles: Casa, sol, luna, agua, escuela...',
+    icon: '📖',
+    totalLevels: 50,
+    bubbleClass: 'subgame-bubble-arma',
+    themeColor: '#1976d2'
+  },
+  {
+    id: 'mi_familia',
+    moduleKey: 'name_tracing_familia',
+    title: 'MI FAMILIA',
+    subtitle: '50 Niveles: Mamá, Papá, Abuelo y seres queridos',
+    icon: '👨‍👩‍👧',
+    totalLevels: 50,
+    bubbleClass: 'subgame-bubble-s',
+    themeColor: '#43a047'
+  },
+  {
+    id: 'cosas_favoritas',
+    moduleKey: 'name_tracing_favoritos',
+    title: 'COSAS FAVORITAS',
+    subtitle: '50 Niveles: Pelota, dulce, juguete y diversión',
+    icon: '⚽',
+    totalLevels: 50,
+    bubbleClass: 'subgame-bubble-m',
+    themeColor: '#8e24aa'
+  }
+];
+
+// Listas de 50 palabras para cada subjuego
+export const WORDS_MI_NOMBRE_50 = [
+  'JUAN CARLOS', 'JUAN', 'CARLOS', 'JC', 'JUANITO', 'CARLITOS', 'CAMPEON', 'ESTRELLA', 'HEROE', 'GENIO',
+  'JUAN', 'CARLOS', 'JUAN C', 'J CARLOS', 'JUANITO', 'SUPER JC', 'AMIGO JC', 'JC FELIZ', 'JC PRO', 'JC REY',
+  'JUAN CARLOS', 'JUAN', 'CARLOS', 'JC', 'CAMPEON', 'ESTRELLA', 'HEROE', 'GENIO', 'JUANITO', 'CARLITOS',
+  'JUAN CARLOS', 'JUAN', 'CARLOS', 'JC', 'CAMPEON', 'ESTRELLA', 'HEROE', 'GENIO', 'JUANITO', 'CARLITOS',
+  'JUAN CARLOS', 'JUAN', 'CARLOS', 'JC', 'CAMPEON', 'ESTRELLA', 'HEROE', 'GENIO', 'JUANITO', 'GRAN JUAN'
+];
+
+export const WORDS_KINDER_50 = [
+  'CASA', 'SOL', 'LUNA', 'AGUA', 'KINDER', 'AMIGO', 'ESCUELA', 'MAESTRA', 'JUGAR', 'DIBUJO',
+  'FELIZ', 'CIELO', 'NUBE', 'FLOR', 'PAZ', 'VIDA', 'MANO', 'PIE', 'OJO', 'BOCA',
+  'OSO', 'PERRO', 'GATO', 'LEON', 'PATITO', 'RANA', 'PEZ', 'VACA', 'TORO', 'PAVO',
+  'ARBOL', 'HOJA', 'RAMA', 'FRUTA', 'ROCA', 'MAR', 'RIO', 'LAGO', 'NIEVE', 'VIENTO',
+  'ROJO', 'AZUL', 'VERDE', 'ROSA', 'ORO', 'PLATA', 'LIBRO', 'LAPIZ', 'HOJA', 'CUADERNO'
+];
+
+export const WORDS_FAMILIA_50 = [
+  'MAMA', 'PAPA', 'ABUELO', 'ABUELA', 'HERMANO', 'HERMANA', 'BEBE', 'FAMILIA', 'AMOR', 'TIO',
+  'TIA', 'PRIMO', 'PRIMA', 'HOGAR', 'CUIDO', 'ABRAZO', 'BESO', 'CARIÑO', 'UNION', 'PAZ',
+  'MAMI', 'PAPI', 'ABUE', 'TITO', 'TITA', 'BEBITO', 'NENE', 'HERMANITO', 'PADRES', 'HIJO',
+  'CASA', 'CENA', 'MESA', 'SOPA', 'PAN', 'LECHE', 'DULCE', 'JUNTOS', 'LEALTAD', 'AYUDA',
+  'SONRISA', 'ALEGRIA', 'BENDICION', 'PROTECCION', 'VIDA', 'CORAZON', 'CALOR', 'MIMO', 'TIERNO', 'GRACIAS'
+];
+
+export const WORDS_FAVORITAS_50 = [
+  'JUGUETE', 'PELOTA', 'DULCE', 'PARQUE', 'RISA', 'FIESTA', 'TREN', 'BARCO', 'AVION', 'MUSICA',
+  'CANCION', 'CUENTO', 'MAGIA', 'SUEÑO', 'ESTRELLA', 'CAMPEON', 'DIBUJO', 'COLOR', 'PINCEL', 'ALEGRIA',
+  'PIZZA', 'HELADO', 'GALLETA', 'PASTEL', 'CHOCOLATE', 'CARAMELO', 'GLOBO', 'CIRCO', 'JUEGO', 'PISTA',
+  'AUTO', 'MOTO', 'BICI', 'PATIN', 'COHETE', 'NAVE', 'ROBOT', 'DINOSAURIO', 'DRAGON', 'CASTILLO',
+  'TESORO', 'CORONA', 'REY', 'REINA', 'PRINCESA', 'CABALLERO', 'ESPADA', 'AVENTURA', 'META', 'VICTORIA'
 ];
 
 export class NameTracingScreen {
   constructor(appNavigator) {
     this.navigator = appNavigator;
     this.student = StorageManager.getActiveStudent();
-    this.currentLevel = null; // null = selector de 50 niveles
+    this.activeSubgame = null; // null = menú de subjuegos en círculos
+    this.currentLevel = null;  // 1..50
     this.targetName = (this.student.name || 'JUAN CARLOS').toUpperCase();
     this.currentLetterIndex = 0;
 
@@ -72,6 +140,7 @@ export class NameTracingScreen {
   }
 
   resetState() {
+    this.activeSubgame = null;
     this.currentLevel = null;
     this.currentLetterIndex = 0;
     this.cleanup();
@@ -84,56 +153,144 @@ export class NameTracingScreen {
     this.student = StorageManager.getActiveStudent();
     this.cleanup();
 
-    // 1. Selector de 50 niveles en círculos
-    if (this.currentLevel === null) {
-      LevelSelector.render({
-        container,
-        moduleKey: 'name-tracing',
-        moduleTitle: 'Traza tu Nombre',
-        moduleIcon: '⭐',
-        title: 'Traza tu Nombre',
-        icon: '⭐',
-        totalLevels: 50,
-        onBackHome: () => {
-          audio.playClick();
-          this.navigator.navigate('home');
-        },
-        onBack: () => {
-          audio.playClick();
-          this.navigator.navigate('home');
-        },
-        onSelectLevel: (lvl) => {
-          audio.playClick();
-          this.currentLevel = lvl;
-          this.renderGame(container);
-        }
-      });
+    // Vista 1: Menú de subjuegos en círculos
+    if (this.activeSubgame === null) {
+      this.renderSubgamesMenu(container);
       return;
     }
 
-    // 2. Nivel activo de trazado
+    // Vista 2: Selector de 50 niveles
+    if (this.currentLevel === null) {
+      this.renderLevelSelector(container);
+      return;
+    }
+
+    // Vista 3: Nivel activo de trazado
     this.renderGame(container);
   }
 
   // ==========================================================================
-  // VISTA DEL JUEGO: CUADERNO CALIGRÁFICO
+  // VISTA 1: MENÚ DE SUBJUEGOS EN CÍRCULOS
+  // ==========================================================================
+  renderSubgamesMenu(container) {
+    const student = StorageManager.getActiveStudent();
+
+    container.innerHTML = `
+      <div class="module-container notebook-grid-bg fade-in" id="nameTracingSubgamesMenu">
+        <header class="module-header">
+          <button class="back-btn" id="btnBackToHome">⬅️ Menú Principal</button>
+          
+          <div style="text-align:center;">
+            <h2 style="color:#d81b60; margin:0; font-size:clamp(1.2rem, 3.2vw, 1.8rem);">TRAZA TU NOMBRE Y PALABRAS</h2>
+            <div style="font-size:0.85rem; font-weight:bold; color:#ad1457;">
+              Elige una actividad en círculo para comenzar • Caligrafía Preescolar
+            </div>
+          </div>
+
+          <div class="score-box">⭐ ${student.stars || 0}</div>
+        </header>
+
+        <main class="subgames-menu-container">
+          <div class="subgames-grid">
+            ${NAME_TRACING_SUBGAMES.map(game => {
+              const prog = StorageManager.getModuleLevels(game.moduleKey);
+              const count = Object.keys(prog.completed || {}).length;
+              return `
+                <button class="subgame-circle-card" data-game="${game.id}">
+                  <div class="subgame-bubble ${game.bubbleClass} pulse-glow">
+                    <span class="subgame-bubble-icon">${game.icon}</span>
+                    <span class="subgame-levels-badge">${game.totalLevels} Niveles</span>
+                  </div>
+                  <span class="subgame-title-label" style="color:${game.themeColor};">${game.title}</span>
+                  <span style="font-size:0.75rem; color:#455a64; font-weight:bold; margin-top:3px;">
+                    ⭐ ${count}/${game.totalLevels} completados
+                  </span>
+                </button>
+              `;
+            }).join('')}
+          </div>
+        </main>
+
+        <footer class="module-footer">
+          <span class="tip-text">💡 Toca cualquiera de los círculos para trazar con tu dedito sobre el cuaderno escolar.</span>
+        </footer>
+      </div>
+    `;
+
+    container.querySelector('#btnBackToHome')?.addEventListener('click', () => {
+      audio.playClick();
+      this.resetState();
+      this.navigator.navigate('home');
+    });
+
+    container.querySelectorAll('.subgame-circle-card').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        audio.playClick();
+        this.activeSubgame = e.currentTarget.dataset.game;
+        this.currentLevel = null;
+        this.render(container);
+      });
+    });
+
+    audio.speak('Elige una actividad de trazado');
+  }
+
+  // ==========================================================================
+  // VISTA 2: SELECTOR DE 50 NIVELES EN CÍRCULOS
+  // ==========================================================================
+  renderLevelSelector(container) {
+    const sub = NAME_TRACING_SUBGAMES.find(g => g.id === this.activeSubgame) || NAME_TRACING_SUBGAMES[0];
+
+    LevelSelector.render({
+      container,
+      moduleKey: sub.moduleKey,
+      moduleTitle: sub.title,
+      moduleIcon: sub.icon,
+      bgClass: 'notebook-grid-bg',
+      totalLevels: 50,
+      onSelectLevel: (lvl) => {
+        audio.playClick();
+        this.currentLevel = lvl;
+        this.renderGame(container);
+      },
+      onBackHome: () => {
+        audio.playClick();
+        this.activeSubgame = null;
+        this.currentLevel = null;
+        this.render(container);
+      }
+    });
+  }
+
+  // ==========================================================================
+  // VISTA 3: PANTALLA DE TRAZADO CALIGRÁFICO
   // ==========================================================================
   renderGame(container) {
     this.cleanup();
 
-    // Nivel 1 es siempre el nombre del niño
-    if (this.currentLevel === 1) {
-      this.targetName = (this.student.name || 'JUAN CARLOS').toUpperCase();
+    // Obtener la palabra objetivo según el subjuego activo
+    if (this.activeSubgame === 'mi_nombre') {
+      if (this.currentLevel === 1) {
+        this.targetName = (this.student.name || 'JUAN CARLOS').toUpperCase();
+      } else {
+        const idx = (this.currentLevel - 1) % WORDS_MI_NOMBRE_50.length;
+        this.targetName = WORDS_MI_NOMBRE_50[idx];
+      }
+    } else if (this.activeSubgame === 'palabras_kinder') {
+      const idx = (this.currentLevel - 1) % WORDS_KINDER_50.length;
+      this.targetName = WORDS_KINDER_50[idx];
+    } else if (this.activeSubgame === 'mi_familia') {
+      const idx = (this.currentLevel - 1) % WORDS_FAMILIA_50.length;
+      this.targetName = WORDS_FAMILIA_50[idx];
     } else {
-      const idx = (this.currentLevel - 1) % NAME_TRACING_LEVELS.length;
-      this.targetName = NAME_TRACING_LEVELS[idx];
+      const idx = (this.currentLevel - 1) % WORDS_FAVORITAS_50.length;
+      this.targetName = WORDS_FAVORITAS_50[idx];
     }
 
     this.currentLetterIndex = 0;
 
     container.innerHTML = `
       <div class="tracing-module notebook-grid-bg fade-in" id="nameTracingModule">
-        <!-- Encabezado con ARABOT centrado y controles infantiles -->
         <header class="tracing-header">
           <button class="back-btn" id="btnBackToLevels">⬅️ Niveles</button>
           
@@ -158,9 +315,9 @@ export class NameTracingScreen {
         <!-- Espacio de trabajo del cuaderno escolar -->
         <main class="notebook-workspace">
           <div class="notebook-page-header">
-            <h2>TRAZA TU NOMBRE: <span class="letter-highlight" id="currentLetterDisplay">J</span></h2>
+            <h2>TRAZA: <span class="letter-highlight" id="currentLetterDisplay">J</span></h2>
             <p class="notebook-instruction" id="nameInstructionText">
-              Paso <strong id="currentStepNum">1</strong> de <span id="totalStepsNum">2</span> • Sigue la guía punteada con tu dedito.
+              Paso <strong id="currentStepNum">1</strong> de <span id="totalStepsNum">2</span> • Sigue la guía punteada circular con tu dedito.
             </p>
           </div>
 
@@ -171,7 +328,7 @@ export class NameTracingScreen {
             <canvas id="fxCanvas" width="760" height="420"></canvas>
           </div>
 
-          <!-- Cinta interactiva del Nombre Completo en fichas 3D -->
+          <!-- Cinta interactiva de la Palabra en fichas 3D -->
           <div class="name-progress-bar" id="nameProgressContainer"></div>
         </main>
 
@@ -180,7 +337,7 @@ export class NameTracingScreen {
           <div class="transition-card bounce-in">
             <div class="transition-stars">⭐⭐⭐</div>
             <div class="transition-title">¡INCREÍBLE!</div>
-            <div class="transition-msg" id="transitionMsg">¡Completaste tu nombre con éxito!</div>
+            <div class="transition-msg" id="transitionMsg">¡Completaste con éxito!</div>
             <div class="transition-progress-bar">
               <div class="progress-fill" id="transitionProgressFill"></div>
             </div>
@@ -229,9 +386,6 @@ export class NameTracingScreen {
     this.fxCtx = this.fxCanvas.getContext('2d');
   }
 
-  // ==========================================================================
-  // CINTA INTERACTIVA DEL NOMBRE COMPLETO
-  // ==========================================================================
   initNameRibbon(container) {
     const progressContainer = container.querySelector('#nameProgressContainer');
     if (!progressContainer) return;
@@ -251,16 +405,11 @@ export class NameTracingScreen {
     }
   }
 
-  // ==========================================================================
-  // CARGA DE LA LETRA ACTUAL
-  // ==========================================================================
   loadCurrentLetter(container) {
-    // Si es un espacio en blanco, saltarlo automáticamente
     while (this.currentLetterIndex < this.targetName.length && this.targetName[this.currentLetterIndex] === ' ') {
       this.currentLetterIndex++;
     }
 
-    // Si terminó todas las letras del nombre -> Ganar nivel
     if (this.currentLetterIndex >= this.targetName.length) {
       this.onWordCompleted(container);
       return;
@@ -287,7 +436,6 @@ export class NameTracingScreen {
     this.clearPaintCanvas();
     this.drawNotebookBackground(currentChar);
 
-    // Bienvenida vocal de Arabot
     audio.speak(`Traza la letra ${currentChar}`);
   }
 
@@ -298,9 +446,6 @@ export class NameTracingScreen {
     if (totalElem) totalElem.innerText = Math.max(1, this.activeStrokes.length);
   }
 
-  // ==========================================================================
-  // DIBUJO DEL FONDO: CUADRÍCULA AZUL + RENGLONES + GUÍAS GENERADAS
-  // ==========================================================================
   drawNotebookBackground(currentChar) {
     if (!this.bgCtx || !this.bgCanvas) return;
     const ctx = this.bgCtx;
@@ -328,17 +473,15 @@ export class NameTracingScreen {
     }
     ctx.restore();
 
-    // 2. Renglón caligráfico de cuaderno (línea superior, línea media discontinua, línea base)
+    // 2. Renglón caligráfico escolar
     const topY = 65;
     const midY = 205;
     const baseY = 345;
 
     ctx.save();
-    // Fondo tenue del renglón
     ctx.fillStyle = 'rgba(255, 255, 255, 0.65)';
     ctx.fillRect(0, topY, W, baseY - topY);
 
-    // Línea superior del renglón
     ctx.strokeStyle = '#1565c0';
     ctx.lineWidth = 2.5;
     ctx.beginPath();
@@ -346,7 +489,6 @@ export class NameTracingScreen {
     ctx.lineTo(W, topY);
     ctx.stroke();
 
-    // Línea media discontinua
     ctx.strokeStyle = 'rgba(33, 150, 243, 0.6)';
     ctx.lineWidth = 1.8;
     ctx.setLineDash([8, 6]);
@@ -355,7 +497,6 @@ export class NameTracingScreen {
     ctx.lineTo(W, midY);
     ctx.stroke();
 
-    // Línea base del renglón
     ctx.strokeStyle = '#0d47a1';
     ctx.lineWidth = 3;
     ctx.setLineDash([]);
@@ -365,13 +506,10 @@ export class NameTracingScreen {
     ctx.stroke();
     ctx.restore();
 
-    // 3. Guías direccionales generadas por StrokeGenerator
+    // 3. Guías circulares auténticas generadas por StrokeGenerator
     StrokeGenerator.renderStrokeGuides(ctx, this.activeStrokes, this.currentStrokeIndex, '#1565c0');
   }
 
-  // ==========================================================================
-  // EVENTOS TÁCTILES Y DE RATÓN
-  // ==========================================================================
   bindEvents(container) {
     container.querySelector('#btnBackToLevels')?.addEventListener('click', () => {
       audio.playClick();
@@ -395,7 +533,6 @@ export class NameTracingScreen {
       if (this.arabot) this.arabot.bounceHead();
     });
 
-    // Selección de colores de crayón
     container.querySelectorAll('.mini-crayon').forEach(btn => {
       btn.addEventListener('click', (e) => {
         audio.playClick();
@@ -408,7 +545,6 @@ export class NameTracingScreen {
     const canvas = this.paintCanvas;
     if (!canvas) return;
 
-    // Pointer Events universales
     canvas.addEventListener('pointerdown', (e) => {
       e.preventDefault();
       try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
@@ -454,7 +590,6 @@ export class NameTracingScreen {
 
     this.drawCrayonPoint(x, y);
     audio.playBrush();
-    // No se completa en pointerdown para obligar al trazo por recorrido continuo (memoria muscular)
   }
 
   handlePointerMove(x, y, container) {
@@ -468,7 +603,6 @@ export class NameTracingScreen {
     this.drawCrayonSegment(this.lastPoint.x, this.lastPoint.y, x, y);
     this.lastPoint = { x, y };
 
-    // Evaluar progreso con StrokeGenerator
     const currentStroke = this.activeStrokes[this.currentStrokeIndex];
     if (!currentStroke || currentStroke.completed) return;
 
@@ -509,9 +643,6 @@ export class NameTracingScreen {
     ctx.restore();
   }
 
-  // ==========================================================================
-  // COMPLETADO DE TRAZO Y AVANCE DE LETRA
-  // ==========================================================================
   onStrokeCompleted(stroke, x, y, container) {
     // Desactivar dibujo inmediatamente para obligar al niño a levantar el dedito
     this.isDrawing = false;
@@ -521,7 +652,6 @@ export class NameTracingScreen {
     audio.playStar();
     this.emitStarBurst(x, y);
 
-    // Fijar trazo completo nítido en el lienzo
     StrokeGenerator.renderCompletedStroke(this.paintCtx, stroke, this.activeCrayonColor);
 
     this.currentStrokeIndex++;
@@ -547,7 +677,6 @@ export class NameTracingScreen {
     audio.playSuccess();
     this.emitStarBurst(this.paintCanvas.width / 2, this.paintCanvas.height / 2);
 
-    // Iluminar la ficha de la letra en la cinta
     const currentSlot = container.querySelector(`.slot-${this.currentLetterIndex}`);
     if (currentSlot) {
       currentSlot.classList.remove('active');
@@ -560,29 +689,24 @@ export class NameTracingScreen {
 
     StorageManager.addStars(1);
 
-    // Avanzar a la siguiente letra después de 650ms
     setTimeout(() => {
       this.currentLetterIndex++;
       this.loadCurrentLetter(container);
     }, 650);
   }
 
-  // ==========================================================================
-  // COMPLETADO DE PALABRA / NOMBRE COMPLETO
-  // ==========================================================================
   onWordCompleted(container) {
     audio.playCelebration();
     Confetti.shoot(3500);
 
-    // Guardar progreso en StorageManager
-    StorageManager.completeModuleLevel('name-tracing', this.currentLevel, 3);
+    const sub = NAME_TRACING_SUBGAMES.find(g => g.id === this.activeSubgame) || NAME_TRACING_SUBGAMES[0];
+    StorageManager.completeModuleLevel(sub.moduleKey, this.currentLevel, 3);
     rewards.unlockReward('star_badge');
 
     if (this.arabot) {
       this.arabot.celebrate(`¡Felicidades ${this.student.name}! ¡Escribiste "${this.targetName}" completo! 🎓🌟`, 3200);
     }
 
-    // Mostrar banner de transición automática
     const banner = container.querySelector('#autoTransitionBanner');
     const fill = container.querySelector('#transitionProgressFill');
     const msg = container.querySelector('#transitionMsg');
@@ -596,9 +720,8 @@ export class NameTracingScreen {
       }
     }
 
-    // Transición automática al siguiente nivel después de 2.2s
     setTimeout(() => {
-      if (this.currentLevel < NAME_TRACING_LEVELS.length) {
+      if (this.currentLevel < 50) {
         this.currentLevel++;
         this.renderGame(container);
       } else {
@@ -608,9 +731,6 @@ export class NameTracingScreen {
     }, 2200);
   }
 
-  // ==========================================================================
-  // EFECTO MÁGICO DE ESTRELLITAS (SPARKLE BURST)
-  // ==========================================================================
   emitStarBurst(x, y) {
     const colors = ['#ffd700', '#ffeb3b', '#ff9800', '#00e5ff', '#76ff03', '#ff4081'];
     for (let i = 0; i < 14; i++) {
@@ -642,7 +762,6 @@ export class NameTracingScreen {
     const ctx = this.fxCtx;
     ctx.clearRect(0, 0, this.fxCanvas.width, this.fxCanvas.height);
 
-    // 1. Partículas mágicas
     for (let i = this.sparkles.length - 1; i >= 0; i--) {
       const p = this.sparkles[i];
       p.x += p.vx;
@@ -675,7 +794,6 @@ export class NameTracingScreen {
       ctx.restore();
     }
 
-    // 2. Guía animada suave con estrellita viajera
     const activeStroke = this.activeStrokes[this.currentStrokeIndex];
     if (activeStroke && !this.isDrawing && !this.isLetterCompleted) {
       const t = (performance.now() % 2200) / 2200;

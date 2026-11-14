@@ -3111,34 +3111,99 @@ class HomeScreen {
  * NameTracingScreen.js - Módulo de Trazado de Nombre y Palabras Clave
  * Digitalización interactiva y fiel al cuaderno escolar de preescolar (SEP / Gonvill).
  * 
+ * Arquitectura Multi-Juegos en Círculos:
+ * 1. "Mi Nombre Completo" (50 niveles: JUAN CARLOS y variaciones del alumno)
+ * 2. "Palabras de Kínder" (50 niveles: vocabulario escolar y primeras palabras)
+ * 3. "Mi Familia" (50 niveles: Mamá, Papá, Abuelo y seres queridos)
+ * 4. "Mis Cosas Favoritas" (50 niveles: pelota, juguete, dulce, parque...)
+ * 
  * Recreado con el Motor Universal StrokeGenerator:
  * - Soporte dinámico de trazos continuos para todo el abecedario A-Z.
  * - Validación pedagógica por recorrido continuo (desarrollo de memoria muscular).
  * - Cero "boom se llena" al primer toque: el niño traza el recorrido real.
  * - Guía visual animada (estrellita viajera) y números secuenciales 1, 2, 3...
  * - Paleta de colores de crayón en tiempo real.
- * - 50 Niveles en Círculos (Nivel 1: "JUAN CARLOS", seguido de palabras de kínder).
  * - Cinta 3D del Nombre Completo con fichas táctiles que avanzan letra por letra.
  * - Cero alertas emergentes (alert/confirm), transición automática fluida y celebración festiva.
  */
-// Catálogo de 50 niveles de trazado de nombre y palabras de preescolar
-const NAME_TRACING_LEVELS = [
-  'JUAN CARLOS', 'JUAN', 'CARLOS', 'JC', 'MAMA',
-  'PAPA', 'AMOR', 'CASA', 'SOL', 'LUNA',
-  'OSO', 'PERRO', 'GATO', 'AGUA', 'KINDER',
-  'AMIGO', 'ESCUELA', 'MAESTRA', 'JUGAR', 'DIBUJO',
-  'FELIZ', 'BEBE', 'HERMANO', 'ABUELO', 'FAMILIA',
-  'JUGUETE', 'PELOTA', 'DULCE', 'PARQUE', 'RISA',
-  'FIESTA', 'CIELO', 'NUBE', 'FLOR', 'PAZ',
-  'VIDA', 'MANO', 'PIE', 'OJO', 'BOCA',
-  'TREN', 'BARCO', 'AVION', 'MUSICA', 'CANCION',
-  'CUENTO', 'MAGIA', 'SUEÑO', 'ESTRELLA', 'CAMPEON'
+const NAME_TRACING_SUBGAMES = [
+  {
+    id: 'mi_nombre',
+    moduleKey: 'name_tracing_propio',
+    title: 'MI NOMBRE COMPLETO',
+    subtitle: '50 Niveles: Traza tu nombre letra por letra',
+    icon: '⭐',
+    totalLevels: 50,
+    bubbleClass: 'subgame-bubble-vocales',
+    themeColor: '#e91e63'
+  },
+  {
+    id: 'palabras_kinder',
+    moduleKey: 'name_tracing_kinder',
+    title: 'PALABRAS DE KÍNDER',
+    subtitle: '50 Niveles: Casa, sol, luna, agua, escuela...',
+    icon: '📖',
+    totalLevels: 50,
+    bubbleClass: 'subgame-bubble-arma',
+    themeColor: '#1976d2'
+  },
+  {
+    id: 'mi_familia',
+    moduleKey: 'name_tracing_familia',
+    title: 'MI FAMILIA',
+    subtitle: '50 Niveles: Mamá, Papá, Abuelo y seres queridos',
+    icon: '👨‍👩‍👧',
+    totalLevels: 50,
+    bubbleClass: 'subgame-bubble-s',
+    themeColor: '#43a047'
+  },
+  {
+    id: 'cosas_favoritas',
+    moduleKey: 'name_tracing_favoritos',
+    title: 'COSAS FAVORITAS',
+    subtitle: '50 Niveles: Pelota, dulce, juguete y diversión',
+    icon: '⚽',
+    totalLevels: 50,
+    bubbleClass: 'subgame-bubble-m',
+    themeColor: '#8e24aa'
+  }
+];
+
+// Listas de 50 palabras para cada subjuego
+const WORDS_MI_NOMBRE_50 = [
+  'JUAN CARLOS', 'JUAN', 'CARLOS', 'JC', 'JUANITO', 'CARLITOS', 'CAMPEON', 'ESTRELLA', 'HEROE', 'GENIO',
+  'JUAN', 'CARLOS', 'JUAN C', 'J CARLOS', 'JUANITO', 'SUPER JC', 'AMIGO JC', 'JC FELIZ', 'JC PRO', 'JC REY',
+  'JUAN CARLOS', 'JUAN', 'CARLOS', 'JC', 'CAMPEON', 'ESTRELLA', 'HEROE', 'GENIO', 'JUANITO', 'CARLITOS',
+  'JUAN CARLOS', 'JUAN', 'CARLOS', 'JC', 'CAMPEON', 'ESTRELLA', 'HEROE', 'GENIO', 'JUANITO', 'CARLITOS',
+  'JUAN CARLOS', 'JUAN', 'CARLOS', 'JC', 'CAMPEON', 'ESTRELLA', 'HEROE', 'GENIO', 'JUANITO', 'GRAN JUAN'
+];
+const WORDS_KINDER_50 = [
+  'CASA', 'SOL', 'LUNA', 'AGUA', 'KINDER', 'AMIGO', 'ESCUELA', 'MAESTRA', 'JUGAR', 'DIBUJO',
+  'FELIZ', 'CIELO', 'NUBE', 'FLOR', 'PAZ', 'VIDA', 'MANO', 'PIE', 'OJO', 'BOCA',
+  'OSO', 'PERRO', 'GATO', 'LEON', 'PATITO', 'RANA', 'PEZ', 'VACA', 'TORO', 'PAVO',
+  'ARBOL', 'HOJA', 'RAMA', 'FRUTA', 'ROCA', 'MAR', 'RIO', 'LAGO', 'NIEVE', 'VIENTO',
+  'ROJO', 'AZUL', 'VERDE', 'ROSA', 'ORO', 'PLATA', 'LIBRO', 'LAPIZ', 'HOJA', 'CUADERNO'
+];
+const WORDS_FAMILIA_50 = [
+  'MAMA', 'PAPA', 'ABUELO', 'ABUELA', 'HERMANO', 'HERMANA', 'BEBE', 'FAMILIA', 'AMOR', 'TIO',
+  'TIA', 'PRIMO', 'PRIMA', 'HOGAR', 'CUIDO', 'ABRAZO', 'BESO', 'CARIÑO', 'UNION', 'PAZ',
+  'MAMI', 'PAPI', 'ABUE', 'TITO', 'TITA', 'BEBITO', 'NENE', 'HERMANITO', 'PADRES', 'HIJO',
+  'CASA', 'CENA', 'MESA', 'SOPA', 'PAN', 'LECHE', 'DULCE', 'JUNTOS', 'LEALTAD', 'AYUDA',
+  'SONRISA', 'ALEGRIA', 'BENDICION', 'PROTECCION', 'VIDA', 'CORAZON', 'CALOR', 'MIMO', 'TIERNO', 'GRACIAS'
+];
+const WORDS_FAVORITAS_50 = [
+  'JUGUETE', 'PELOTA', 'DULCE', 'PARQUE', 'RISA', 'FIESTA', 'TREN', 'BARCO', 'AVION', 'MUSICA',
+  'CANCION', 'CUENTO', 'MAGIA', 'SUEÑO', 'ESTRELLA', 'CAMPEON', 'DIBUJO', 'COLOR', 'PINCEL', 'ALEGRIA',
+  'PIZZA', 'HELADO', 'GALLETA', 'PASTEL', 'CHOCOLATE', 'CARAMELO', 'GLOBO', 'CIRCO', 'JUEGO', 'PISTA',
+  'AUTO', 'MOTO', 'BICI', 'PATIN', 'COHETE', 'NAVE', 'ROBOT', 'DINOSAURIO', 'DRAGON', 'CASTILLO',
+  'TESORO', 'CORONA', 'REY', 'REINA', 'PRINCESA', 'CABALLERO', 'ESPADA', 'AVENTURA', 'META', 'VICTORIA'
 ];
 class NameTracingScreen {
   constructor(appNavigator) {
     this.navigator = appNavigator;
     this.student = StorageManager.getActiveStudent();
-    this.currentLevel = null; // null = selector de 50 niveles
+    this.activeSubgame = null; // null = menú de subjuegos en círculos
+    this.currentLevel = null;  // 1..50
     this.targetName = (this.student.name || 'JUAN CARLOS').toUpperCase();
     this.currentLetterIndex = 0;
 
@@ -3172,6 +3237,7 @@ class NameTracingScreen {
   }
 
   resetState() {
+    this.activeSubgame = null;
     this.currentLevel = null;
     this.currentLetterIndex = 0;
     this.cleanup();
@@ -3184,56 +3250,144 @@ class NameTracingScreen {
     this.student = StorageManager.getActiveStudent();
     this.cleanup();
 
-    // 1. Selector de 50 niveles en círculos
-    if (this.currentLevel === null) {
-      LevelSelector.render({
-        container,
-        moduleKey: 'name-tracing',
-        moduleTitle: 'Traza tu Nombre',
-        moduleIcon: '⭐',
-        title: 'Traza tu Nombre',
-        icon: '⭐',
-        totalLevels: 50,
-        onBackHome: () => {
-          audio.playClick();
-          this.navigator.navigate('home');
-        },
-        onBack: () => {
-          audio.playClick();
-          this.navigator.navigate('home');
-        },
-        onSelectLevel: (lvl) => {
-          audio.playClick();
-          this.currentLevel = lvl;
-          this.renderGame(container);
-        }
-      });
+    // Vista 1: Menú de subjuegos en círculos
+    if (this.activeSubgame === null) {
+      this.renderSubgamesMenu(container);
       return;
     }
 
-    // 2. Nivel activo de trazado
+    // Vista 2: Selector de 50 niveles
+    if (this.currentLevel === null) {
+      this.renderLevelSelector(container);
+      return;
+    }
+
+    // Vista 3: Nivel activo de trazado
     this.renderGame(container);
   }
 
   // ==========================================================================
-  // VISTA DEL JUEGO: CUADERNO CALIGRÁFICO
+  // VISTA 1: MENÚ DE SUBJUEGOS EN CÍRCULOS
+  // ==========================================================================
+  renderSubgamesMenu(container) {
+    const student = StorageManager.getActiveStudent();
+
+    container.innerHTML = `
+      <div class="module-container notebook-grid-bg fade-in" id="nameTracingSubgamesMenu">
+        <header class="module-header">
+          <button class="back-btn" id="btnBackToHome">⬅️ Menú Principal</button>
+          
+          <div style="text-align:center;">
+            <h2 style="color:#d81b60; margin:0; font-size:clamp(1.2rem, 3.2vw, 1.8rem);">TRAZA TU NOMBRE Y PALABRAS</h2>
+            <div style="font-size:0.85rem; font-weight:bold; color:#ad1457;">
+              Elige una actividad en círculo para comenzar • Caligrafía Preescolar
+            </div>
+          </div>
+
+          <div class="score-box">⭐ ${student.stars || 0}</div>
+        </header>
+
+        <main class="subgames-menu-container">
+          <div class="subgames-grid">
+            ${NAME_TRACING_SUBGAMES.map(game => {
+              const prog = StorageManager.getModuleLevels(game.moduleKey);
+              const count = Object.keys(prog.completed || {}).length;
+              return `
+                <button class="subgame-circle-card" data-game="${game.id}">
+                  <div class="subgame-bubble ${game.bubbleClass} pulse-glow">
+                    <span class="subgame-bubble-icon">${game.icon}</span>
+                    <span class="subgame-levels-badge">${game.totalLevels} Niveles</span>
+                  </div>
+                  <span class="subgame-title-label" style="color:${game.themeColor};">${game.title}</span>
+                  <span style="font-size:0.75rem; color:#455a64; font-weight:bold; margin-top:3px;">
+                    ⭐ ${count}/${game.totalLevels} completados
+                  </span>
+                </button>
+              `;
+            }).join('')}
+          </div>
+        </main>
+
+        <footer class="module-footer">
+          <span class="tip-text">💡 Toca cualquiera de los círculos para trazar con tu dedito sobre el cuaderno escolar.</span>
+        </footer>
+      </div>
+    `;
+
+    container.querySelector('#btnBackToHome')?.addEventListener('click', () => {
+      audio.playClick();
+      this.resetState();
+      this.navigator.navigate('home');
+    });
+
+    container.querySelectorAll('.subgame-circle-card').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        audio.playClick();
+        this.activeSubgame = e.currentTarget.dataset.game;
+        this.currentLevel = null;
+        this.render(container);
+      });
+    });
+
+    audio.speak('Elige una actividad de trazado');
+  }
+
+  // ==========================================================================
+  // VISTA 2: SELECTOR DE 50 NIVELES EN CÍRCULOS
+  // ==========================================================================
+  renderLevelSelector(container) {
+    const sub = NAME_TRACING_SUBGAMES.find(g => g.id === this.activeSubgame) || NAME_TRACING_SUBGAMES[0];
+
+    LevelSelector.render({
+      container,
+      moduleKey: sub.moduleKey,
+      moduleTitle: sub.title,
+      moduleIcon: sub.icon,
+      bgClass: 'notebook-grid-bg',
+      totalLevels: 50,
+      onSelectLevel: (lvl) => {
+        audio.playClick();
+        this.currentLevel = lvl;
+        this.renderGame(container);
+      },
+      onBackHome: () => {
+        audio.playClick();
+        this.activeSubgame = null;
+        this.currentLevel = null;
+        this.render(container);
+      }
+    });
+  }
+
+  // ==========================================================================
+  // VISTA 3: PANTALLA DE TRAZADO CALIGRÁFICO
   // ==========================================================================
   renderGame(container) {
     this.cleanup();
 
-    // Nivel 1 es siempre el nombre del niño
-    if (this.currentLevel === 1) {
-      this.targetName = (this.student.name || 'JUAN CARLOS').toUpperCase();
+    // Obtener la palabra objetivo según el subjuego activo
+    if (this.activeSubgame === 'mi_nombre') {
+      if (this.currentLevel === 1) {
+        this.targetName = (this.student.name || 'JUAN CARLOS').toUpperCase();
+      } else {
+        const idx = (this.currentLevel - 1) % WORDS_MI_NOMBRE_50.length;
+        this.targetName = WORDS_MI_NOMBRE_50[idx];
+      }
+    } else if (this.activeSubgame === 'palabras_kinder') {
+      const idx = (this.currentLevel - 1) % WORDS_KINDER_50.length;
+      this.targetName = WORDS_KINDER_50[idx];
+    } else if (this.activeSubgame === 'mi_familia') {
+      const idx = (this.currentLevel - 1) % WORDS_FAMILIA_50.length;
+      this.targetName = WORDS_FAMILIA_50[idx];
     } else {
-      const idx = (this.currentLevel - 1) % NAME_TRACING_LEVELS.length;
-      this.targetName = NAME_TRACING_LEVELS[idx];
+      const idx = (this.currentLevel - 1) % WORDS_FAVORITAS_50.length;
+      this.targetName = WORDS_FAVORITAS_50[idx];
     }
 
     this.currentLetterIndex = 0;
 
     container.innerHTML = `
       <div class="tracing-module notebook-grid-bg fade-in" id="nameTracingModule">
-        <!-- Encabezado con ARABOT centrado y controles infantiles -->
         <header class="tracing-header">
           <button class="back-btn" id="btnBackToLevels">⬅️ Niveles</button>
           
@@ -3258,9 +3412,9 @@ class NameTracingScreen {
         <!-- Espacio de trabajo del cuaderno escolar -->
         <main class="notebook-workspace">
           <div class="notebook-page-header">
-            <h2>TRAZA TU NOMBRE: <span class="letter-highlight" id="currentLetterDisplay">J</span></h2>
+            <h2>TRAZA: <span class="letter-highlight" id="currentLetterDisplay">J</span></h2>
             <p class="notebook-instruction" id="nameInstructionText">
-              Paso <strong id="currentStepNum">1</strong> de <span id="totalStepsNum">2</span> • Sigue la guía punteada con tu dedito.
+              Paso <strong id="currentStepNum">1</strong> de <span id="totalStepsNum">2</span> • Sigue la guía punteada circular con tu dedito.
             </p>
           </div>
 
@@ -3271,7 +3425,7 @@ class NameTracingScreen {
             <canvas id="fxCanvas" width="760" height="420"></canvas>
           </div>
 
-          <!-- Cinta interactiva del Nombre Completo en fichas 3D -->
+          <!-- Cinta interactiva de la Palabra en fichas 3D -->
           <div class="name-progress-bar" id="nameProgressContainer"></div>
         </main>
 
@@ -3280,7 +3434,7 @@ class NameTracingScreen {
           <div class="transition-card bounce-in">
             <div class="transition-stars">⭐⭐⭐</div>
             <div class="transition-title">¡INCREÍBLE!</div>
-            <div class="transition-msg" id="transitionMsg">¡Completaste tu nombre con éxito!</div>
+            <div class="transition-msg" id="transitionMsg">¡Completaste con éxito!</div>
             <div class="transition-progress-bar">
               <div class="progress-fill" id="transitionProgressFill"></div>
             </div>
@@ -3329,9 +3483,6 @@ class NameTracingScreen {
     this.fxCtx = this.fxCanvas.getContext('2d');
   }
 
-  // ==========================================================================
-  // CINTA INTERACTIVA DEL NOMBRE COMPLETO
-  // ==========================================================================
   initNameRibbon(container) {
     const progressContainer = container.querySelector('#nameProgressContainer');
     if (!progressContainer) return;
@@ -3351,16 +3502,11 @@ class NameTracingScreen {
     }
   }
 
-  // ==========================================================================
-  // CARGA DE LA LETRA ACTUAL
-  // ==========================================================================
   loadCurrentLetter(container) {
-    // Si es un espacio en blanco, saltarlo automáticamente
     while (this.currentLetterIndex < this.targetName.length && this.targetName[this.currentLetterIndex] === ' ') {
       this.currentLetterIndex++;
     }
 
-    // Si terminó todas las letras del nombre -> Ganar nivel
     if (this.currentLetterIndex >= this.targetName.length) {
       this.onWordCompleted(container);
       return;
@@ -3387,7 +3533,6 @@ class NameTracingScreen {
     this.clearPaintCanvas();
     this.drawNotebookBackground(currentChar);
 
-    // Bienvenida vocal de Arabot
     audio.speak(`Traza la letra ${currentChar}`);
   }
 
@@ -3398,9 +3543,6 @@ class NameTracingScreen {
     if (totalElem) totalElem.innerText = Math.max(1, this.activeStrokes.length);
   }
 
-  // ==========================================================================
-  // DIBUJO DEL FONDO: CUADRÍCULA AZUL + RENGLONES + GUÍAS GENERADAS
-  // ==========================================================================
   drawNotebookBackground(currentChar) {
     if (!this.bgCtx || !this.bgCanvas) return;
     const ctx = this.bgCtx;
@@ -3428,17 +3570,15 @@ class NameTracingScreen {
     }
     ctx.restore();
 
-    // 2. Renglón caligráfico de cuaderno (línea superior, línea media discontinua, línea base)
+    // 2. Renglón caligráfico escolar
     const topY = 65;
     const midY = 205;
     const baseY = 345;
 
     ctx.save();
-    // Fondo tenue del renglón
     ctx.fillStyle = 'rgba(255, 255, 255, 0.65)';
     ctx.fillRect(0, topY, W, baseY - topY);
 
-    // Línea superior del renglón
     ctx.strokeStyle = '#1565c0';
     ctx.lineWidth = 2.5;
     ctx.beginPath();
@@ -3446,7 +3586,6 @@ class NameTracingScreen {
     ctx.lineTo(W, topY);
     ctx.stroke();
 
-    // Línea media discontinua
     ctx.strokeStyle = 'rgba(33, 150, 243, 0.6)';
     ctx.lineWidth = 1.8;
     ctx.setLineDash([8, 6]);
@@ -3455,7 +3594,6 @@ class NameTracingScreen {
     ctx.lineTo(W, midY);
     ctx.stroke();
 
-    // Línea base del renglón
     ctx.strokeStyle = '#0d47a1';
     ctx.lineWidth = 3;
     ctx.setLineDash([]);
@@ -3465,13 +3603,10 @@ class NameTracingScreen {
     ctx.stroke();
     ctx.restore();
 
-    // 3. Guías direccionales generadas por StrokeGenerator
+    // 3. Guías circulares auténticas generadas por StrokeGenerator
     StrokeGenerator.renderStrokeGuides(ctx, this.activeStrokes, this.currentStrokeIndex, '#1565c0');
   }
 
-  // ==========================================================================
-  // EVENTOS TÁCTILES Y DE RATÓN
-  // ==========================================================================
   bindEvents(container) {
     container.querySelector('#btnBackToLevels')?.addEventListener('click', () => {
       audio.playClick();
@@ -3495,7 +3630,6 @@ class NameTracingScreen {
       if (this.arabot) this.arabot.bounceHead();
     });
 
-    // Selección de colores de crayón
     container.querySelectorAll('.mini-crayon').forEach(btn => {
       btn.addEventListener('click', (e) => {
         audio.playClick();
@@ -3508,7 +3642,6 @@ class NameTracingScreen {
     const canvas = this.paintCanvas;
     if (!canvas) return;
 
-    // Pointer Events universales
     canvas.addEventListener('pointerdown', (e) => {
       e.preventDefault();
       try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
@@ -3554,7 +3687,6 @@ class NameTracingScreen {
 
     this.drawCrayonPoint(x, y);
     audio.playBrush();
-    // No se completa en pointerdown para obligar al trazo por recorrido continuo (memoria muscular)
   }
 
   handlePointerMove(x, y, container) {
@@ -3568,7 +3700,6 @@ class NameTracingScreen {
     this.drawCrayonSegment(this.lastPoint.x, this.lastPoint.y, x, y);
     this.lastPoint = { x, y };
 
-    // Evaluar progreso con StrokeGenerator
     const currentStroke = this.activeStrokes[this.currentStrokeIndex];
     if (!currentStroke || currentStroke.completed) return;
 
@@ -3609,9 +3740,6 @@ class NameTracingScreen {
     ctx.restore();
   }
 
-  // ==========================================================================
-  // COMPLETADO DE TRAZO Y AVANCE DE LETRA
-  // ==========================================================================
   onStrokeCompleted(stroke, x, y, container) {
     // Desactivar dibujo inmediatamente para obligar al niño a levantar el dedito
     this.isDrawing = false;
@@ -3621,7 +3749,6 @@ class NameTracingScreen {
     audio.playStar();
     this.emitStarBurst(x, y);
 
-    // Fijar trazo completo nítido en el lienzo
     StrokeGenerator.renderCompletedStroke(this.paintCtx, stroke, this.activeCrayonColor);
 
     this.currentStrokeIndex++;
@@ -3647,7 +3774,6 @@ class NameTracingScreen {
     audio.playSuccess();
     this.emitStarBurst(this.paintCanvas.width / 2, this.paintCanvas.height / 2);
 
-    // Iluminar la ficha de la letra en la cinta
     const currentSlot = container.querySelector(`.slot-${this.currentLetterIndex}`);
     if (currentSlot) {
       currentSlot.classList.remove('active');
@@ -3660,29 +3786,24 @@ class NameTracingScreen {
 
     StorageManager.addStars(1);
 
-    // Avanzar a la siguiente letra después de 650ms
     setTimeout(() => {
       this.currentLetterIndex++;
       this.loadCurrentLetter(container);
     }, 650);
   }
 
-  // ==========================================================================
-  // COMPLETADO DE PALABRA / NOMBRE COMPLETO
-  // ==========================================================================
   onWordCompleted(container) {
     audio.playCelebration();
     Confetti.shoot(3500);
 
-    // Guardar progreso en StorageManager
-    StorageManager.completeModuleLevel('name-tracing', this.currentLevel, 3);
+    const sub = NAME_TRACING_SUBGAMES.find(g => g.id === this.activeSubgame) || NAME_TRACING_SUBGAMES[0];
+    StorageManager.completeModuleLevel(sub.moduleKey, this.currentLevel, 3);
     rewards.unlockReward('star_badge');
 
     if (this.arabot) {
       this.arabot.celebrate(`¡Felicidades ${this.student.name}! ¡Escribiste "${this.targetName}" completo! 🎓🌟`, 3200);
     }
 
-    // Mostrar banner de transición automática
     const banner = container.querySelector('#autoTransitionBanner');
     const fill = container.querySelector('#transitionProgressFill');
     const msg = container.querySelector('#transitionMsg');
@@ -3696,9 +3817,8 @@ class NameTracingScreen {
       }
     }
 
-    // Transición automática al siguiente nivel después de 2.2s
     setTimeout(() => {
-      if (this.currentLevel < NAME_TRACING_LEVELS.length) {
+      if (this.currentLevel < 50) {
         this.currentLevel++;
         this.renderGame(container);
       } else {
@@ -3708,9 +3828,6 @@ class NameTracingScreen {
     }, 2200);
   }
 
-  // ==========================================================================
-  // EFECTO MÁGICO DE ESTRELLITAS (SPARKLE BURST)
-  // ==========================================================================
   emitStarBurst(x, y) {
     const colors = ['#ffd700', '#ffeb3b', '#ff9800', '#00e5ff', '#76ff03', '#ff4081'];
     for (let i = 0; i < 14; i++) {
@@ -3742,7 +3859,6 @@ class NameTracingScreen {
     const ctx = this.fxCtx;
     ctx.clearRect(0, 0, this.fxCanvas.width, this.fxCanvas.height);
 
-    // 1. Partículas mágicas
     for (let i = this.sparkles.length - 1; i >= 0; i--) {
       const p = this.sparkles[i];
       p.x += p.vx;
@@ -3775,7 +3891,6 @@ class NameTracingScreen {
       ctx.restore();
     }
 
-    // 2. Guía animada suave con estrellita viajera
     const activeStroke = this.activeStrokes[this.currentStrokeIndex];
     if (activeStroke && !this.isDrawing && !this.isLetterCompleted) {
       const t = (performance.now() % 2200) / 2200;
@@ -5900,11 +6015,58 @@ class SyllablesScreen {
      ========================================================================== */
 
 /**
- * NumbersScreen - Módulo "Números" con 50 Juegos en Círculos ("Circulitos")
- * Trencito numérico didáctico y secuencias progresivas para kínder.
+ * NumbersScreen.js - Módulo "Números" con Arquitectura Multi-Juegos y 50 Niveles
+ * Pensamiento matemático temprano, conteo didáctico y secuencias para preescolar.
+ * 
+ * Subjuegos disponibles:
+ * 1. "El Tren Matemático" (50 niveles: completa el vagón que falta con el Monito)
+ * 2. "Cuenta los Objetos" (50 niveles: cuenta animalitos/frutas y toca el número)
+ * 3. "¿Quién tiene más?" (50 niveles: comparación visual de cantidades y conjuntos)
+ * 4. "La Torre Numérica" (50 niveles: ordena de menor a mayor los bloques)
  */
+const NUMBERS_SUBGAMES = [
+  {
+    id: 'tren_matematico',
+    moduleKey: 'numbers_tren',
+    title: 'EL TREN MATEMÁTICO',
+    subtitle: '50 Niveles: Completa el vagón que falta',
+    icon: '🚂',
+    totalLevels: 50,
+    bubbleClass: 'subgame-bubble-vocales',
+    themeColor: '#00838f'
+  },
+  {
+    id: 'cuenta_objetos',
+    moduleKey: 'numbers_conteo',
+    title: 'CUENTA LOS OBJETOS',
+    subtitle: '50 Niveles: Cuenta animalitos y frutas',
+    icon: '🍎',
+    totalLevels: 50,
+    bubbleClass: 'subgame-bubble-arma',
+    themeColor: '#ff9800'
+  },
+  {
+    id: 'quien_tiene_mas',
+    moduleKey: 'numbers_comparacion',
+    title: '¿QUIÉN TIENE MÁS?',
+    subtitle: '50 Niveles: Comparación de conjuntos',
+    icon: '⚖️',
+    totalLevels: 50,
+    bubbleClass: 'subgame-bubble-s',
+    themeColor: '#43a047'
+  },
+  {
+    id: 'torre_bloques',
+    moduleKey: 'numbers_orden',
+    title: 'LA TORRE NUMÉRICA',
+    subtitle: '50 Niveles: Ordena de menor a mayor',
+    icon: '🧱',
+    totalLevels: 50,
+    bubbleClass: 'subgame-bubble-m',
+    themeColor: '#7b1fa2'
+  }
+];
 function getNumberPuzzleForLevel(levelNum) {
-  // Nivel 1: El clásico default [1, 2, '?', 4, 5]
   if (levelNum === 1) {
     return {
       sequence: [1, 2, '?', 4, 5],
@@ -5914,9 +6076,8 @@ function getNumberPuzzleForLevel(levelNum) {
     };
   }
 
-  // Generador didáctico para los niveles 2 al 50
   const start = ((levelNum - 1) % 15) + 1;
-  const missingOffset = ((levelNum * 2) % 4) + 1; // 1, 2 o 3
+  const missingOffset = ((levelNum * 2) % 4) + 1;
   const seq = [];
   let correctVal = 0;
 
@@ -5944,75 +6105,180 @@ function getNumberPuzzleForLevel(levelNum) {
 class NumbersScreen {
   constructor(appNavigator) {
     this.navigator = appNavigator;
+    this.activeSubgame = null; // null = menú de subjuegos en círculos
+    this.currentLevel = null;  // 1..50
+  }
+
+  resetState() {
+    this.activeSubgame = null;
     this.currentLevel = null;
   }
 
+  // ==========================================================================
+  // ORQUESTADOR DE VISTAS
+  // ==========================================================================
   render(container) {
-    if (this.currentLevel === null) {
-      LevelSelector.render({
-        container,
-        moduleKey: 'numbers',
-        moduleTitle: 'Números',
-        moduleIcon: '🚂',
-        bgClass: 'numbers-bg',
-        totalLevels: 50,
-        onSelectLevel: (lvl) => {
-          this.currentLevel = lvl;
-          this.renderGame(container);
-        },
-        onBackHome: () => {
-          this.navigator.navigate('home');
-        }
-      });
+    if (this.activeSubgame === null) {
+      this.renderSubgamesMenu(container);
       return;
     }
 
-    this.renderGame(container);
+    if (this.currentLevel === null) {
+      this.renderLevelSelector(container);
+      return;
+    }
+
+    if (this.activeSubgame === 'tren_matematico') {
+      this.renderTrenMatematico(container);
+    } else if (this.activeSubgame === 'cuenta_objetos') {
+      this.renderCuentaObjetos(container);
+    } else if (this.activeSubgame === 'quien_tiene_mas') {
+      this.renderQuienTieneMas(container);
+    } else if (this.activeSubgame === 'torre_bloques') {
+      this.renderTorreBloques(container);
+    }
   }
 
-  renderGame(container) {
+  // ==========================================================================
+  // VISTA 1: MENÚ DE SUBJUEGOS EN CÍRCULOS
+  // ==========================================================================
+  renderSubgamesMenu(container) {
+    const student = StorageManager.getActiveStudent();
+
+    container.innerHTML = `
+      <div class="module-container numbers-bg fade-in" id="numbersSubgamesMenu">
+        <header class="module-header">
+          <button class="back-btn" id="btnBackToHome">⬅️ Menú Principal</button>
+          
+          <div style="text-align:center;">
+            <h2 style="color:#00838f; margin:0; font-size:clamp(1.2rem, 3.2vw, 1.8rem);">MÓDULO DE NÚMEROS</h2>
+            <div style="font-size:0.85rem; font-weight:bold; color:#006064;">
+              Elige un juego en círculo para comenzar • Matemáticas de Kínder
+            </div>
+          </div>
+
+          <div class="score-box">⭐ ${student.stars || 0}</div>
+        </header>
+
+        <main class="subgames-menu-container">
+          <div class="subgames-grid">
+            ${NUMBERS_SUBGAMES.map(game => {
+              const prog = StorageManager.getModuleLevels(game.moduleKey);
+              const count = Object.keys(prog.completed || {}).length;
+              return `
+                <button class="subgame-circle-card" data-game="${game.id}">
+                  <div class="subgame-bubble ${game.bubbleClass} pulse-glow">
+                    <span class="subgame-bubble-icon">${game.icon}</span>
+                    <span class="subgame-levels-badge badge-orange">${game.totalLevels} Niveles</span>
+                  </div>
+                  <span class="subgame-title-label" style="color:${game.themeColor};">${game.title}</span>
+                  <span style="font-size:0.75rem; color:#455a64; font-weight:bold; margin-top:3px;">
+                    ⭐ ${count}/${game.totalLevels} completados
+                  </span>
+                </button>
+              `;
+            }).join('')}
+          </div>
+        </main>
+
+        <footer class="module-footer">
+          <span class="tip-text">💡 Toca cualquiera de los círculos para jugar sus 50 niveles didácticos.</span>
+        </footer>
+      </div>
+    `;
+
+    container.querySelector('#btnBackToHome')?.addEventListener('click', () => {
+      audio.playClick();
+      this.resetState();
+      this.navigator.navigate('home');
+    });
+
+    container.querySelectorAll('.subgame-circle-card').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        audio.playClick();
+        this.activeSubgame = e.currentTarget.dataset.game;
+        this.currentLevel = null;
+        this.render(container);
+      });
+    });
+
+    audio.speak('Elige un juego de números');
+  }
+
+  // ==========================================================================
+  // VISTA 2: SELECTOR DE 50 NIVELES EN CÍRCULOS
+  // ==========================================================================
+  renderLevelSelector(container) {
+    const sub = NUMBERS_SUBGAMES.find(g => g.id === this.activeSubgame) || NUMBERS_SUBGAMES[0];
+
+    LevelSelector.render({
+      container,
+      moduleKey: sub.moduleKey,
+      moduleTitle: sub.title,
+      moduleIcon: sub.icon,
+      bgClass: 'numbers-bg',
+      totalLevels: 50,
+      onSelectLevel: (lvl) => {
+        audio.playClick();
+        this.currentLevel = lvl;
+        this.render(container);
+      },
+      onBackHome: () => {
+        audio.playClick();
+        this.activeSubgame = null;
+        this.currentLevel = null;
+        this.render(container);
+      }
+    });
+  }
+
+  // ==========================================================================
+  // SUBJUEGO 1: EL TREN MATEMÁTICO (50 NIVELES)
+  // ==========================================================================
+  renderTrenMatematico(container) {
     const student = StorageManager.getActiveStudent();
     const puzzle = getNumberPuzzleForLevel(this.currentLevel);
 
     container.innerHTML = `
-      <div class="module-container numbers-bg fade-in">
+      <div class="module-container numbers-bg fade-in" id="trenMatematicoModule">
         <header class="module-header">
           <button class="back-btn" id="btnBackToLevels">⬅️ Niveles</button>
           <div style="text-align:center;">
-            <h2>NÚMEROS - EL TREN MATEMÁTICO</h2>
-            <div style="font-size:0.8rem; font-weight:bold; color:#00838f;">
-              Juego ${this.currentLevel} de 50
+            <h2>EL TREN MATEMÁTICO 🚂</h2>
+            <div style="font-size:0.85rem; font-weight:bold; color:#00838f;">
+              Nivel ${this.currentLevel} de 50: Completa el vagón
             </div>
           </div>
           <div class="score-box">⭐ ${student.stars || 0}</div>
         </header>
 
-        <main class="game-board numbers-board">
-          <!-- Monito ayudante -->
-          <div class="character-helper bounce-gentle">
-            <img src="public/assets/images/educational/monkey.svg" alt="Monito" class="helper-avatar" onerror="this.innerText='🐒'">
-            <div class="speech-bubble">${puzzle.helperText}</div>
+        <main class="game-board numbers-board" style="display:flex; flex-direction:column; align-items:center; justify-content:center; flex:1;">
+          <div class="character-helper bounce-gentle" style="margin-bottom:12px; display:flex; align-items:center; gap:10px;">
+            <div style="font-size:2.8rem;">🐒</div>
+            <div class="speech-bubble" style="background:white; padding:8px 16px; border-radius:18px; border:2px solid #00bcd4; font-weight:bold; color:#006064;">
+              ${puzzle.helperText}
+            </div>
           </div>
 
-          <!-- Trencito de números -->
-          <div class="train-wrapper">
-            <div class="locomotive">🚂</div>
-            <div class="train-container">
+          <div class="train-wrapper" style="display:flex; align-items:center; justify-content:center; gap:8px; margin:16px 0; max-width:94vw; overflow-x:auto;">
+            <div class="locomotive" style="font-size:3.5rem;">🚂</div>
+            <div class="train-container" style="display:flex; gap:8px;">
               ${puzzle.sequence.map((num) => {
                 if (num === '?') {
-                  return `<div class="train-car missing" id="missingCar">?</div>`;
+                  return `<div class="train-car missing" id="missingCar" style="width:65px; height:65px; border-radius:14px; background:#fff9c4; border:3px dashed #fbc02d; display:flex; align-items:center; justify-content:center; font-size:2rem; font-weight:900; color:#f57f17;">?</div>`;
                 }
-                return `<div class="train-car">${num}</div>`;
+                return `<div class="train-car" style="width:65px; height:65px; border-radius:14px; background:#e0f7fa; border:3px solid #00bcd4; display:flex; align-items:center; justify-content:center; font-size:1.8rem; font-weight:900; color:#006064;">${num}</div>`;
               }).join('')}
             </div>
           </div>
 
-          <!-- Opciones numéricas -->
-          <div class="number-options-container" style="display:flex; flex-direction:column; align-items:center;">
-            <p class="select-hint" style="font-weight:bold; color:#006064; margin-bottom:8px;">Toca el número correcto:</p>
-            <div class="number-options">
+          <div class="number-options-container" style="display:flex; flex-direction:column; align-items:center; margin-top:16px;">
+            <p style="font-weight:bold; color:#006064; margin:0 0 10px 0;">Toca el número correcto:</p>
+            <div class="number-options" style="display:flex; gap:14px;">
               ${puzzle.options.map((opt) => `
-                <button class="num-btn" data-val="${opt}">${opt}</button>
+                <button class="num-btn" data-val="${opt}" style="width:65px; height:65px; border-radius:18px; background:linear-gradient(135deg, #ff9800 0%, #f57c00 100%); border:3px solid white; color:white; font-size:1.8rem; font-weight:900; cursor:pointer; box-shadow:0 6px 14px rgba(255,152,0,0.35);">
+                  ${opt}
+                </button>
               `).join('')}
             </div>
           </div>
@@ -6024,11 +6290,6 @@ class NumbersScreen {
       </div>
     `;
 
-    this.bindEvents(container, puzzle);
-    audio.speak(puzzle.helperText);
-  }
-
-  bindEvents(container, puzzle) {
     container.querySelector('#btnBackToLevels')?.addEventListener('click', () => {
       audio.playClick();
       this.currentLevel = null;
@@ -6040,40 +6301,302 @@ class NumbersScreen {
     });
 
     const missingCar = container.querySelector('#missingCar');
-    const buttons = container.querySelectorAll('.num-btn');
-
-    buttons.forEach((btn) => {
-      btn.addEventListener('click', (e) => {
-        const val = parseInt(e.target.dataset.val, 10);
-
+    container.querySelectorAll('.num-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const val = parseInt(btn.dataset.val, 10);
         if (val === puzzle.correct) {
           audio.playSuccess();
-          e.target.classList.add('correct');
-          missingCar.innerText = val.toString();
-          missingCar.classList.remove('missing');
-          missingCar.classList.add('filled-train');
-
-          StorageManager.completeModuleLevel('numbers', this.currentLevel, 3);
-          Confetti.shoot(2500);
+          Confetti.shoot(2200);
+          StorageManager.completeModuleLevel('numbers_tren', this.currentLevel, 3);
+          StorageManager.addStars(1);
+          if (missingCar) {
+            missingCar.innerText = val;
+            missingCar.style.background = '#c8e6c9';
+            missingCar.style.borderColor = '#4caf50';
+            missingCar.style.color = '#2e7d32';
+          }
 
           setTimeout(() => {
             if (this.currentLevel < 50) {
-              this.currentLevel = this.currentLevel + 1;
-              this.renderGame(container);
+              this.currentLevel++;
+              this.render(container);
             } else {
               this.currentLevel = null;
               this.render(container);
             }
-          }, 1400);
-
+          }, 1100);
         } else {
-          audio.playError();
-          e.target.classList.add('wrong');
-          setTimeout(() => e.target.classList.remove('wrong'), 500);
-          audio.speak('Ese número no va ahí, ¡intenta de nuevo!');
+          audio.playWrong();
+          btn.style.transform = 'scale(0.85)';
+          setTimeout(() => { btn.style.transform = 'none'; }, 200);
         }
       });
     });
+
+    audio.speak(puzzle.helperText);
+  }
+
+  // ==========================================================================
+  // SUBJUEGO 2: CUENTA LOS OBJETOS (50 NIVELES)
+  // ==========================================================================
+  renderCuentaObjetos(container) {
+    const student = StorageManager.getActiveStudent();
+    const items = ['🍎', '⭐', '🐶', '🚗', '🎈', '🐸', '🦁', '🍰', '⚽', '🍦'];
+    const emoji = items[(this.currentLevel - 1) % items.length];
+    
+    // Cantidad a contar: entre 1 y 10 según el nivel
+    const targetCount = ((this.currentLevel - 1) % 9) + 2; // 2..10
+    
+    // Opciones
+    const options = [targetCount, Math.max(1, targetCount - 1), targetCount + 1].sort(() => 0.5 - Math.random());
+
+    container.innerHTML = `
+      <div class="module-container numbers-bg fade-in" id="cuentaObjetosModule">
+        <header class="module-header">
+          <button class="back-btn" id="btnBackToLevels">⬅️ Niveles</button>
+          <div style="text-align:center;">
+            <h2>CUENTA LOS OBJETOS 🍎</h2>
+            <div style="font-size:0.85rem; font-weight:bold; color:#e65100;">
+              Nivel ${this.currentLevel} de 50: ¿Cuántos hay?
+            </div>
+          </div>
+          <div class="score-box">⭐ ${student.stars || 0}</div>
+        </header>
+
+        <main class="game-board" style="display:flex; flex-direction:column; align-items:center; justify-content:center; flex:1;">
+          <div style="background:white; padding:18px 24px; border-radius:24px; border:3px solid #ff9800; box-shadow:0 8px 20px rgba(0,0,0,0.12); text-align:center; max-width:92vw;">
+            <p style="font-size:1.1rem; font-weight:900; color:#e65100; margin:0 0 12px 0;">
+              ¡Cuenta con tu dedito cuántos hay!
+            </p>
+
+            <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:10px; max-width:380px; margin:0 auto 18px auto;">
+              ${Array.from({ length: targetCount }).map(() => `
+                <span style="font-size:2.8rem; filter:drop-shadow(0 3px 6px rgba(0,0,0,0.15));">${emoji}</span>
+              `).join('')}
+            </div>
+
+            <div style="display:flex; gap:14px; justify-content:center;">
+              ${options.map(opt => `
+                <button class="count-opt-btn" data-val="${opt}" style="width:65px; height:65px; border-radius:18px; background:linear-gradient(135deg, #ff9800 0%, #e65100 100%); color:white; font-size:2rem; font-weight:900; border:3px solid white; cursor:pointer; box-shadow:0 6px 14px rgba(230,81,0,0.35);">
+                  ${opt}
+                </button>
+              `).join('')}
+            </div>
+          </div>
+        </main>
+
+        <footer class="module-footer">
+          <span class="tip-text">Toca el número que coincida con la cantidad de objetos.</span>
+        </footer>
+      </div>
+    `;
+
+    container.querySelector('#btnBackToLevels')?.addEventListener('click', () => {
+      audio.playClick();
+      this.currentLevel = null;
+      this.render(container);
+    });
+
+    container.querySelectorAll('.count-opt-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const val = parseInt(btn.dataset.val, 10);
+        if (val === targetCount) {
+          audio.playSuccess();
+          Confetti.shoot(2000);
+          StorageManager.completeModuleLevel('numbers_conteo', this.currentLevel, 3);
+          StorageManager.addStars(1);
+          btn.style.transform = 'scale(1.2)';
+          btn.style.background = '#4caf50';
+
+          setTimeout(() => {
+            if (this.currentLevel < 50) {
+              this.currentLevel++;
+              this.render(container);
+            } else {
+              this.currentLevel = null;
+              this.render(container);
+            }
+          }, 1100);
+        } else {
+          audio.playWrong();
+          btn.style.transform = 'rotate(-8deg)';
+          setTimeout(() => { btn.style.transform = 'none'; }, 200);
+        }
+      });
+    });
+
+    audio.speak(`¿Cuántos objetos hay? Cuéntalos y toca el número.`);
+  }
+
+  // ==========================================================================
+  // SUBJUEGO 3: ¿QUIÉN TIENE MÁS? (50 NIVELES)
+  // ==========================================================================
+  renderQuienTieneMas(container) {
+    const student = StorageManager.getActiveStudent();
+    const countA = ((this.currentLevel * 3) % 6) + 2;
+    let countB = ((this.currentLevel * 5) % 6) + 2;
+    if (countA === countB) countB++;
+    const isALarger = (countA > countB);
+
+    container.innerHTML = `
+      <div class="module-container numbers-bg fade-in" id="quienTieneMasModule">
+        <header class="module-header">
+          <button class="back-btn" id="btnBackToLevels">⬅️ Niveles</button>
+          <div style="text-align:center;">
+            <h2>¿QUIÉN TIENE MÁS? ⚖️</h2>
+            <div style="font-size:0.85rem; font-weight:bold; color:#2e7d32;">
+              Nivel ${this.currentLevel} de 50: Toca el grupo con MÁS elementos
+            </div>
+          </div>
+          <div class="score-box">⭐ ${student.stars || 0}</div>
+        </header>
+
+        <main class="game-board" style="display:flex; justify-content:center; align-items:center; gap:20px; flex:1; flex-wrap:wrap;">
+          <button class="group-choice-btn" id="btnGroupA" style="background:white; border:4px solid #4caf50; border-radius:24px; padding:18px 24px; min-width:180px; min-height:160px; cursor:pointer; box-shadow:0 8px 18px rgba(0,0,0,0.12); display:flex; flex-direction:column; align-items:center; justify-content:center;">
+            <div style="display:flex; flex-wrap:wrap; gap:6px; justify-content:center; max-width:140px;">
+              ${Array.from({ length: countA }).map(() => '<span style="font-size:2rem;">⭐</span>').join('')}
+            </div>
+            <span style="margin-top:10px; font-weight:900; color:#2e7d32; font-size:1.1rem;">GRUPO A</span>
+          </button>
+
+          <button class="group-choice-btn" id="btnGroupB" style="background:white; border:4px solid #00bcd4; border-radius:24px; padding:18px 24px; min-width:180px; min-height:160px; cursor:pointer; box-shadow:0 8px 18px rgba(0,0,0,0.12); display:flex; flex-direction:column; align-items:center; justify-content:center;">
+            <div style="display:flex; flex-wrap:wrap; gap:6px; justify-content:center; max-width:140px;">
+              ${Array.from({ length: countB }).map(() => '<span style="font-size:2rem;">🍬</span>').join('')}
+            </div>
+            <span style="margin-top:10px; font-weight:900; color:#00838f; font-size:1.1rem;">GRUPO B</span>
+          </button>
+        </main>
+
+        <footer class="module-footer">
+          <span class="tip-text">Toca la caja que contenga la mayor cantidad de objetos.</span>
+        </footer>
+      </div>
+    `;
+
+    container.querySelector('#btnBackToLevels')?.addEventListener('click', () => {
+      audio.playClick();
+      this.currentLevel = null;
+      this.render(container);
+    });
+
+    const checkChoice = (chosenA) => {
+      const correct = (chosenA === isALarger);
+      if (correct) {
+        audio.playSuccess();
+        Confetti.shoot(2000);
+        StorageManager.completeModuleLevel('numbers_comparacion', this.currentLevel, 3);
+        StorageManager.addStars(1);
+        setTimeout(() => {
+          if (this.currentLevel < 50) {
+            this.currentLevel++;
+            this.render(container);
+          } else {
+            this.currentLevel = null;
+            this.render(container);
+          }
+        }, 1100);
+      } else {
+        audio.playWrong();
+      }
+    };
+
+    container.querySelector('#btnGroupA')?.addEventListener('click', () => checkChoice(true));
+    container.querySelector('#btnGroupB')?.addEventListener('click', () => checkChoice(false));
+
+    audio.speak('¿Cuál grupo tiene más objetos?');
+  }
+
+  // ==========================================================================
+  // SUBJUEGO 4: LA TORRE NUMÉRICA (50 NIVELES)
+  // ==========================================================================
+  renderTorreBloques(container) {
+    const student = StorageManager.getActiveStudent();
+    const startNum = ((this.currentLevel - 1) % 15) + 1;
+    const correctSeq = [startNum, startNum + 1, startNum + 2, startNum + 3];
+    const shuffled = [...correctSeq].sort(() => 0.5 - Math.random());
+
+    container.innerHTML = `
+      <div class="module-container numbers-bg fade-in" id="torreBloquesModule">
+        <header class="module-header">
+          <button class="back-btn" id="btnBackToLevels">⬅️ Niveles</button>
+          <div style="text-align:center;">
+            <h2>LA TORRE NUMÉRICA 🧱</h2>
+            <div style="font-size:0.85rem; font-weight:bold; color:#7b1fa2;">
+              Nivel ${this.currentLevel} de 50: Toca los números en orden (del menor al mayor)
+            </div>
+          </div>
+          <div class="score-box">⭐ ${student.stars || 0}</div>
+        </header>
+
+        <main class="game-board" style="display:flex; flex-direction:column; align-items:center; justify-content:center; flex:1;">
+          <div id="towerSlots" style="display:flex; gap:10px; margin-bottom:20px;">
+            ${correctSeq.map((_, idx) => `
+              <div class="tower-slot" id="slot_${idx}" style="width:65px; height:65px; border-radius:16px; background:white; border:3px dashed #ba68c8; display:flex; align-items:center; justify-content:center; font-size:1.8rem; font-weight:900; color:#7b1fa2;">
+                _
+              </div>
+            `).join('')}
+          </div>
+
+          <div style="display:flex; gap:12px;">
+            ${shuffled.map(n => `
+              <button class="block-num-btn" data-val="${n}" style="width:65px; height:65px; border-radius:16px; background:linear-gradient(135deg, #ab47bc 0%, #7b1fa2 100%); color:white; font-size:1.8rem; font-weight:900; border:3px solid white; cursor:pointer; box-shadow:0 6px 14px rgba(123,31,162,0.35);">
+                ${n}
+              </button>
+            `).join('')}
+          </div>
+        </main>
+
+        <footer class="module-footer">
+          <span class="tip-text">Toca los números en orden creciente para armar la torre.</span>
+        </footer>
+      </div>
+    `;
+
+    container.querySelector('#btnBackToLevels')?.addEventListener('click', () => {
+      audio.playClick();
+      this.currentLevel = null;
+      this.render(container);
+    });
+
+    let currentStep = 0;
+    container.querySelectorAll('.block-num-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const val = parseInt(btn.dataset.val, 10);
+        if (val === correctSeq[currentStep]) {
+          audio.playPop();
+          const slot = container.querySelector(`#slot_${currentStep}`);
+          if (slot) {
+            slot.innerText = val;
+            slot.style.background = '#e1bee7';
+            slot.style.borderStyle = 'solid';
+          }
+          btn.style.visibility = 'hidden';
+          currentStep++;
+
+          if (currentStep >= correctSeq.length) {
+            audio.playSuccess();
+            Confetti.shoot(2200);
+            StorageManager.completeModuleLevel('numbers_orden', this.currentLevel, 3);
+            StorageManager.addStars(1);
+            setTimeout(() => {
+              if (this.currentLevel < 50) {
+                this.currentLevel++;
+                this.render(container);
+              } else {
+                this.currentLevel = null;
+                this.render(container);
+              }
+            }, 1100);
+          }
+        } else {
+          audio.playWrong();
+          btn.style.transform = 'rotate(-8deg)';
+          setTimeout(() => { btn.style.transform = 'none'; }, 200);
+        }
+      });
+    });
+
+    audio.speak(`Toca los números del menor al mayor`);
   }
 }
 
@@ -6083,134 +6606,295 @@ class NumbersScreen {
      ========================================================================== */
 
 /**
- * VowelsScreen - Módulo "Vocales" con 50 Juegos en Círculos ("Circulitos")
- * Reconocimiento fonético e ilustrado de A - E - I - O - U para preescolar.
+ * VowelsScreen.js - Módulo "Vocales" con Arquitectura Multi-Juegos y 50 Niveles
+ * Reconocimiento fonético, visual y auditivo de las 5 vocales (A, E, I, O, U).
+ * 
+ * Subjuegos disponibles:
+ * 1. "Tablero Mágico" (Actividad interactiva con sonido fonético e ilustraciones)
+ * 2. "¿Cuál es la Vocal?" (50 niveles de discriminación de la vocal inicial)
+ * 3. "Burbujas de Vocales" (50 niveles interactivos: revienta la vocal indicada)
+ * 4. "Memorama Vocálico" (50 niveles de memoria: empareja vocal con dibujo)
  */
+const VOWELS_CATALOG = [
+  { letter: 'A', word: 'Avión', emoji: '✈️', color: '#ff5722', soundWord: 'A de Avión' },
+  { letter: 'E', word: 'Elefante', emoji: '🐘', color: '#4caf50', soundWord: 'E de Elefante' },
+  { letter: 'I', word: 'Isla', emoji: '🏝️', color: '#00bcd4', soundWord: 'I de Isla' },
+  { letter: 'O', word: 'Oso', emoji: '🐻', color: '#ff9800', soundWord: 'O de Oso' },
+  { letter: 'U', word: 'Uva', emoji: '🍇', color: '#9c27b0', soundWord: 'U de Uva' }
+];
+const VOWELS_WORDS_50 = [
+  { letter: 'A', word: 'Avión', emoji: '✈️' },
+  { letter: 'E', word: 'Elefante', emoji: '🐘' },
+  { letter: 'I', word: 'Isla', emoji: '🏝️' },
+  { letter: 'O', word: 'Oso', emoji: '🐻' },
+  { letter: 'U', word: 'Uva', emoji: '🍇' },
+  { letter: 'A', word: 'Árbol', emoji: '🌳' },
+  { letter: 'E', word: 'Estrella', emoji: '⭐' },
+  { letter: 'I', word: 'Iglesia', emoji: '⛪' },
+  { letter: 'O', word: 'Ojo', emoji: '👁️' },
+  { letter: 'U', word: 'Unicornio', emoji: '🦄' },
+  { letter: 'A', word: 'Abeja', emoji: '🐝' },
+  { letter: 'E', word: 'Escuela', emoji: '🏫' },
+  { letter: 'I', word: 'Imán', emoji: '🧲' },
+  { letter: 'O', word: 'Oveja', emoji: '🐑' },
+  { letter: 'U', word: 'Uña', emoji: '💅' },
+  { letter: 'A', word: 'Agua', emoji: '💧' },
+  { letter: 'E', word: 'Elote', emoji: '🌽' },
+  { letter: 'I', word: 'Iglú', emoji: '🧊' },
+  { letter: 'O', word: 'Ola', emoji: '🌊' },
+  { letter: 'U', word: 'Uno', emoji: '1️⃣' },
+  { letter: 'A', word: 'Anillo', emoji: '💍' },
+  { letter: 'E', word: 'Escalera', emoji: '🪜' },
+  { letter: 'I', word: 'Incendio', emoji: '🔥' },
+  { letter: 'O', word: 'Oruga', emoji: '🐛' },
+  { letter: 'U', word: 'Universo', emoji: '🌌' },
+  { letter: 'A', word: 'Araña', emoji: '🕷️' },
+  { letter: 'E', word: 'Espada', emoji: '🗡️' },
+  { letter: 'I', word: 'Insecto', emoji: '🐞' },
+  { letter: 'O', word: 'Oro', emoji: '🪙' },
+  { letter: 'U', word: 'Urna', emoji: '🗳️' },
+  { letter: 'A', word: 'Auto', emoji: '🚗' },
+  { letter: 'E', word: 'Espejo', emoji: '🪞' },
+  { letter: 'I', word: 'Invierno', emoji: '❄️' },
+  { letter: 'O', word: 'Olla', emoji: '🍲' },
+  { letter: 'U', word: 'Útil', emoji: '✏️' },
+  { letter: 'A', word: 'Arcoíris', emoji: '🌈' },
+  { letter: 'E', word: 'Enano', emoji: '🧙' },
+  { letter: 'I', word: 'Impresora', emoji: '🖨️' },
+  { letter: 'O', word: 'Oreja', emoji: '👂' },
+  { letter: 'U', word: 'Ukelele', emoji: '🪕' },
+  { letter: 'A', word: 'Abuelo', emoji: '👴' },
+  { letter: 'E', word: 'Erizo', emoji: '🦔' },
+  { letter: 'I', word: 'Iguana', emoji: '🦎' },
+  { letter: 'O', word: 'Océano', emoji: '🌊' },
+  { letter: 'U', word: 'Urgencia', emoji: '🚨' },
+  { letter: 'A', word: 'Amigo', emoji: '🤝' },
+  { letter: 'E', word: 'Emperador', emoji: '👑' },
+  { letter: 'I', word: 'Ilusión', emoji: '✨' },
+  { letter: 'O', word: 'Orquídea', emoji: '🌸' },
+  { letter: 'U', word: 'Unión', emoji: '🤲' }
+];
+const VOWELS_SUBGAMES = [
+  {
+    id: 'tablero_vocales',
+    moduleKey: 'vowels_tablero',
+    title: 'TABLERO MÁGICO',
+    subtitle: 'A, E, I, O, U con sonido e ilustraciones',
+    icon: '🔤',
+    totalLevels: 1,
+    bubbleClass: 'subgame-bubble-vocales',
+    themeColor: '#ff5722'
+  },
+  {
+    id: 'cual_es_vocal',
+    moduleKey: 'vowels_desafio',
+    title: '¿CUÁL ES LA VOCAL?',
+    subtitle: '50 Niveles de discriminación auditiva y visual',
+    icon: '🎯',
+    totalLevels: 50,
+    bubbleClass: 'subgame-bubble-arma',
+    themeColor: '#e91e63'
+  },
+  {
+    id: 'burbujas_vocales',
+    moduleKey: 'vowels_burbujas',
+    title: 'BURBUJAS DE VOCALES',
+    subtitle: '50 Niveles: ¡Revienta la vocal indicada!',
+    icon: '🫧',
+    totalLevels: 50,
+    bubbleClass: 'subgame-bubble-s',
+    themeColor: '#00bcd4'
+  },
+  {
+    id: 'memorama_vocales',
+    moduleKey: 'vowels_memorama',
+    title: 'MEMORAMA VOCÁLICO',
+    subtitle: '50 Niveles de memoria y parejas',
+    icon: '🃏',
+    totalLevels: 50,
+    bubbleClass: 'subgame-bubble-m',
+    themeColor: '#4caf50'
+  }
+];
 class VowelsScreen {
   constructor(appNavigator) {
     this.navigator = appNavigator;
-    this.currentLevel = null;
-    this.vowels = [
-      { letter: 'A', word: 'Avión', emoji: '✈️', color: '#ff5722' },
-      { letter: 'E', word: 'Elefante', emoji: '🐘', color: '#4caf50' },
-      { letter: 'I', word: 'Isla', emoji: '🏝️', color: '#00bcd4' },
-      { letter: 'O', word: 'Oso', emoji: '🐻', color: '#ff9800' },
-      { letter: 'U', word: 'Uva', emoji: '🍇', color: '#9c27b0' }
-    ];
+    this.activeSubgame = null; // null = menú de subjuegos en círculos
+    this.currentLevel = null;  // 1..50
   }
 
+  resetState() {
+    this.activeSubgame = null;
+    this.currentLevel = null;
+  }
+
+  // ==========================================================================
+  // ORQUESTADOR DE VISTAS
+  // ==========================================================================
   render(container) {
-    if (this.currentLevel === null) {
-      LevelSelector.render({
-        container,
-        moduleKey: 'vowels',
-        moduleTitle: 'Vocales',
-        moduleIcon: '🔤',
-        bgClass: 'vowels-bg',
-        totalLevels: 50,
-        onSelectLevel: (lvl) => {
-          this.currentLevel = lvl;
-          this.renderGame(container);
-        },
-        onBackHome: () => {
-          this.navigator.navigate('home');
-        }
-      });
+    // Vista 1: Menú de subjuegos en círculos
+    if (this.activeSubgame === null) {
+      this.renderSubgamesMenu(container);
       return;
     }
 
-    this.renderGame(container);
+    // Vista 2: Tablero mágico interactivo (actividad única)
+    if (this.activeSubgame === 'tablero_vocales') {
+      this.renderTableroMagico(container);
+      return;
+    }
+
+    // Vista 3: Selector de 50 niveles
+    if (this.currentLevel === null) {
+      this.renderLevelSelector(container);
+      return;
+    }
+
+    // Vista 4: Nivel activo del subjuego
+    if (this.activeSubgame === 'cual_es_vocal') {
+      this.renderCualEsVocal(container);
+    } else if (this.activeSubgame === 'burbujas_vocales') {
+      this.renderBurbujasVocales(container);
+    } else if (this.activeSubgame === 'memorama_vocales') {
+      this.renderMemoramaVocales(container);
+    }
   }
 
-  renderGame(container) {
+  // ==========================================================================
+  // VISTA 1: MENÚ DE SUBJUEGOS EN CÍRCULOS
+  // ==========================================================================
+  renderSubgamesMenu(container) {
     const student = StorageManager.getActiveStudent();
 
-    // Nivel 1: Tablero completo interactivo de las 5 vocales
-    if (this.currentLevel === 1) {
-      container.innerHTML = `
-        <div class="module-container vowels-bg fade-in">
-          <header class="module-header">
-            <button class="back-btn" id="btnBackToLevels">⬅️ Niveles</button>
-            <div style="text-align:center;">
-              <h2>LAS VOCALES: A - E - I - O - U</h2>
-              <div style="font-size:0.8rem; font-weight:bold; color:#6a1b9a;">
-                Juego 1 de 50 (Tablero Mágico)
-              </div>
+    container.innerHTML = `
+      <div class="module-container vowels-bg fade-in" id="vowelsSubgamesMenu">
+        <header class="module-header">
+          <button class="back-btn" id="btnBackToHome">⬅️ Menú Principal</button>
+          
+          <div style="text-align:center;">
+            <h2 style="color:#d81b60; margin:0; font-size:clamp(1.2rem, 3.2vw, 1.8rem);">MÓDULO DE VOCALES</h2>
+            <div style="font-size:0.85rem; font-weight:bold; color:#ad1457;">
+              Elige una actividad en círculo para comenzar • A - E - I - O - U
             </div>
-            <div class="score-box">⭐ ${student.stars || 0}</div>
-          </header>
+          </div>
 
-          <main class="vowels-grid-container">
-            <div class="vowels-card-grid">
-              ${this.vowels.map(v => `
-                <div class="vowel-card" data-vowel="${v.letter}" data-word="${v.word}" style="--v-color: ${v.color}">
-                  <div class="vowel-letter">${v.letter}</div>
-                  <div class="vowel-emoji">${v.emoji}</div>
-                  <div class="vowel-word">${v.word}</div>
-                  <button class="vowel-listen-btn">🔊 Escuchar</button>
-                </div>
-              `).join('')}
-            </div>
-          </main>
+          <div class="score-box">⭐ ${student.stars || 0}</div>
+        </header>
 
-          <footer class="module-footer">
-            <button class="check-btn" id="btnCompleteLevel">⭐ ¡Completar Nivel 1!</button>
-          </footer>
-        </div>
-      `;
+        <main class="subgames-menu-container">
+          <div class="subgames-grid">
+            ${VOWELS_SUBGAMES.map(game => {
+              const prog = StorageManager.getModuleLevels(game.moduleKey);
+              const count = Object.keys(prog.completed || {}).length;
+              return `
+                <button class="subgame-circle-card" data-game="${game.id}">
+                  <div class="subgame-bubble ${game.bubbleClass} pulse-glow">
+                    <span class="subgame-bubble-icon">${game.icon}</span>
+                    <span class="subgame-levels-badge">${game.totalLevels > 1 ? `${game.totalLevels} Niveles` : 'Actividad'}</span>
+                  </div>
+                  <span class="subgame-title-label" style="color:${game.themeColor};">${game.title}</span>
+                  <span style="font-size:0.75rem; color:#455a64; font-weight:bold; margin-top:3px;">
+                    ${game.totalLevels > 1 ? `⭐ ${count}/${game.totalLevels} completados` : '¡Toca para entrar!'}
+                  </span>
+                </button>
+              `;
+            }).join('')}
+          </div>
+        </main>
 
-      this.bindLevel1Events(container);
-      audio.speak('¡Toca cada vocal para escuchar su sonido!');
-      return;
-    }
+        <footer class="module-footer">
+          <span class="tip-text">💡 Toca cualquiera de los 4 juegos en círculo para aprender las vocales.</span>
+        </footer>
+      </div>
+    `;
 
-    // Niveles 2 al 50: Desafíos de discriminación fonética ("Encuentra la vocal correcta")
-    const targetVowel = this.vowels[(this.currentLevel - 2) % this.vowels.length];
-    const shuffled = [...this.vowels].sort(() => 0.5 - Math.random());
+    container.querySelector('#btnBackToHome')?.addEventListener('click', () => {
+      audio.playClick();
+      this.resetState();
+      this.navigator.navigate('home');
+    });
+
+    container.querySelectorAll('.subgame-circle-card').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        audio.playClick();
+        const gid = e.currentTarget.dataset.game;
+        this.activeSubgame = gid;
+        this.currentLevel = null;
+        this.render(container);
+      });
+    });
+
+    audio.speak('Elige un juego de vocales');
+  }
+
+  // ==========================================================================
+  // VISTA 2: SELECTOR DE 50 NIVELES EN CÍRCULOS
+  // ==========================================================================
+  renderLevelSelector(container) {
+    const sub = VOWELS_SUBGAMES.find(g => g.id === this.activeSubgame) || VOWELS_SUBGAMES[1];
+
+    LevelSelector.render({
+      container,
+      moduleKey: sub.moduleKey,
+      moduleTitle: sub.title,
+      moduleIcon: sub.icon,
+      bgClass: 'vowels-bg',
+      totalLevels: 50,
+      onSelectLevel: (lvl) => {
+        audio.playClick();
+        this.currentLevel = lvl;
+        this.render(container);
+      },
+      onBackHome: () => {
+        audio.playClick();
+        this.activeSubgame = null;
+        this.currentLevel = null;
+        this.render(container);
+      }
+    });
+  }
+
+  // ==========================================================================
+  // SUBJUEGO 1: TABLERO MÁGICO DE VOCALES
+  // ==========================================================================
+  renderTableroMagico(container) {
+    const student = StorageManager.getActiveStudent();
 
     container.innerHTML = `
-      <div class="module-container vowels-bg fade-in">
+      <div class="module-container vowels-bg fade-in" id="vowelsTableroModule">
         <header class="module-header">
-          <button class="back-btn" id="btnBackToLevels">⬅️ Niveles</button>
+          <button class="back-btn" id="btnBackToVowelsMenu">⬅️ Menú Vocales</button>
           <div style="text-align:center;">
-            <h2>RETOS VOCÁLICOS</h2>
-            <div style="font-size:0.8rem; font-weight:bold; color:#6a1b9a;">
-              Juego ${this.currentLevel} de 50: Encuentra la ${targetVowel.letter}
+            <h2>TABLERO MÁGICO DE VOCALES</h2>
+            <div style="font-size:0.85rem; font-weight:bold; color:#6a1b9a;">
+              Toca cada vocal para escuchar su sonido fonético
             </div>
           </div>
           <div class="score-box">⭐ ${student.stars || 0}</div>
         </header>
 
-        <main class="game-board" style="display:flex; flex-direction:column; align-items:center;">
-          <div style="background:white; padding:14px 24px; border-radius:24px; border:3px solid ${targetVowel.color}; box-shadow:0 8px 20px rgba(0,0,0,0.12); text-align:center; max-width:90vw;">
-            <div style="font-size: clamp(3rem, 7vh, 4.5rem);">${targetVowel.emoji}</div>
-            <h3 style="color:${targetVowel.color}; font-size:clamp(1.2rem, 3vh, 1.8rem); margin:6px 0;">
-              ¿Cuál es la vocal de "${targetVowel.word}"?
-            </h3>
-            <div style="display:flex; gap:clamp(8px, 2vw, 16px); justify-content:center; margin-top:14px;">
-              ${shuffled.map(v => `
-                <button class="syllable-btn" data-v="${v.letter}" style="background:${v.color}; font-size:clamp(1.4rem, 3.5vh, 2rem); min-width:clamp(48px, 9vw, 65px);">
-                  ${v.letter}
-                </button>
-              `).join('')}
-            </div>
+        <main class="vowels-grid-container" style="display:flex; justify-content:center; align-items:center; flex:1;">
+          <div class="vowels-card-grid" style="display:flex; flex-wrap:wrap; justify-content:center; gap:16px;">
+            ${VOWELS_CATALOG.map(v => `
+              <div class="vowel-card" data-vowel="${v.letter}" data-word="${v.word}" style="--v-color: ${v.color}; cursor:pointer; min-width:110px; padding:12px; background:white; border-radius:20px; box-shadow:0 8px 18px rgba(0,0,0,0.12); text-align:center; border:3px solid ${v.color};">
+                <div class="vowel-letter" style="font-size:2.8rem; font-weight:900; color:${v.color};">${v.letter}</div>
+                <div class="vowel-emoji" style="font-size:2.2rem; margin:4px 0;">${v.emoji}</div>
+                <div class="vowel-word" style="font-weight:800; color:#37474f;">${v.word}</div>
+                <button class="vowel-listen-btn" style="margin-top:6px; background:${v.color}; color:white; border:none; border-radius:12px; padding:4px 10px; font-weight:bold; cursor:pointer;">🔊 Escuchar</button>
+              </div>
+            `).join('')}
           </div>
         </main>
 
         <footer class="module-footer">
-          <button class="sound-btn" id="btnListenChallenge">🔊 Repetir: ${targetVowel.word}</button>
+          <button class="check-btn" id="btnCompleteTablero">⭐ ¡Completar Tablero Mágico!</button>
         </footer>
       </div>
     `;
 
-    this.bindChallengeEvents(container, targetVowel);
-    audio.speak(`¿Cuál es la vocal de ${targetVowel.word}?`);
-  }
-
-  bindLevel1Events(container) {
-    container.querySelector('#btnBackToLevels')?.addEventListener('click', () => {
+    container.querySelector('#btnBackToVowelsMenu')?.addEventListener('click', () => {
       audio.playClick();
-      this.currentLevel = null;
+      this.activeSubgame = null;
       this.render(container);
     });
 
@@ -6223,53 +6907,302 @@ class VowelsScreen {
       });
     });
 
-    container.querySelector('#btnCompleteLevel')?.addEventListener('click', () => {
+    container.querySelector('#btnCompleteTablero')?.addEventListener('click', () => {
       audio.playFanfare();
-      Confetti.shoot(2500);
-      StorageManager.completeModuleLevel('vowels', 1, 3);
+      Confetti.shoot(3000);
+      StorageManager.completeModuleLevel('vowels_tablero', 1, 3);
+      StorageManager.addStars(3);
       setTimeout(() => {
-        this.currentLevel = 2;
-        this.renderGame(container);
-      }, 1200);
+        this.activeSubgame = null;
+        this.render(container);
+      }, 1800);
     });
+
+    audio.speak('Toca cada vocal para escuchar su sonido');
   }
 
-  bindChallengeEvents(container, targetVowel) {
+  // ==========================================================================
+  // SUBJUEGO 2: ¿CUÁL ES LA VOCAL? (50 NIVELES)
+  // ==========================================================================
+  renderCualEsVocal(container) {
+    const student = StorageManager.getActiveStudent();
+    const item = VOWELS_WORDS_50[(this.currentLevel - 1) % VOWELS_WORDS_50.length];
+    const targetVowel = item.letter;
+    const shuffled = [...VOWELS_CATALOG].sort(() => 0.5 - Math.random());
+
+    container.innerHTML = `
+      <div class="module-container vowels-bg fade-in" id="cualEsVocalModule">
+        <header class="module-header">
+          <button class="back-btn" id="btnBackToLevels">⬅️ Niveles</button>
+          <div style="text-align:center;">
+            <h2>¿CUÁL ES LA VOCAL?</h2>
+            <div style="font-size:0.85rem; font-weight:bold; color:#ad1457;">
+              Nivel ${this.currentLevel} de 50: ${item.word}
+            </div>
+          </div>
+          <div class="score-box">⭐ ${student.stars || 0}</div>
+        </header>
+
+        <main class="game-board" style="display:flex; flex-direction:column; align-items:center; justify-content:center; flex:1;">
+          <div style="background:white; padding:20px 32px; border-radius:28px; border:4px solid #e91e63; box-shadow:0 12px 28px rgba(0,0,0,0.15); text-align:center; max-width:92vw;">
+            <div style="font-size: clamp(3.2rem, 7vh, 4.8rem);">${item.emoji}</div>
+            <h3 style="color:#d81b60; font-size:clamp(1.3rem, 3vh, 1.8rem); margin:8px 0;">
+              ¿Con qué vocal empieza <strong>"${item.word}"</strong>?
+            </h3>
+            
+            <div style="display:flex; gap:12px; justify-content:center; margin-top:16px; flex-wrap:wrap;">
+              ${shuffled.map(v => `
+                <button class="syllable-btn vowel-choice-btn" data-v="${v.letter}" style="background:${v.color}; font-size:clamp(1.5rem, 3.5vh, 2.2rem); min-width:clamp(52px, 10vw, 70px); min-height:clamp(52px, 10vw, 70px); border-radius:18px; border:3px solid white; color:white; font-weight:900; cursor:pointer; box-shadow:0 6px 12px rgba(0,0,0,0.18);">
+                  ${v.letter}
+                </button>
+              `).join('')}
+            </div>
+          </div>
+        </main>
+
+        <footer class="module-footer">
+          <button class="sound-btn" id="btnListenWord">🔊 Escuchar: ${item.word}</button>
+        </footer>
+      </div>
+    `;
+
     container.querySelector('#btnBackToLevels')?.addEventListener('click', () => {
       audio.playClick();
       this.currentLevel = null;
       this.render(container);
     });
 
-    container.querySelector('#btnListenChallenge')?.addEventListener('click', () => {
-      audio.speak(`Encuentra la vocal de ${targetVowel.word}`);
+    container.querySelector('#btnListenWord')?.addEventListener('click', () => {
+      audio.speak(item.word);
     });
 
-    container.querySelectorAll('.syllable-btn').forEach(btn => {
+    container.querySelectorAll('.vowel-choice-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
-        const chosen = e.target.dataset.v;
-        if (chosen === targetVowel.letter) {
+        const chosen = e.currentTarget.dataset.v;
+        if (chosen === targetVowel) {
           audio.playSuccess();
-          e.target.classList.add('correct');
-          Confetti.shoot(2000);
-          StorageManager.completeModuleLevel('vowels', this.currentLevel, 3);
+          Confetti.shoot(2200);
+          StorageManager.completeModuleLevel('vowels_desafio', this.currentLevel, 3);
+          StorageManager.addStars(1);
+          btn.style.transform = 'scale(1.25)';
+          btn.style.background = '#4caf50';
+
           setTimeout(() => {
             if (this.currentLevel < 50) {
-              this.currentLevel = this.currentLevel + 1;
-              this.renderGame(container);
+              this.currentLevel++;
+              this.render(container);
             } else {
               this.currentLevel = null;
               this.render(container);
             }
-          }, 1400);
+          }, 1100);
         } else {
-          audio.playError();
-          e.target.classList.add('wrong');
-          setTimeout(() => e.target.classList.remove('wrong'), 500);
-          audio.speak(`Esa es la letra ${chosen}, intenta de nuevo`);
+          audio.playWrong();
+          btn.style.transform = 'rotate(-8deg)';
+          setTimeout(() => { btn.style.transform = 'none'; }, 250);
+          audio.speak(`Intenta otra vez, busca la vocal de ${item.word}`);
         }
       });
     });
+
+    audio.speak(`¿Con qué vocal empieza ${item.word}?`);
+  }
+
+  // ==========================================================================
+  // SUBJUEGO 3: BURBUJAS DE VOCALES (50 NIVELES)
+  // ==========================================================================
+  renderBurbujasVocales(container) {
+    const student = StorageManager.getActiveStudent();
+    const targetIdx = (this.currentLevel - 1) % VOWELS_CATALOG.length;
+    const targetVowel = VOWELS_CATALOG[targetIdx].letter;
+    
+    // Generar 8 burbujas (al menos 3 de la vocal correcta)
+    const bubbles = [];
+    for (let i = 0; i < 3; i++) bubbles.push(targetVowel);
+    while (bubbles.length < 8) {
+      const rnd = VOWELS_CATALOG[Math.floor(Math.random() * VOWELS_CATALOG.length)].letter;
+      bubbles.push(rnd);
+    }
+    bubbles.sort(() => 0.5 - Math.random());
+
+    container.innerHTML = `
+      <div class="module-container vowels-bg fade-in" id="burbujasModule">
+        <header class="module-header">
+          <button class="back-btn" id="btnBackToLevels">⬅️ Niveles</button>
+          <div style="text-align:center;">
+            <h2>BURBUJAS DE VOCALES 🫧</h2>
+            <div style="font-size:0.85rem; font-weight:bold; color:#00838f;">
+              Nivel ${this.currentLevel} de 50: ¡Revienta las burbujas con la <strong>${targetVowel}</strong>!
+            </div>
+          </div>
+          <div class="score-box">⭐ ${student.stars || 0}</div>
+        </header>
+
+        <main class="game-board" style="display:flex; flex-direction:column; align-items:center; justify-content:center; flex:1;">
+          <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:16px; max-width:680px;">
+            ${bubbles.map((b, idx) => `
+              <button class="bubble-btn" data-v="${b}" style="width:75px; height:75px; border-radius:50%; background:radial-gradient(circle at 35% 30%, #e0f7fa 0%, #00bcd4 60%, #00838f 100%); border:3px solid #ffffff; box-shadow:0 6px 14px rgba(0,188,212,0.4); font-size:2rem; font-weight:900; color:white; cursor:pointer; transition:transform 0.15s ease;">
+                ${b}
+              </button>
+            `).join('')}
+          </div>
+        </main>
+
+        <footer class="module-footer">
+          <span class="tip-text">Toca todas las burbujas que tengan la letra <strong>${targetVowel}</strong>.</span>
+        </footer>
+      </div>
+    `;
+
+    container.querySelector('#btnBackToLevels')?.addEventListener('click', () => {
+      audio.playClick();
+      this.currentLevel = null;
+      this.render(container);
+    });
+
+    let remaining = 3;
+    container.querySelectorAll('.bubble-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const v = btn.dataset.v;
+        if (v === targetVowel && !btn.classList.contains('popped')) {
+          btn.classList.add('popped');
+          btn.style.transform = 'scale(0)';
+          btn.style.opacity = '0';
+          audio.playPop();
+          remaining--;
+
+          if (remaining <= 0) {
+            audio.playSuccess();
+            Confetti.shoot(2000);
+            StorageManager.completeModuleLevel('vowels_burbujas', this.currentLevel, 3);
+            StorageManager.addStars(1);
+            setTimeout(() => {
+              if (this.currentLevel < 50) {
+                this.currentLevel++;
+                this.render(container);
+              } else {
+                this.currentLevel = null;
+                this.render(container);
+              }
+            }, 1000);
+          }
+        } else if (v !== targetVowel) {
+          audio.playWrong();
+          btn.style.transform = 'scale(0.85)';
+          setTimeout(() => { btn.style.transform = 'scale(1)'; }, 200);
+        }
+      });
+    });
+
+    audio.speak(`¡Revienta las burbujas con la letra ${targetVowel}!`);
+  }
+
+  // ==========================================================================
+  // SUBJUEGO 4: MEMORAMA VOCÁLICO (50 NIVELES)
+  // ==========================================================================
+  renderMemoramaVocales(container) {
+    const student = StorageManager.getActiveStudent();
+    const item1 = VOWELS_CATALOG[(this.currentLevel - 1) % VOWELS_CATALOG.length];
+    const item2 = VOWELS_CATALOG[(this.currentLevel) % VOWELS_CATALOG.length];
+    
+    // 4 cartas: 2 letras y 2 imágenes correspondientes
+    const cards = [
+      { id: 1, matchKey: item1.letter, display: item1.letter, isLetter: true, color: item1.color },
+      { id: 2, matchKey: item1.letter, display: item1.emoji, isLetter: false, color: item1.color },
+      { id: 3, matchKey: item2.letter, display: item2.letter, isLetter: true, color: item2.color },
+      { id: 4, matchKey: item2.letter, display: item2.emoji, isLetter: false, color: item2.color }
+    ].sort(() => 0.5 - Math.random());
+
+    container.innerHTML = `
+      <div class="module-container vowels-bg fade-in" id="memoramaModule">
+        <header class="module-header">
+          <button class="back-btn" id="btnBackToLevels">⬅️ Niveles</button>
+          <div style="text-align:center;">
+            <h2>MEMORAMA VOCÁLICO 🃏</h2>
+            <div style="font-size:0.85rem; font-weight:bold; color:#2e7d32;">
+              Nivel ${this.currentLevel} de 50: Encuentra las parejas
+            </div>
+          </div>
+          <div class="score-box">⭐ ${student.stars || 0}</div>
+        </header>
+
+        <main class="game-board" style="display:flex; justify-content:center; align-items:center; flex:1;">
+          <div style="display:grid; grid-template-columns:repeat(2, 110px); gap:16px;">
+            ${cards.map((c, idx) => `
+              <button class="memo-card-btn" data-key="${c.matchKey}" data-display="${c.display}" style="width:110px; height:120px; border-radius:18px; background:linear-gradient(135deg, #4caf50 0%, #2e7d32 100%); border:3px solid white; box-shadow:0 8px 18px rgba(0,0,0,0.18); font-size:2.8rem; font-weight:900; color:transparent; cursor:pointer; display:flex; align-items:center; justify-content:center;">
+                ❓
+              </button>
+            `).join('')}
+          </div>
+        </main>
+
+        <footer class="module-footer">
+          <span class="tip-text">Toca dos cartas para descubrir su pareja.</span>
+        </footer>
+      </div>
+    `;
+
+    container.querySelector('#btnBackToLevels')?.addEventListener('click', () => {
+      audio.playClick();
+      this.currentLevel = null;
+      this.render(container);
+    });
+
+    let flipped = [];
+    let matchedPairs = 0;
+
+    container.querySelectorAll('.memo-card-btn').forEach(card => {
+      card.addEventListener('click', () => {
+        if (flipped.length >= 2 || card.classList.contains('matched') || flipped.includes(card)) return;
+
+        audio.playPop();
+        card.innerText = card.dataset.display;
+        card.style.background = '#ffffff';
+        card.style.color = '#37474f';
+        flipped.push(card);
+
+        if (flipped.length === 2) {
+          const [c1, c2] = flipped;
+          if (c1.dataset.key === c2.dataset.key) {
+            audio.playSuccess();
+            c1.classList.add('matched');
+            c2.classList.add('matched');
+            c1.style.borderColor = '#4caf50';
+            c2.style.borderColor = '#4caf50';
+            flipped = [];
+            matchedPairs++;
+
+            if (matchedPairs >= 2) {
+              Confetti.shoot(2000);
+              StorageManager.completeModuleLevel('vowels_memorama', this.currentLevel, 3);
+              StorageManager.addStars(2);
+              setTimeout(() => {
+                if (this.currentLevel < 50) {
+                  this.currentLevel++;
+                  this.render(container);
+                } else {
+                  this.currentLevel = null;
+                  this.render(container);
+                }
+              }, 1200);
+            }
+          } else {
+            audio.playWrong();
+            setTimeout(() => {
+              c1.innerText = '❓';
+              c2.innerText = '❓';
+              c1.style.background = 'linear-gradient(135deg, #4caf50 0%, #2e7d32 100%)';
+              c2.style.background = 'linear-gradient(135deg, #4caf50 0%, #2e7d32 100%)';
+              c1.style.color = 'transparent';
+              c2.style.color = 'transparent';
+              flipped = [];
+            }, 800);
+          }
+        }
+      });
+    });
+
+    audio.speak('Encuentra las parejas del memorama');
   }
 }
 
@@ -6279,117 +7212,309 @@ class VowelsScreen {
      ========================================================================== */
 
 /**
- * ShapesScreen - Módulo "Figuras" con 50 Juegos en Círculos ("Circulitos")
- * Reconocimiento de figuras geométricas, colores y secuencias didácticas.
+ * ShapesScreen.js - Módulo "Figuras Geométricas y Colores" con Arquitectura Multi-Juegos
+ * Reconocimiento espacial, cromático y patrones para niños de preescolar.
+ * 
+ * Subjuegos disponibles:
+ * 1. "Taller de Pintura Mágica" (Actividad interactiva con paleta de 6 colores)
+ * 2. "Desafío de Figuras" (50 niveles: identifica la figura correcta)
+ * 3. "Figuras en la Vida Real" (50 niveles: relaciona la forma con objetos cotidianos)
+ * 4. "Series y Patrones" (50 niveles: completa la secuencia geométrica)
  */
+const SHAPES_SUBGAMES = [
+  {
+    id: 'taller_pintura',
+    moduleKey: 'shapes_taller',
+    title: 'TALLER DE PINTURA',
+    subtitle: 'Paleta con 6 colores y pincel mágico',
+    icon: '🎨',
+    totalLevels: 1,
+    bubbleClass: 'subgame-bubble-vocales',
+    themeColor: '#e91e63'
+  },
+  {
+    id: 'desafio_figuras',
+    moduleKey: 'shapes_desafio',
+    title: 'DESAFÍO DE FIGURAS',
+    subtitle: '50 Niveles: Identifica la figura correcta',
+    icon: '🔺',
+    totalLevels: 50,
+    bubbleClass: 'subgame-bubble-arma',
+    themeColor: '#ff5722'
+  },
+  {
+    id: 'mundo_real',
+    moduleKey: 'shapes_mundo_real',
+    title: 'FIGURAS EN LA VIDA REAL',
+    subtitle: '50 Niveles: Pizza, reloj, regalo y más',
+    icon: '🍕',
+    totalLevels: 50,
+    bubbleClass: 'subgame-bubble-s',
+    themeColor: '#f57c00'
+  },
+  {
+    id: 'series_patrones',
+    moduleKey: 'shapes_patrones',
+    title: 'SERIES Y PATRONES',
+    subtitle: '50 Niveles: Completa la secuencia',
+    icon: '🔁',
+    totalLevels: 50,
+    bubbleClass: 'subgame-bubble-m',
+    themeColor: '#00897b'
+  }
+];
+const SHAPES_DATA = [
+  { name: 'CÍRCULO', shapeType: 'circle', objectText: '🍩 Como una dona deliciosa', realEmoji: '🍩', color: '#ff5722' },
+  { name: 'TRIÁNGULO', shapeType: 'triangle', objectText: '🍕 Como una rebanada de pizza', realEmoji: '🍕', color: '#ffb300' },
+  { name: 'CUADRADO', shapeType: 'square', objectText: '🎁 Como una caja de regalo', realEmoji: '🎁', color: '#4caf50' },
+  { name: 'ESTRELLA', shapeType: 'star', objectText: '⭐ Como las estrellas del cielo', realEmoji: '⭐', color: '#9c27b0' },
+  { name: 'RECTÁNGULO', shapeType: 'rectangle', objectText: '🚪 Como una puerta alta', realEmoji: '🚪', color: '#00bcd4' },
+  { name: 'CORAZÓN', shapeType: 'heart', objectText: '💖 Como un globo con amor', realEmoji: '💖', color: '#e91e63' }
+];
 class ShapesScreen {
   constructor(appNavigator) {
     this.navigator = appNavigator;
-    this.currentLevel = null;
-    this.shapes = [
-      { name: 'CÍRCULO', shapeType: 'circle', objectText: '🍩 Como una dona deliciosa', color: '#ff5722' },
-      { name: 'TRIÁNGULO', shapeType: 'triangle', objectText: '🍕 Como una rebanada de pizza', color: '#ffb300' },
-      { name: 'CUADRADO', shapeType: 'square', objectText: '🎁 Como una caja de regalo', color: '#4caf50' },
-      { name: 'ESTRELLA', shapeType: 'star', objectText: '⭐ Como las estrellas del cielo', color: '#9c27b0' }
-    ];
+    this.activeSubgame = null; // null = menú de subjuegos en círculos
+    this.currentLevel = null;  // 1..50
     this.currentColor = '#ff5722';
   }
 
-  render(container) {
-    if (this.currentLevel === null) {
-      LevelSelector.render({
-        container,
-        moduleKey: 'shapes',
-        moduleTitle: 'Figuras',
-        moduleIcon: '🎨',
-        bgClass: 'shapes-bg',
-        totalLevels: 50,
-        onSelectLevel: (lvl) => {
-          this.currentLevel = lvl;
-          this.renderGame(container);
-        },
-        onBackHome: () => {
-          this.navigator.navigate('home');
-        }
-      });
-      return;
-    }
-
-    this.renderGame(container);
+  resetState() {
+    this.activeSubgame = null;
+    this.currentLevel = null;
   }
 
-  renderGame(container) {
-    const student = StorageManager.getActiveStudent();
-
-    // Nivel 1: Taller de Pintura de Figuras Geométricas (Juego Default)
-    if (this.currentLevel === 1) {
-      container.innerHTML = `
-        <div class="module-container shapes-bg fade-in">
-          <header class="module-header">
-            <button class="back-btn" id="btnBackToLevels">⬅️ Niveles</button>
-            <div style="text-align:center;">
-              <h2>FIGURAS GEOMÉTRICAS Y COLORES</h2>
-              <div style="font-size:0.8rem; font-weight:bold; color:#c2185b;">
-                Juego 1 de 50: Taller de Colores
-              </div>
-            </div>
-            <div class="score-box">⭐ ${student.stars || 0}</div>
-          </header>
-
-          <main class="shapes-game-board">
-            <div class="color-palette-bar">
-              <span>Pincel Mágico:</span>
-              <button class="palette-swatch active" style="background:#ff5722" data-color="#ff5722"></button>
-              <button class="palette-swatch" style="background:#ffeb3b" data-color="#ffeb3b"></button>
-              <button class="palette-swatch" style="background:#4caf50" data-color="#4caf50"></button>
-              <button class="palette-swatch" style="background:#00bcd4" data-color="#00bcd4"></button>
-              <button class="palette-swatch" style="background:#e91e63" data-color="#e91e63"></button>
-              <button class="palette-swatch" style="background:#9c27b0" data-color="#9c27b0"></button>
-            </div>
-
-            <div class="shapes-grid">
-              ${this.shapes.map(item => `
-                <div class="shape-card" data-shape="${item.name}">
-                  <div class="shape-figure-box">
-                    <div class="shape-element ${item.shapeType}" style="--current-fill: ${item.color}"></div>
-                  </div>
-                  <h3 class="shape-name">${item.name}</h3>
-                  <p class="shape-desc">${item.objectText}</p>
-                  <button class="shape-action-btn">🖌️ Pintar</button>
-                </div>
-              `).join('')}
-            </div>
-          </main>
-
-          <footer class="module-footer">
-            <button class="check-btn" id="btnFinishShapes">⭐ ¡Completar Nivel 1!</button>
-          </footer>
-        </div>
-      `;
-
-      this.bindLevel1Events(container);
-      audio.speak('Elige un color y pinta las figuras');
+  // ==========================================================================
+  // ORQUESTADOR DE VISTAS
+  // ==========================================================================
+  render(container) {
+    if (this.activeSubgame === null) {
+      this.renderSubgamesMenu(container);
       return;
     }
 
-    // Niveles 2 al 50: Desafíos pedagógicos ("Toca la figura correcta")
-    const target = this.shapes[(this.currentLevel - 2) % this.shapes.length];
-    const shuffled = [...this.shapes].sort(() => 0.5 - Math.random());
+    if (this.activeSubgame === 'taller_pintura') {
+      this.renderTallerPintura(container);
+      return;
+    }
+
+    if (this.currentLevel === null) {
+      this.renderLevelSelector(container);
+      return;
+    }
+
+    if (this.activeSubgame === 'desafio_figuras') {
+      this.renderDesafioFiguras(container);
+    } else if (this.activeSubgame === 'mundo_real') {
+      this.renderMundoReal(container);
+    } else if (this.activeSubgame === 'series_patrones') {
+      this.renderSeriesPatrones(container);
+    }
+  }
+
+  // ==========================================================================
+  // VISTA 1: MENÚ DE SUBJUEGOS EN CÍRCULOS
+  // ==========================================================================
+  renderSubgamesMenu(container) {
+    const student = StorageManager.getActiveStudent();
 
     container.innerHTML = `
-      <div class="module-container shapes-bg fade-in">
+      <div class="module-container shapes-bg fade-in" id="shapesSubgamesMenu">
         <header class="module-header">
-          <button class="back-btn" id="btnBackToLevels">⬅️ Niveles</button>
+          <button class="back-btn" id="btnBackToHome">⬅️ Menú Principal</button>
+          
           <div style="text-align:center;">
-            <h2>DESAFÍO DE FIGURAS</h2>
-            <div style="font-size:0.8rem; font-weight:bold; color:#c2185b;">
-              Juego ${this.currentLevel} de 50
+            <h2 style="color:#c2185b; margin:0; font-size:clamp(1.2rem, 3.2vw, 1.8rem);">FIGURAS GEOMÉTRICAS Y COLORES</h2>
+            <div style="font-size:0.85rem; font-weight:bold; color:#ad1457;">
+              Elige un juego en círculo para comenzar • Geometría de Kínder
+            </div>
+          </div>
+
+          <div class="score-box">⭐ ${student.stars || 0}</div>
+        </header>
+
+        <main class="subgames-menu-container">
+          <div class="subgames-grid">
+            ${SHAPES_SUBGAMES.map(game => {
+              const prog = StorageManager.getModuleLevels(game.moduleKey);
+              const count = Object.keys(prog.completed || {}).length;
+              return `
+                <button class="subgame-circle-card" data-game="${game.id}">
+                  <div class="subgame-bubble ${game.bubbleClass} pulse-glow">
+                    <span class="subgame-bubble-icon">${game.icon}</span>
+                    <span class="subgame-levels-badge">${game.totalLevels > 1 ? `${game.totalLevels} Niveles` : 'Actividad'}</span>
+                  </div>
+                  <span class="subgame-title-label" style="color:${game.themeColor};">${game.title}</span>
+                  <span style="font-size:0.75rem; color:#455a64; font-weight:bold; margin-top:3px;">
+                    ${game.totalLevels > 1 ? `⭐ ${count}/${game.totalLevels} completados` : '¡Toca para entrar!'}
+                  </span>
+                </button>
+              `;
+            }).join('')}
+          </div>
+        </main>
+
+        <footer class="module-footer">
+          <span class="tip-text">💡 Toca cualquiera de los 4 círculos para pintar y explorar las figuras.</span>
+        </footer>
+      </div>
+    `;
+
+    container.querySelector('#btnBackToHome')?.addEventListener('click', () => {
+      audio.playClick();
+      this.resetState();
+      this.navigator.navigate('home');
+    });
+
+    container.querySelectorAll('.subgame-circle-card').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        audio.playClick();
+        this.activeSubgame = e.currentTarget.dataset.game;
+        this.currentLevel = null;
+        this.render(container);
+      });
+    });
+
+    audio.speak('Elige un juego de figuras y colores');
+  }
+
+  // ==========================================================================
+  // VISTA 2: SELECTOR DE 50 NIVELES EN CÍRCULOS
+  // ==========================================================================
+  renderLevelSelector(container) {
+    const sub = SHAPES_SUBGAMES.find(g => g.id === this.activeSubgame) || SHAPES_SUBGAMES[1];
+
+    LevelSelector.render({
+      container,
+      moduleKey: sub.moduleKey,
+      moduleTitle: sub.title,
+      moduleIcon: sub.icon,
+      bgClass: 'shapes-bg',
+      totalLevels: 50,
+      onSelectLevel: (lvl) => {
+        audio.playClick();
+        this.currentLevel = lvl;
+        this.render(container);
+      },
+      onBackHome: () => {
+        audio.playClick();
+        this.activeSubgame = null;
+        this.currentLevel = null;
+        this.render(container);
+      }
+    });
+  }
+
+  // ==========================================================================
+  // SUBJUEGO 1: TALLER DE PINTURA MÁGICA
+  // ==========================================================================
+  renderTallerPintura(container) {
+    const student = StorageManager.getActiveStudent();
+
+    container.innerHTML = `
+      <div class="module-container shapes-bg fade-in" id="tallerPinturaModule">
+        <header class="module-header">
+          <button class="back-btn" id="btnBackToShapesMenu">⬅️ Menú Figuras</button>
+          <div style="text-align:center;">
+            <h2>TALLER DE PINTURA DE FIGURAS 🎨</h2>
+            <div style="font-size:0.85rem; font-weight:bold; color:#c2185b;">
+              Elige un color y toca cada figura para pintarla
             </div>
           </div>
           <div class="score-box">⭐ ${student.stars || 0}</div>
         </header>
 
-        <main class="game-board" style="display:flex; flex-direction:column; align-items:center;">
+        <main class="shapes-game-board" style="display:flex; flex-direction:column; align-items:center; justify-content:center; flex:1;">
+          <div class="color-palette-bar" style="display:flex; align-items:center; gap:8px; margin-bottom:16px; background:white; padding:8px 16px; border-radius:20px; box-shadow:0 4px 12px rgba(0,0,0,0.1);">
+            <span style="font-weight:900; color:#37474f;">Pincel:</span>
+            <button class="palette-swatch active" style="background:#ff5722; width:34px; height:34px; border-radius:50%; border:2px solid white; cursor:pointer;" data-color="#ff5722"></button>
+            <button class="palette-swatch" style="background:#ffeb3b; width:34px; height:34px; border-radius:50%; border:2px solid white; cursor:pointer;" data-color="#ffeb3b"></button>
+            <button class="palette-swatch" style="background:#4caf50; width:34px; height:34px; border-radius:50%; border:2px solid white; cursor:pointer;" data-color="#4caf50"></button>
+            <button class="palette-swatch" style="background:#00bcd4; width:34px; height:34px; border-radius:50%; border:2px solid white; cursor:pointer;" data-color="#00bcd4"></button>
+            <button class="palette-swatch" style="background:#e91e63; width:34px; height:34px; border-radius:50%; border:2px solid white; cursor:pointer;" data-color="#e91e63"></button>
+            <button class="palette-swatch" style="background:#9c27b0; width:34px; height:34px; border-radius:50%; border:2px solid white; cursor:pointer;" data-color="#9c27b0"></button>
+          </div>
+
+          <div class="shapes-grid" style="display:flex; flex-wrap:wrap; justify-content:center; gap:16px; max-width:680px;">
+            ${SHAPES_DATA.slice(0, 4).map(item => `
+              <div class="shape-card" data-shape="${item.name}" style="background:white; border-radius:20px; padding:12px 18px; border:3px solid #f48fb1; text-align:center; box-shadow:0 6px 14px rgba(0,0,0,0.1); cursor:pointer;">
+                <div class="shape-figure-box" style="height:90px; display:flex; align-items:center; justify-content:center;">
+                  <div class="shape-element ${item.shapeType}" style="--current-fill: ${item.color}"></div>
+                </div>
+                <h3 class="shape-name" style="margin:6px 0 2px 0; color:#37474f; font-size:1.1rem;">${item.name}</h3>
+                <p class="shape-desc" style="font-size:0.75rem; color:#78909c; margin:0 0 6px 0;">${item.objectText}</p>
+                <button class="shape-action-btn" style="background:${item.color}; color:white; border:none; border-radius:12px; padding:4px 12px; font-weight:bold; cursor:pointer;">🖌️ Pintar</button>
+              </div>
+            `).join('')}
+          </div>
+        </main>
+
+        <footer class="module-footer">
+          <button class="check-btn" id="btnFinishShapes">⭐ ¡Completar Taller de Pintura!</button>
+        </footer>
+      </div>
+    `;
+
+    container.querySelector('#btnBackToShapesMenu')?.addEventListener('click', () => {
+      audio.playClick();
+      this.activeSubgame = null;
+      this.render(container);
+    });
+
+    container.querySelectorAll('.palette-swatch').forEach(btn => {
+      btn.addEventListener('click', () => {
+        audio.playClick();
+        container.querySelectorAll('.palette-swatch').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        this.currentColor = btn.dataset.color;
+      });
+    });
+
+    container.querySelectorAll('.shape-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const el = card.querySelector('.shape-element');
+        if (el) el.style.setProperty('--current-fill', this.currentColor);
+        audio.playBrush();
+        audio.speak(card.dataset.shape);
+      });
+    });
+
+    container.querySelector('#btnFinishShapes')?.addEventListener('click', () => {
+      audio.playFanfare();
+      Confetti.shoot(3000);
+      StorageManager.completeModuleLevel('shapes_taller', 1, 3);
+      StorageManager.addStars(3);
+      setTimeout(() => {
+        this.activeSubgame = null;
+        this.render(container);
+      }, 1800);
+    });
+
+    audio.speak('Elige un color y pinta las figuras geométricas');
+  }
+
+  // ==========================================================================
+  // SUBJUEGO 2: DESAFÍO DE FIGURAS (50 NIVELES)
+  // ==========================================================================
+  renderDesafioFiguras(container) {
+    const student = StorageManager.getActiveStudent();
+    const target = SHAPES_DATA[(this.currentLevel - 1) % SHAPES_DATA.length];
+    const shuffled = [...SHAPES_DATA.slice(0, 4)].sort(() => 0.5 - Math.random());
+
+    container.innerHTML = `
+      <div class="module-container shapes-bg fade-in" id="desafioFigurasModule">
+        <header class="module-header">
+          <button class="back-btn" id="btnBackToLevels">⬅️ Niveles</button>
+          <div style="text-align:center;">
+            <h2>DESAFÍO DE FIGURAS 🔺</h2>
+            <div style="font-size:0.85rem; font-weight:bold; color:#ad1457;">
+              Nivel ${this.currentLevel} de 50: Encuentra el <strong>${target.name}</strong>
+            </div>
+          </div>
+          <div class="score-box">⭐ ${student.stars || 0}</div>
+        </header>
+
+        <main class="game-board" style="display:flex; flex-direction:column; align-items:center; justify-content:center; flex:1;">
           <div style="background:white; padding:18px 28px; border-radius:24px; border:3px solid #f06292; box-shadow:0 8px 20px rgba(0,0,0,0.12); text-align:center; max-width:92vw;">
             <h3 style="color:#ad1457; font-size:clamp(1.2rem, 3vh, 1.7rem); margin:0 0 16px 0;">
               ¿Cuál de estas figuras es el <strong>${target.name}</strong>?
@@ -6397,11 +7522,11 @@ class ShapesScreen {
 
             <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:14px; justify-items:center;">
               ${shuffled.map(s => `
-                <button class="shape-card" data-chosen="${s.name}" style="padding:14px 20px; cursor:pointer;">
-                  <div class="shape-figure-box">
+                <button class="shape-card-btn" data-chosen="${s.name}" style="background:#fafafa; border:3px solid #e0e0e0; border-radius:18px; padding:14px 20px; cursor:pointer; box-shadow:0 4px 10px rgba(0,0,0,0.08); transition:transform 0.15s ease;">
+                  <div class="shape-figure-box" style="height:75px; display:flex; align-items:center; justify-content:center;">
                     <div class="shape-element ${s.shapeType}" style="--current-fill: ${s.color}"></div>
                   </div>
-                  <h4 style="margin:4px 0 0 0; color:#37474f;">${s.name}</h4>
+                  <h4 style="margin:6px 0 0 0; color:#37474f;">${s.name}</h4>
                 </button>
               `).join('')}
             </div>
@@ -6414,49 +7539,6 @@ class ShapesScreen {
       </div>
     `;
 
-    this.bindChallengeEvents(container, target);
-    audio.speak(`¿Cuál figura es el ${target.name}?`);
-  }
-
-  bindLevel1Events(container) {
-    container.querySelector('#btnBackToLevels')?.addEventListener('click', () => {
-      audio.playClick();
-      this.currentLevel = null;
-      this.render(container);
-    });
-
-    container.querySelectorAll('.palette-swatch').forEach(swatch => {
-      swatch.addEventListener('click', (e) => {
-        container.querySelectorAll('.palette-swatch').forEach(s => s.classList.remove('active'));
-        e.target.classList.add('active');
-        this.currentColor = e.target.dataset.color;
-        audio.playClick();
-      });
-    });
-
-    container.querySelectorAll('.shape-card').forEach(card => {
-      card.addEventListener('click', () => {
-        const shapeElem = card.querySelector('.shape-element');
-        if (shapeElem) {
-          shapeElem.style.setProperty('--current-fill', this.currentColor);
-          audio.playBrush();
-          Confetti.shoot(800);
-        }
-      });
-    });
-
-    container.querySelector('#btnFinishShapes')?.addEventListener('click', () => {
-      audio.playFanfare();
-      Confetti.shoot(2500);
-      StorageManager.completeModuleLevel('shapes', 1, 3);
-      setTimeout(() => {
-        this.currentLevel = 2;
-        this.renderGame(container);
-      }, 1200);
-    });
-  }
-
-  bindChallengeEvents(container, target) {
     container.querySelector('#btnBackToLevels')?.addEventListener('click', () => {
       audio.playClick();
       this.currentLevel = null;
@@ -6464,33 +7546,206 @@ class ShapesScreen {
     });
 
     container.querySelector('#btnRepeatChallenge')?.addEventListener('click', () => {
-      audio.speak(`Toca el ${target.name}`);
+      audio.speak(target.name);
     });
 
-    container.querySelectorAll('.shape-card').forEach(card => {
-      card.addEventListener('click', (e) => {
-        const chosen = card.dataset.chosen;
+    container.querySelectorAll('.shape-card-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const chosen = btn.dataset.chosen;
         if (chosen === target.name) {
           audio.playSuccess();
-          card.style.borderColor = '#4caf50';
-          card.style.background = '#e8f5e9';
           Confetti.shoot(2000);
-          StorageManager.completeModuleLevel('shapes', this.currentLevel, 3);
+          StorageManager.completeModuleLevel('shapes_desafio', this.currentLevel, 3);
+          StorageManager.addStars(1);
+          btn.style.transform = 'scale(1.15)';
+          btn.style.borderColor = '#4caf50';
+
           setTimeout(() => {
             if (this.currentLevel < 50) {
-              this.currentLevel = this.currentLevel + 1;
-              this.renderGame(container);
+              this.currentLevel++;
+              this.render(container);
             } else {
               this.currentLevel = null;
               this.render(container);
             }
-          }, 1400);
+          }, 1100);
         } else {
-          audio.playError();
-          audio.speak(`Ese es un ${chosen}, ¡intenta de nuevo!`);
+          audio.playWrong();
+          btn.style.transform = 'rotate(-8deg)';
+          setTimeout(() => { btn.style.transform = 'none'; }, 200);
         }
       });
     });
+
+    audio.speak(`¿Cuál figura es el ${target.name}?`);
+  }
+
+  // ==========================================================================
+  // SUBJUEGO 3: FIGURAS EN LA VIDA REAL (50 NIVELES)
+  // ==========================================================================
+  renderMundoReal(container) {
+    const student = StorageManager.getActiveStudent();
+    const item = SHAPES_DATA[(this.currentLevel - 1) % SHAPES_DATA.length];
+    const shuffled = [...SHAPES_DATA.slice(0, 4)].sort(() => 0.5 - Math.random());
+
+    container.innerHTML = `
+      <div class="module-container shapes-bg fade-in" id="mundoRealModule">
+        <header class="module-header">
+          <button class="back-btn" id="btnBackToLevels">⬅️ Niveles</button>
+          <div style="text-align:center;">
+            <h2>FIGURAS EN LA VIDA REAL 🍕</h2>
+            <div style="font-size:0.85rem; font-weight:bold; color:#f57c00;">
+              Nivel ${this.currentLevel} de 50: ¿A qué figura se parece?
+            </div>
+          </div>
+          <div class="score-box">⭐ ${student.stars || 0}</div>
+        </header>
+
+        <main class="game-board" style="display:flex; flex-direction:column; align-items:center; justify-content:center; flex:1;">
+          <div style="background:white; padding:18px 28px; border-radius:24px; border:3px solid #ff9800; box-shadow:0 8px 20px rgba(0,0,0,0.12); text-align:center; max-width:92vw;">
+            <div style="font-size:4rem; margin-bottom:6px;">${item.realEmoji}</div>
+            <h3 style="color:#e65100; font-size:1.3rem; margin:0 0 16px 0;">
+              ${item.objectText} • ¿Qué forma tiene?
+            </h3>
+
+            <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+              ${shuffled.map(s => `
+                <button class="real-choice-btn" data-chosen="${s.name}" style="padding:10px 18px; border-radius:16px; background:${s.color}; color:white; font-size:1.2rem; font-weight:900; border:2px solid white; cursor:pointer; box-shadow:0 4px 10px rgba(0,0,0,0.18);">
+                  ${s.name}
+                </button>
+              `).join('')}
+            </div>
+          </div>
+        </main>
+
+        <footer class="module-footer">
+          <span class="tip-text">Observa el objeto real y selecciona su forma geométrica.</span>
+        </footer>
+      </div>
+    `;
+
+    container.querySelector('#btnBackToLevels')?.addEventListener('click', () => {
+      audio.playClick();
+      this.currentLevel = null;
+      this.render(container);
+    });
+
+    container.querySelectorAll('.real-choice-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (btn.dataset.chosen === item.name) {
+          audio.playSuccess();
+          Confetti.shoot(2000);
+          StorageManager.completeModuleLevel('shapes_mundo_real', this.currentLevel, 3);
+          StorageManager.addStars(1);
+          btn.style.transform = 'scale(1.2)';
+
+          setTimeout(() => {
+            if (this.currentLevel < 50) {
+              this.currentLevel++;
+              this.render(container);
+            } else {
+              this.currentLevel = null;
+              this.render(container);
+            }
+          }, 1100);
+        } else {
+          audio.playWrong();
+          btn.style.transform = 'rotate(-8deg)';
+          setTimeout(() => { btn.style.transform = 'none'; }, 200);
+        }
+      });
+    });
+
+    audio.speak(`¿Qué forma tiene este objeto?`);
+  }
+
+  // ==========================================================================
+  // SUBJUEGO 4: SERIES Y PATRONES (50 NIVELES)
+  // ==========================================================================
+  renderSeriesPatrones(container) {
+    const student = StorageManager.getActiveStudent();
+    const s1 = SHAPES_DATA[(this.currentLevel - 1) % 4];
+    const s2 = SHAPES_DATA[(this.currentLevel) % 4];
+    const pattern = [s1, s2, s1, s2, s1];
+    const correctNext = s2;
+    const options = [s1, s2, SHAPES_DATA[4] || SHAPES_DATA[0]].sort(() => 0.5 - Math.random());
+
+    container.innerHTML = `
+      <div class="module-container shapes-bg fade-in" id="seriesPatronesModule">
+        <header class="module-header">
+          <button class="back-btn" id="btnBackToLevels">⬅️ Niveles</button>
+          <div style="text-align:center;">
+            <h2>SERIES Y PATRONES 🔁</h2>
+            <div style="font-size:0.85rem; font-weight:bold; color:#00897b;">
+              Nivel ${this.currentLevel} de 50: ¿Qué figura sigue en el patrón?
+            </div>
+          </div>
+          <div class="score-box">⭐ ${student.stars || 0}</div>
+        </header>
+
+        <main class="game-board" style="display:flex; flex-direction:column; align-items:center; justify-content:center; flex:1;">
+          <div style="background:white; padding:18px 24px; border-radius:24px; border:3px solid #00897b; box-shadow:0 8px 20px rgba(0,0,0,0.12); text-align:center; max-width:92vw;">
+            <div style="display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:20px; flex-wrap:wrap;">
+              ${pattern.map(p => `
+                <div style="width:50px; height:50px; display:flex; align-items:center; justify-content:center; background:#f5f5f5; border-radius:12px; border:2px solid #e0e0e0;">
+                  <div class="shape-element ${p.shapeType}" style="--current-fill:${p.color}; transform:scale(0.65);"></div>
+                </div>
+              `).join('')}
+              <div style="width:50px; height:50px; display:flex; align-items:center; justify-content:center; background:#fff9c4; border-radius:12px; border:3px dashed #fbc02d; font-size:1.8rem; font-weight:900; color:#f57f17;">
+                ?
+              </div>
+            </div>
+
+            <p style="font-weight:900; color:#00695c; margin:0 0 12px 0;">Toca la figura que completa la serie:</p>
+            <div style="display:flex; gap:14px; justify-content:center;">
+              ${options.map(opt => `
+                <button class="pattern-opt-btn" data-chosen="${opt.name}" style="padding:10px 18px; border-radius:16px; background:white; border:3px solid ${opt.color}; cursor:pointer; box-shadow:0 4px 10px rgba(0,0,0,0.1);">
+                  <div class="shape-element ${opt.shapeType}" style="--current-fill:${opt.color}; transform:scale(0.6);"></div>
+                </button>
+              `).join('')}
+            </div>
+          </div>
+        </main>
+
+        <footer class="module-footer">
+          <span class="tip-text">Descubre la regla de la serie y selecciona la figura faltante.</span>
+        </footer>
+      </div>
+    `;
+
+    container.querySelector('#btnBackToLevels')?.addEventListener('click', () => {
+      audio.playClick();
+      this.currentLevel = null;
+      this.render(container);
+    });
+
+    container.querySelectorAll('.pattern-opt-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (btn.dataset.chosen === correctNext.name) {
+          audio.playSuccess();
+          Confetti.shoot(2000);
+          StorageManager.completeModuleLevel('shapes_patrones', this.currentLevel, 3);
+          StorageManager.addStars(1);
+          btn.style.transform = 'scale(1.2)';
+
+          setTimeout(() => {
+            if (this.currentLevel < 50) {
+              this.currentLevel++;
+              this.render(container);
+            } else {
+              this.currentLevel = null;
+              this.render(container);
+            }
+          }, 1100);
+        } else {
+          audio.playWrong();
+          btn.style.transform = 'rotate(-8deg)';
+          setTimeout(() => { btn.style.transform = 'none'; }, 200);
+        }
+      });
+    });
+
+    audio.speak(`¿Qué figura sigue en el patrón?`);
   }
 }
 

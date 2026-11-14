@@ -575,39 +575,76 @@ const tests = [
     }
   },
   {
-    name: 'Módulo de Números: Selector y Nivel 1',
+    name: 'Módulo de Números: Menú de Subjuegos, Selector y Nivel 1',
     run: () => {
       app.navigate('numbers');
+      const menu = appRoot.querySelector('#numbersSubgamesMenu');
+      if (!menu) throw new Error('Números no abrió el menú de subjuegos en círculos');
+      const card = appRoot.querySelector('[data-game="tren_matematico"]');
+      if (!card) throw new Error('No se encontró la tarjeta tren_matematico');
+      card.click();
+
       const selector = appRoot.querySelector('.level-selector-module');
       if (!selector) throw new Error('Números no abrió el LevelSelector');
       const node1 = appRoot.querySelector('[data-level="1"]');
-      if (node1) node1.click();
+      if (!node1) throw new Error('No se encontró el nivel 1 de Números');
+      node1.click();
+
+      const game = appRoot.querySelector('#trenMatematicoModule');
+      if (!game) throw new Error('No se abrió el juego El Tren Matemático');
     }
   },
   {
-    name: 'Módulo de Figuras: Selector y Nivel 1',
+    name: 'Módulo de Figuras: Menú de Subjuegos, Selector y Nivel 1',
     run: () => {
       app.navigate('shapes');
+      const menu = appRoot.querySelector('#shapesSubgamesMenu');
+      if (!menu) throw new Error('Figuras no abrió el menú de subjuegos en círculos');
+      const card = appRoot.querySelector('[data-game="desafio_figuras"]');
+      if (!card) throw new Error('No se encontró la tarjeta desafio_figuras');
+      card.click();
+
       const selector = appRoot.querySelector('.level-selector-module');
       if (!selector) throw new Error('Figuras no abrió el LevelSelector');
       const node1 = appRoot.querySelector('[data-level="1"]');
-      if (node1) node1.click();
+      if (!node1) throw new Error('No se encontró el nivel 1 de Figuras');
+      node1.click();
+
+      const game = appRoot.querySelector('#desafioFigurasModule');
+      if (!game) throw new Error('No se abrió el juego Desafío de Figuras');
     }
   },
   {
-    name: 'Módulo de Vocales: Selector y Nivel 1',
+    name: 'Módulo de Vocales: Menú de Subjuegos, Selector y Nivel 1',
     run: () => {
       app.navigate('vowels');
+      const menu = appRoot.querySelector('#vowelsSubgamesMenu');
+      if (!menu) throw new Error('Vocales no abrió el menú de subjuegos en círculos');
+      const card = appRoot.querySelector('[data-game="cual_es_vocal"]');
+      if (!card) throw new Error('No se encontró la tarjeta cual_es_vocal');
+      card.click();
+
       const selector = appRoot.querySelector('.level-selector-module');
       if (!selector) throw new Error('Vocales no abrió el LevelSelector');
       const node1 = appRoot.querySelector('[data-level="1"]');
-      if (node1) node1.click();
+      if (!node1) throw new Error('No se encontró el nivel 1 de Vocales');
+      node1.click();
+
+      const game = appRoot.querySelector('#cualEsVocalModule');
+      if (!game) throw new Error('No se abrió el juego ¿Cuál es la Vocal?');
     }
   },
   {
     name: 'Módulo de Traza tu Nombre: Entrada y Selector',
     run: () => {
       app.navigate('name-tracing');
+      const menu = appRoot.querySelector('#nameTracingSubgamesMenu');
+      if (!menu) throw new Error('No se abrió el menú de subjuegos de Name Tracing');
+
+      const card = appRoot.querySelector('[data-game="mi_nombre"]');
+      if (!card) throw new Error('No se encontró la tarjeta mi_nombre');
+      card.click();
+
       const levelSelector = appRoot.querySelector('.level-selector-module');
       if (!levelSelector) throw new Error('No se abrió el LevelSelector de Name Tracing');
 
