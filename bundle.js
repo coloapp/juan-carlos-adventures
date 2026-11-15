@@ -2949,10 +2949,10 @@ class HomeScreen {
     this.student = StorageManager.getActiveStudent();
     const unlockedItems = rewards.getUnlockedItems();
 
-    // Separar el nombre en dos palabras para el estilo gráfico (Ej: "JUAN" y "CARLOS!")
-    const nameParts = (this.student.name || 'Juan Carlos').trim().split(' ');
+    // Separar el nombre en dos palabras para el estilo gráfico (Ej: "JUAN" y "CARLOS")
+    const nameParts = (this.student.name || 'Juan Carlos').trim().split(/\s+/);
     const part1 = (nameParts[0] || 'JUAN').toUpperCase();
-    const part2 = (nameParts.slice(1).join(' ') || 'CARLOS!').toUpperCase();
+    const part2 = nameParts.length > 1 ? nameParts.slice(1).join(' ').toUpperCase() : '';
 
     container.innerHTML = `
       <div class="main-dashboard fade-in">
@@ -3013,7 +3013,7 @@ class HomeScreen {
               <h2 class="welcome-title-cyan">BIENVENIDO,</h2>
               <div class="student-name-split" id="studentNameDisplay">
                 <span class="name-part-1">${part1}</span>
-                <span class="name-part-2">${part2}</span>
+                ${part2 ? `<span class="name-part-2">${part2}</span>` : ''}
               </div>
             </div>
 
@@ -3105,7 +3105,7 @@ class HomeScreen {
               <button class="circle-module-card" id="btnNameTracing">
                 <div class="circle-bubble bubble-name-tracing">
                   <div class="bubble-inner-content">
-                    <div class="name-tracing-inner-text">JUAN<br>CARLOS</div>
+                    <div class="name-tracing-inner-text">${part1}${part2 ? `<br>${part2}` : ''}</div>
                     <span class="pencil-mini">✏️</span>
                   </div>
                 </div>
@@ -3293,14 +3293,26 @@ const NAME_TRACING_SUBGAMES = [
   }
 ];
 
+// Generador dinámico de 50 niveles adaptados al nombre del alumno activo
+function getStudentWords50(studentName) {
+  const name = (studentName || 'Juan Carlos').trim().toUpperCase();
+  const parts = name.split(/\s+/);
+  const p1 = parts[0] || name;
+  const p2 = parts.length > 1 ? parts.slice(1).join(' ') : '';
+  const list = [
+    name, p1, p2 || name, `${p1} CAMPEON`, `${p1} ESTRELLA`, `${p1} GENIO`, `${p1} HEROE`, `${p1} FELIZ`,
+    name, p1, p2 || name, `${p1} PRO`, `${p1} REY`, `AMIGO ${p1}`, `SUPER ${p1}`, `GRAN ${p1}`,
+    name, p1, p2 || name, 'ESTRELLA', 'CAMPEON', 'HEROE', 'GENIO', 'SUPER', name, p1,
+    name, p1, p2 || name, `${p1} 1`, `${p1} 2`, `${p1} 3`, `${p1} 4`, `${p1} 5`, name, p1,
+    name, p1, p2 || name, 'INTELIGENTE', 'CREATIVO', 'ALEGRE', 'BONDADOSO', 'VALIENTE', name, p1,
+    name, p1, p2 || name, 'CAMPEONATO', 'META', 'LOGRO', 'EXITO', `VIVA ${p1}`
+  ];
+  while (list.length < 50) list.push(name);
+  return list.slice(0, 50);
+}
+
 // Listas de 50 palabras para cada subjuego
-const WORDS_MI_NOMBRE_50 = [
-  'JUAN CARLOS', 'JUAN', 'CARLOS', 'JC', 'JUANITO', 'CARLITOS', 'CAMPEON', 'ESTRELLA', 'HEROE', 'GENIO',
-  'JUAN', 'CARLOS', 'JUAN C', 'J CARLOS', 'JUANITO', 'SUPER JC', 'AMIGO JC', 'JC FELIZ', 'JC PRO', 'JC REY',
-  'JUAN CARLOS', 'JUAN', 'CARLOS', 'JC', 'CAMPEON', 'ESTRELLA', 'HEROE', 'GENIO', 'JUANITO', 'CARLITOS',
-  'JUAN CARLOS', 'JUAN', 'CARLOS', 'JC', 'CAMPEON', 'ESTRELLA', 'HEROE', 'GENIO', 'JUANITO', 'CARLITOS',
-  'JUAN CARLOS', 'JUAN', 'CARLOS', 'JC', 'CAMPEON', 'ESTRELLA', 'HEROE', 'GENIO', 'JUANITO', 'GRAN JUAN'
-];
+const WORDS_MI_NOMBRE_50 = getStudentWords50('JUAN CARLOS');
 const WORDS_KINDER_50 = [
   'CASA', 'SOL', 'LUNA', 'AGUA', 'KINDER', 'AMIGO', 'ESCUELA', 'MAESTRA', 'JUGAR', 'DIBUJO',
   'FELIZ', 'CIELO', 'NUBE', 'FLOR', 'PAZ', 'VIDA', 'MANO', 'PIE', 'OJO', 'BOCA',
@@ -3494,8 +3506,9 @@ class NameTracingScreen {
       if (this.currentLevel === 1) {
         this.targetName = (this.student.name || 'JUAN CARLOS').toUpperCase();
       } else {
-        const idx = (this.currentLevel - 1) % WORDS_MI_NOMBRE_50.length;
-        this.targetName = WORDS_MI_NOMBRE_50[idx];
+        const studentWords = getStudentWords50(this.student.name);
+        const idx = (this.currentLevel - 1) % studentWords.length;
+        this.targetName = studentWords[idx];
       }
     } else if (this.activeSubgame === 'palabras_kinder') {
       const idx = (this.currentLevel - 1) % WORDS_KINDER_50.length;

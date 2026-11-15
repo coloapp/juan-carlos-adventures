@@ -17,10 +17,10 @@ export class HomeScreen {
     this.student = StorageManager.getActiveStudent();
     const unlockedItems = rewards.getUnlockedItems();
 
-    // Separar el nombre en dos palabras para el estilo gráfico (Ej: "JUAN" y "CARLOS!")
-    const nameParts = (this.student.name || 'Juan Carlos').trim().split(' ');
+    // Separar el nombre en dos palabras para el estilo gráfico (Ej: "JUAN" y "CARLOS")
+    const nameParts = (this.student.name || 'Juan Carlos').trim().split(/\s+/);
     const part1 = (nameParts[0] || 'JUAN').toUpperCase();
-    const part2 = (nameParts.slice(1).join(' ') || 'CARLOS!').toUpperCase();
+    const part2 = nameParts.length > 1 ? nameParts.slice(1).join(' ').toUpperCase() : '';
 
     container.innerHTML = `
       <div class="main-dashboard fade-in">
@@ -81,7 +81,7 @@ export class HomeScreen {
               <h2 class="welcome-title-cyan">BIENVENIDO,</h2>
               <div class="student-name-split" id="studentNameDisplay">
                 <span class="name-part-1">${part1}</span>
-                <span class="name-part-2">${part2}</span>
+                ${part2 ? `<span class="name-part-2">${part2}</span>` : ''}
               </div>
             </div>
 
@@ -173,7 +173,7 @@ export class HomeScreen {
               <button class="circle-module-card" id="btnNameTracing">
                 <div class="circle-bubble bubble-name-tracing">
                   <div class="bubble-inner-content">
-                    <div class="name-tracing-inner-text">JUAN<br>CARLOS</div>
+                    <div class="name-tracing-inner-text">${part1}${part2 ? `<br>${part2}` : ''}</div>
                     <span class="pencil-mini">✏️</span>
                   </div>
                 </div>
