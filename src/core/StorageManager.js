@@ -26,8 +26,8 @@ export class StorageManager {
     }
 
     const defaultProfile = {
-      id: 'student_juancarlos',
-      name: 'Juan Carlos',
+      id: 'student_mtta_kim',
+      name: 'Mtta Kim',
       avatarUrl: 'public/assets/images/character_avatar.svg',
       fallbackAvatarUrl: 'public/assets/images/character_avatar.png',
       level: 1,
