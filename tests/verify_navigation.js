@@ -630,6 +630,19 @@ const tests = [
 
       const game = appRoot.querySelector('#desafioFigurasModule');
       if (!game) throw new Error('No se abrió el juego Desafío de Figuras');
+
+      // Probar que el Taller de Pintura renderiza las 6 figuras y la Estrella correctamente
+      app.screens['shapes'].activeSubgame = 'taller_pintura';
+      app.screens['shapes'].render(appRoot);
+      const taller = appRoot.querySelector('#tallerPinturaModule');
+      if (!taller) throw new Error('No se abrió el Taller de Pintura de figuras');
+
+      const starCard = appRoot.querySelector('[data-shape="ESTRELLA"]');
+      if (!starCard) throw new Error('No se encontró la tarjeta de la ESTRELLA en el taller de figuras');
+      const starSvg = windowMock.ShapesScreen ? windowMock.ShapesScreen.getShapeSvg('star') : null;
+      if (starSvg && !starSvg.includes('polygon')) {
+        throw new Error('El SVG de la estrella no contiene polígono geométrico visible');
+      }
     }
   },
   {

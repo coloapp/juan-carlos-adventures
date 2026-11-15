@@ -7423,9 +7423,9 @@ const SHAPES_SUBGAMES = [
 ];
 const SHAPES_DATA = [
   { name: 'CÍRCULO', shapeType: 'circle', objectText: '🍩 Como una dona deliciosa', realEmoji: '🍩', color: '#ff5722' },
-  { name: 'TRIÁNGULO', shapeType: 'triangle', objectText: '🍕 Como una rebanada de pizza', realEmoji: '🍕', color: '#ffb300' },
+  { name: 'TRIÁNGULO', shapeType: 'triangle', objectText: '🍕 Como una rebanada de pizza', realEmoji: '🍕', color: '#ff9800' },
   { name: 'CUADRADO', shapeType: 'square', objectText: '🎁 Como una caja de regalo', realEmoji: '🎁', color: '#4caf50' },
-  { name: 'ESTRELLA', shapeType: 'star', objectText: '⭐ Como las estrellas del cielo', realEmoji: '⭐', color: '#9c27b0' },
+  { name: 'ESTRELLA', shapeType: 'star', objectText: '⭐ Como las estrellas brillantes del cielo', realEmoji: '⭐', color: '#fbc02d' },
   { name: 'RECTÁNGULO', shapeType: 'rectangle', objectText: '🚪 Como una puerta alta', realEmoji: '🚪', color: '#00bcd4' },
   { name: 'CORAZÓN', shapeType: 'heart', objectText: '💖 Como un globo con amor', realEmoji: '💖', color: '#e91e63' }
 ];
@@ -7440,6 +7440,56 @@ class ShapesScreen {
   resetState() {
     this.activeSubgame = null;
     this.currentLevel = null;
+  }
+
+  /**
+   * Generador visual de formas geométricas en vectores SVG nítidos y brillantes.
+   * Resuelve cualquier problema de figuras transparentes o blancas, dando relieve y soporte total a la Estrella.
+   */
+  static getShapeSvg(shapeType, color = '#ff5722', width = 72, height = 72) {
+    switch (shapeType) {
+      case 'circle':
+        return `
+          <svg viewBox="0 0 100 100" class="shape-svg" width="${width}" height="${height}">
+            <circle cx="50" cy="50" r="42" class="shape-fill" fill="${color}" stroke="#ffffff" stroke-width="4" filter="drop-shadow(0 4px 6px rgba(0,0,0,0.18))"/>
+          </svg>
+        `;
+      case 'triangle':
+        return `
+          <svg viewBox="0 0 100 100" class="shape-svg" width="${width}" height="${height}">
+            <polygon points="50,10 90,86 10,86" class="shape-fill" fill="${color}" stroke="#ffffff" stroke-width="4" stroke-linejoin="round" filter="drop-shadow(0 4px 6px rgba(0,0,0,0.18))"/>
+          </svg>
+        `;
+      case 'square':
+        return `
+          <svg viewBox="0 0 100 100" class="shape-svg" width="${width}" height="${height}">
+            <rect x="12" y="12" width="76" height="76" rx="14" class="shape-fill" fill="${color}" stroke="#ffffff" stroke-width="4" filter="drop-shadow(0 4px 6px rgba(0,0,0,0.18))"/>
+          </svg>
+        `;
+      case 'star':
+        return `
+          <svg viewBox="0 0 100 100" class="shape-svg" width="${width}" height="${height}">
+            <polygon points="50,6 63,35 95,36 70,57 79,88 50,71 21,88 30,57 5,36 37,35" 
+                     class="shape-fill" fill="${color}" stroke="#ffffff" stroke-width="4.5" stroke-linejoin="round"
+                     filter="drop-shadow(0 4px 8px rgba(0,0,0,0.22))"/>
+          </svg>
+        `;
+      case 'rectangle':
+        return `
+          <svg viewBox="0 0 120 80" class="shape-svg" width="${Math.round(width * 1.15)}" height="${Math.round(height * 0.75)}">
+            <rect x="8" y="10" width="104" height="60" rx="12" class="shape-fill" fill="${color}" stroke="#ffffff" stroke-width="4" filter="drop-shadow(0 4px 6px rgba(0,0,0,0.18))"/>
+          </svg>
+        `;
+      case 'heart':
+        return `
+          <svg viewBox="0 0 100 100" class="shape-svg" width="${width}" height="${height}">
+            <path d="M50,86 C22,63 8,44 8,28 C8,14 19,5 33,5 C43,5 48,12 50,18 C52,12 57,5 67,5 C81,5 92,14 92,28 C92,44 78,63 50,86 Z"
+                  class="shape-fill" fill="${color}" stroke="#ffffff" stroke-width="4" stroke-linejoin="round" filter="drop-shadow(0 4px 6px rgba(0,0,0,0.18))"/>
+          </svg>
+        `;
+      default:
+        return `<div class="shape-element ${shapeType}" style="--current-fill:${color}"></div>`;
+    }
   }
 
   // ==========================================================================
@@ -7568,6 +7618,16 @@ class ShapesScreen {
   // ==========================================================================
   renderTallerPintura(container) {
     const student = StorageManager.getActiveStudent();
+    const paletteColors = [
+      '#ff5722', // Coral
+      '#fbc02d', // Sol Dorado
+      '#4caf50', // Verde Esmeralda
+      '#00bcd4', // Azul Cian
+      '#e91e63', // Rosa Chicle
+      '#9c27b0', // Púrpura Real
+      '#2196f3', // Azul Marino
+      '#ff9800'  // Naranja Intenso
+    ];
 
     container.innerHTML = `
       <div class="module-container shapes-bg fade-in" id="tallerPinturaModule">
@@ -7576,32 +7636,34 @@ class ShapesScreen {
           <div style="text-align:center;">
             <h2>TALLER DE PINTURA DE FIGURAS 🎨</h2>
             <div style="font-size:0.85rem; font-weight:bold; color:#c2185b;">
-              Elige un color y toca cada figura para pintarla
+              Elige un color de la paleta y toca cada figura para pintarla
             </div>
           </div>
           <div class="score-box">⭐ ${student.stars || 0}</div>
         </header>
 
-        <main class="shapes-game-board" style="display:flex; flex-direction:column; align-items:center; justify-content:center; flex:1;">
-          <div class="color-palette-bar" style="display:flex; align-items:center; gap:8px; margin-bottom:16px; background:white; padding:8px 16px; border-radius:20px; box-shadow:0 4px 12px rgba(0,0,0,0.1);">
-            <span style="font-weight:900; color:#37474f;">Pincel:</span>
-            <button class="palette-swatch active" style="background:#ff5722; width:34px; height:34px; border-radius:50%; border:2px solid white; cursor:pointer;" data-color="#ff5722"></button>
-            <button class="palette-swatch" style="background:#ffeb3b; width:34px; height:34px; border-radius:50%; border:2px solid white; cursor:pointer;" data-color="#ffeb3b"></button>
-            <button class="palette-swatch" style="background:#4caf50; width:34px; height:34px; border-radius:50%; border:2px solid white; cursor:pointer;" data-color="#4caf50"></button>
-            <button class="palette-swatch" style="background:#00bcd4; width:34px; height:34px; border-radius:50%; border:2px solid white; cursor:pointer;" data-color="#00bcd4"></button>
-            <button class="palette-swatch" style="background:#e91e63; width:34px; height:34px; border-radius:50%; border:2px solid white; cursor:pointer;" data-color="#e91e63"></button>
-            <button class="palette-swatch" style="background:#9c27b0; width:34px; height:34px; border-radius:50%; border:2px solid white; cursor:pointer;" data-color="#9c27b0"></button>
+        <main class="shapes-game-board" style="display:flex; flex-direction:column; align-items:center; justify-content:center; flex:1; padding:10px;">
+          <!-- Barra de paleta de colores -->
+          <div class="color-palette-bar" style="display:flex; align-items:center; gap:10px; margin-bottom:14px; background:white; padding:10px 20px; border-radius:24px; box-shadow:0 6px 18px rgba(0,0,0,0.12); flex-wrap:wrap; justify-content:center;">
+            <span style="font-weight:900; color:#37474f; font-size:1rem;">🖌️ Pincel:</span>
+            ${paletteColors.map((col, idx) => `
+              <button class="palette-swatch ${idx === 0 ? 'active' : ''}" 
+                      style="background:${col}; width:36px; height:36px; border-radius:50%; border:3px solid white; cursor:pointer; box-shadow:0 3px 6px rgba(0,0,0,0.2); transition:transform 0.15s ease;" 
+                      data-color="${col}">
+              </button>
+            `).join('')}
           </div>
 
-          <div class="shapes-grid" style="display:flex; flex-wrap:wrap; justify-content:center; gap:16px; max-width:680px;">
-            ${SHAPES_DATA.slice(0, 4).map(item => `
-              <div class="shape-card" data-shape="${item.name}" style="background:white; border-radius:20px; padding:12px 18px; border:3px solid #f48fb1; text-align:center; box-shadow:0 6px 14px rgba(0,0,0,0.1); cursor:pointer;">
-                <div class="shape-figure-box" style="height:90px; display:flex; align-items:center; justify-content:center;">
-                  <div class="shape-element ${item.shapeType}" style="--current-fill: ${item.color}"></div>
+          <!-- Cuadrícula con las 6 figuras geométricas -->
+          <div class="shapes-grid" style="display:flex; flex-wrap:wrap; justify-content:center; gap:16px; max-width:820px;">
+            ${SHAPES_DATA.map(item => `
+              <div class="shape-card" data-shape="${item.name}" style="background:white; border-radius:22px; padding:14px 18px; border:3px solid #f48fb1; text-align:center; box-shadow:0 8px 18px rgba(0,0,0,0.1); cursor:pointer; min-width:140px; transition:transform 0.15s ease;">
+                <div class="shape-figure-box" style="height:85px; display:flex; align-items:center; justify-content:center;">
+                  ${ShapesScreen.getShapeSvg(item.shapeType, item.color, 75, 75)}
                 </div>
-                <h3 class="shape-name" style="margin:6px 0 2px 0; color:#37474f; font-size:1.1rem;">${item.name}</h3>
-                <p class="shape-desc" style="font-size:0.75rem; color:#78909c; margin:0 0 6px 0;">${item.objectText}</p>
-                <button class="shape-action-btn" style="background:${item.color}; color:white; border:none; border-radius:12px; padding:4px 12px; font-weight:bold; cursor:pointer;">🖌️ Pintar</button>
+                <h3 class="shape-name" style="margin:8px 0 2px 0; color:#37474f; font-size:1.15rem; font-weight:900;">${item.name}</h3>
+                <p class="shape-desc" style="font-size:0.75rem; color:#78909c; margin:0 0 8px 0;">${item.objectText}</p>
+                <button class="shape-action-btn" style="background:${item.color}; color:white; border:none; border-radius:12px; padding:5px 14px; font-weight:900; cursor:pointer; box-shadow:0 3px 6px rgba(0,0,0,0.15);">🖌️ Pintar</button>
               </div>
             `).join('')}
           </div>
@@ -7622,16 +7684,26 @@ class ShapesScreen {
     container.querySelectorAll('.palette-swatch').forEach(btn => {
       btn.addEventListener('click', () => {
         audio.playClick();
-        container.querySelectorAll('.palette-swatch').forEach(b => b.classList.remove('active'));
+        container.querySelectorAll('.palette-swatch').forEach(b => {
+          b.classList.remove('active');
+          b.style.transform = 'none';
+        });
         btn.classList.add('active');
+        btn.style.transform = 'scale(1.22)';
         this.currentColor = btn.dataset.color;
       });
     });
 
     container.querySelectorAll('.shape-card').forEach(card => {
       card.addEventListener('click', () => {
-        const el = card.querySelector('.shape-element');
-        if (el) el.style.setProperty('--current-fill', this.currentColor);
+        const svgFill = card.querySelector('.shape-fill');
+        if (svgFill) svgFill.setAttribute('fill', this.currentColor);
+        const actionBtn = card.querySelector('.shape-action-btn');
+        if (actionBtn) actionBtn.style.background = this.currentColor;
+        
+        card.style.transform = 'scale(1.06)';
+        setTimeout(() => { card.style.transform = 'none'; }, 180);
+
         audio.playBrush();
         audio.speak(card.dataset.shape);
       });
@@ -7657,7 +7729,10 @@ class ShapesScreen {
   renderDesafioFiguras(container) {
     const student = StorageManager.getActiveStudent();
     const target = SHAPES_DATA[(this.currentLevel - 1) % SHAPES_DATA.length];
-    const shuffled = [...SHAPES_DATA.slice(0, 4)].sort(() => 0.5 - Math.random());
+    
+    // Seleccionar el objetivo + 3 distractores aleatorios de todas las figuras
+    const others = SHAPES_DATA.filter(s => s.name !== target.name).sort(() => 0.5 - Math.random()).slice(0, 3);
+    const shuffled = [target, ...others].sort(() => 0.5 - Math.random());
 
     container.innerHTML = `
       <div class="module-container shapes-bg fade-in" id="desafioFigurasModule">
@@ -7673,18 +7748,18 @@ class ShapesScreen {
         </header>
 
         <main class="game-board" style="display:flex; flex-direction:column; align-items:center; justify-content:center; flex:1;">
-          <div style="background:white; padding:18px 28px; border-radius:24px; border:3px solid #f06292; box-shadow:0 8px 20px rgba(0,0,0,0.12); text-align:center; max-width:92vw;">
-            <h3 style="color:#ad1457; font-size:clamp(1.2rem, 3vh, 1.7rem); margin:0 0 16px 0;">
+          <div style="background:white; padding:20px 30px; border-radius:24px; border:3px solid #f06292; box-shadow:0 8px 24px rgba(0,0,0,0.12); text-align:center; max-width:92vw;">
+            <h3 style="color:#ad1457; font-size:clamp(1.2rem, 3vh, 1.8rem); margin:0 0 16px 0;">
               ¿Cuál de estas figuras es el <strong>${target.name}</strong>?
             </h3>
 
-            <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:14px; justify-items:center;">
+            <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:16px; justify-items:center;">
               ${shuffled.map(s => `
-                <button class="shape-card-btn" data-chosen="${s.name}" style="background:#fafafa; border:3px solid #e0e0e0; border-radius:18px; padding:14px 20px; cursor:pointer; box-shadow:0 4px 10px rgba(0,0,0,0.08); transition:transform 0.15s ease;">
-                  <div class="shape-figure-box" style="height:75px; display:flex; align-items:center; justify-content:center;">
-                    <div class="shape-element ${s.shapeType}" style="--current-fill: ${s.color}"></div>
+                <button class="shape-card-btn" data-chosen="${s.name}" style="background:#fafafa; border:3px solid #e0e0e0; border-radius:20px; padding:14px 22px; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,0.08); transition:transform 0.15s ease, border-color 0.15s ease;">
+                  <div class="shape-figure-box" style="height:80px; display:flex; align-items:center; justify-content:center;">
+                    ${ShapesScreen.getShapeSvg(s.shapeType, s.color, 72, 72)}
                   </div>
-                  <h4 style="margin:6px 0 0 0; color:#37474f;">${s.name}</h4>
+                  <h4 style="margin:8px 0 0 0; color:#37474f; font-size:1.1rem; font-weight:900;">${s.name}</h4>
                 </button>
               `).join('')}
             </div>
@@ -7715,7 +7790,7 @@ class ShapesScreen {
           Confetti.shoot(2000);
           StorageManager.completeModuleLevel('shapes_desafio', this.currentLevel, 3);
           StorageManager.addStars(1);
-          btn.style.transform = 'scale(1.15)';
+          btn.style.transform = 'scale(1.12)';
           btn.style.borderColor = '#4caf50';
 
           setTimeout(() => {
@@ -7744,7 +7819,10 @@ class ShapesScreen {
   renderMundoReal(container) {
     const student = StorageManager.getActiveStudent();
     const item = SHAPES_DATA[(this.currentLevel - 1) % SHAPES_DATA.length];
-    const shuffled = [...SHAPES_DATA.slice(0, 4)].sort(() => 0.5 - Math.random());
+    
+    // Seleccionar el objetivo + 3 distractores
+    const others = SHAPES_DATA.filter(s => s.name !== item.name).sort(() => 0.5 - Math.random()).slice(0, 3);
+    const shuffled = [item, ...others].sort(() => 0.5 - Math.random());
 
     container.innerHTML = `
       <div class="module-container shapes-bg fade-in" id="mundoRealModule">
@@ -7760,16 +7838,19 @@ class ShapesScreen {
         </header>
 
         <main class="game-board" style="display:flex; flex-direction:column; align-items:center; justify-content:center; flex:1;">
-          <div style="background:white; padding:18px 28px; border-radius:24px; border:3px solid #ff9800; box-shadow:0 8px 20px rgba(0,0,0,0.12); text-align:center; max-width:92vw;">
-            <div style="font-size:4rem; margin-bottom:6px;">${item.realEmoji}</div>
-            <h3 style="color:#e65100; font-size:1.3rem; margin:0 0 16px 0;">
+          <div style="background:white; padding:20px 28px; border-radius:24px; border:3px solid #ff9800; box-shadow:0 8px 24px rgba(0,0,0,0.12); text-align:center; max-width:92vw;">
+            <div style="font-size:4.2rem; margin-bottom:8px; filter:drop-shadow(0 4px 6px rgba(0,0,0,0.15));">${item.realEmoji}</div>
+            <h3 style="color:#e65100; font-size:1.35rem; margin:0 0 16px 0; font-weight:900;">
               ${item.objectText} • ¿Qué forma tiene?
             </h3>
 
             <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
               ${shuffled.map(s => `
-                <button class="real-choice-btn" data-chosen="${s.name}" style="padding:10px 18px; border-radius:16px; background:${s.color}; color:white; font-size:1.2rem; font-weight:900; border:2px solid white; cursor:pointer; box-shadow:0 4px 10px rgba(0,0,0,0.18);">
-                  ${s.name}
+                <button class="real-choice-btn" data-chosen="${s.name}" style="display:inline-flex; align-items:center; gap:8px; padding:10px 18px; border-radius:18px; background:${s.color}; color:white; font-size:1.15rem; font-weight:900; border:2px solid white; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,0.18); transition:transform 0.15s ease;">
+                  <span style="display:inline-flex; align-items:center;">
+                    ${ShapesScreen.getShapeSvg(s.shapeType, '#ffffff', 26, 26)}
+                  </span>
+                  <span>${s.name}</span>
                 </button>
               `).join('')}
             </div>
@@ -7795,7 +7876,7 @@ class ShapesScreen {
           Confetti.shoot(2000);
           StorageManager.completeModuleLevel('shapes_mundo_real', this.currentLevel, 3);
           StorageManager.addStars(1);
-          btn.style.transform = 'scale(1.2)';
+          btn.style.transform = 'scale(1.15)';
 
           setTimeout(() => {
             if (this.currentLevel < 50) {
@@ -7822,11 +7903,14 @@ class ShapesScreen {
   // ==========================================================================
   renderSeriesPatrones(container) {
     const student = StorageManager.getActiveStudent();
-    const s1 = SHAPES_DATA[(this.currentLevel - 1) % 4];
-    const s2 = SHAPES_DATA[(this.currentLevel) % 4];
+    const s1 = SHAPES_DATA[(this.currentLevel - 1) % SHAPES_DATA.length];
+    const s2 = SHAPES_DATA[(this.currentLevel) % SHAPES_DATA.length];
     const pattern = [s1, s2, s1, s2, s1];
     const correctNext = s2;
-    const options = [s1, s2, SHAPES_DATA[4] || SHAPES_DATA[0]].sort(() => 0.5 - Math.random());
+    
+    // Opciones: la correcta + 2 distractores
+    const others = SHAPES_DATA.filter(s => s.name !== correctNext.name).sort(() => 0.5 - Math.random()).slice(0, 2);
+    const options = [correctNext, ...others].sort(() => 0.5 - Math.random());
 
     container.innerHTML = `
       <div class="module-container shapes-bg fade-in" id="seriesPatronesModule">
@@ -7842,23 +7926,30 @@ class ShapesScreen {
         </header>
 
         <main class="game-board" style="display:flex; flex-direction:column; align-items:center; justify-content:center; flex:1;">
-          <div style="background:white; padding:18px 24px; border-radius:24px; border:3px solid #00897b; box-shadow:0 8px 20px rgba(0,0,0,0.12); text-align:center; max-width:92vw;">
+          <div style="background:white; padding:20px 26px; border-radius:24px; border:3px solid #00897b; box-shadow:0 8px 24px rgba(0,0,0,0.12); text-align:center; max-width:92vw;">
+            
+            <!-- Fila del patrón de figuras -->
             <div style="display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:20px; flex-wrap:wrap;">
               ${pattern.map(p => `
-                <div style="width:50px; height:50px; display:flex; align-items:center; justify-content:center; background:#f5f5f5; border-radius:12px; border:2px solid #e0e0e0;">
-                  <div class="shape-element ${p.shapeType}" style="--current-fill:${p.color}; transform:scale(0.65);"></div>
+                <div style="width:60px; height:60px; display:flex; align-items:center; justify-content:center; background:#ffffff; border-radius:14px; border:2px solid #80cbc4; box-shadow:0 3px 8px rgba(0,0,0,0.06);">
+                  ${ShapesScreen.getShapeSvg(p.shapeType, p.color, 44, 44)}
                 </div>
               `).join('')}
-              <div style="width:50px; height:50px; display:flex; align-items:center; justify-content:center; background:#fff9c4; border-radius:12px; border:3px dashed #fbc02d; font-size:1.8rem; font-weight:900; color:#f57f17;">
+              <div style="width:60px; height:60px; display:flex; align-items:center; justify-content:center; background:#fff9c4; border-radius:14px; border:3px dashed #fbc02d; font-size:2rem; font-weight:900; color:#f57f17; box-shadow:0 3px 8px rgba(0,0,0,0.06);">
                 ?
               </div>
             </div>
 
-            <p style="font-weight:900; color:#00695c; margin:0 0 12px 0;">Toca la figura que completa la serie:</p>
-            <div style="display:flex; gap:14px; justify-content:center;">
+            <p style="font-weight:900; color:#00695c; font-size:1.1rem; margin:0 0 14px 0;">Toca la figura que completa la serie:</p>
+            
+            <!-- Opciones para elegir -->
+            <div style="display:flex; gap:16px; justify-content:center;">
               ${options.map(opt => `
-                <button class="pattern-opt-btn" data-chosen="${opt.name}" style="padding:10px 18px; border-radius:16px; background:white; border:3px solid ${opt.color}; cursor:pointer; box-shadow:0 4px 10px rgba(0,0,0,0.1);">
-                  <div class="shape-element ${opt.shapeType}" style="--current-fill:${opt.color}; transform:scale(0.6);"></div>
+                <button class="pattern-opt-btn" data-chosen="${opt.name}" style="padding:12px 18px; border-radius:18px; background:white; border:3px solid ${opt.color}; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,0.1); transition:transform 0.15s ease;">
+                  <div style="display:flex; justify-content:center; align-items:center; height:50px;">
+                    ${ShapesScreen.getShapeSvg(opt.shapeType, opt.color, 48, 48)}
+                  </div>
+                  <div style="margin-top:6px; font-weight:900; font-size:0.95rem; color:#37474f;">${opt.name}</div>
                 </button>
               `).join('')}
             </div>
@@ -7884,7 +7975,7 @@ class ShapesScreen {
           Confetti.shoot(2000);
           StorageManager.completeModuleLevel('shapes_patrones', this.currentLevel, 3);
           StorageManager.addStars(1);
-          btn.style.transform = 'scale(1.2)';
+          btn.style.transform = 'scale(1.15)';
 
           setTimeout(() => {
             if (this.currentLevel < 50) {

@@ -396,17 +396,37 @@
 }
 
 .shape-figure-box {
-  height: clamp(55px, 11vh, 75px);
+  height: clamp(65px, 12vh, 85px);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
+.shape-svg {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.16));
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.shape-svg:hover {
+  transform: scale(1.08);
+}
+
+.shape-element {
+  width: clamp(48px, 9vh, 64px);
+  height: clamp(48px, 9vh, 64px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.16));
+  transition: transform 0.2s ease;
+}
+
 .shape-element.circle {
-  width: clamp(48px, 9vh, 62px);
-  height: clamp(48px, 9vh, 62px);
   border-radius: 50%;
-  background: var(--current-fill);
+  background: var(--current-fill, #ff5722);
 }
 
 .shape-element.triangle {
@@ -414,26 +434,38 @@
   height: 0;
   border-left: clamp(25px, 5vw, 34px) solid transparent;
   border-right: clamp(25px, 5vw, 34px) solid transparent;
-  border-bottom: clamp(48px, 9vh, 62px) solid var(--current-fill);
+  border-bottom: clamp(48px, 9vh, 62px) solid var(--current-fill, #ff9800);
 }
 
 .shape-element.square {
-  width: clamp(44px, 8.5vh, 58px);
-  height: clamp(44px, 8.5vh, 58px);
-  background: var(--current-fill);
-  border-radius: 8px;
+  background: var(--current-fill, #4caf50);
+  border-radius: 12px;
 }
 
 .shape-element.star {
-  font-size: clamp(2.6rem, 6vh, 3.5rem);
-  color: var(--current-fill);
-  line-height: 1;
+  background: var(--current-fill, #fbc02d);
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+  -webkit-clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+}
+
+.shape-element.rectangle {
+  width: clamp(66px, 12vh, 84px);
+  height: clamp(40px, 7.5vh, 50px);
+  background: var(--current-fill, #00bcd4);
+  border-radius: 10px;
+}
+
+.shape-element.heart {
+  background: var(--current-fill, #e91e63);
+  clip-path: polygon(50% 88%, 15% 55%, 0% 30%, 15% 5%, 40% 5%, 50% 25%, 60% 5%, 85% 5%, 100% 30%, 85% 55%);
+  -webkit-clip-path: polygon(50% 88%, 15% 55%, 0% 30%, 15% 5%, 40% 5%, 50% 25%, 60% 5%, 85% 5%, 100% 30%, 85% 55%);
 }
 
 .shape-name {
   color: #ad1457;
   font-size: clamp(0.9rem, 2.2vh, 1.15rem);
   margin: 4px 0 2px 0;
+  font-weight: 900;
 }
 
 .shape-desc {
