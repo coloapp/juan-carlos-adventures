@@ -114,6 +114,16 @@ export const VOWELS_SUBGAMES = [
     totalLevels: 50,
     bubbleClass: 'subgame-bubble-m',
     themeColor: '#4caf50'
+  },
+  {
+    id: 'tren_vocales',
+    moduleKey: 'vowels_tren',
+    title: 'EL TREN DE LAS VOCALES',
+    subtitle: '50 Niveles: Completa el vagón con la vocal faltante',
+    icon: '🚂',
+    totalLevels: 50,
+    bubbleClass: 'subgame-bubble-s',
+    themeColor: '#0288d1'
   }
 ];
 
@@ -158,6 +168,8 @@ export class VowelsScreen {
       this.renderBurbujasVocales(container);
     } else if (this.activeSubgame === 'memorama_vocales') {
       this.renderMemoramaVocales(container);
+    } else if (this.activeSubgame === 'tren_vocales') {
+      this.renderTrenVocales(container);
     }
   }
 
@@ -604,5 +616,124 @@ export class VowelsScreen {
     });
 
     audio.speak('Encuentra las parejas del memorama');
+  }
+
+  // ==========================================================================
+  // SUBJUEGO 5: EL TREN DE LAS VOCALES (50 NIVELES: SECUENCIA Y ORDEN A-E-I-O-U)
+  // ==========================================================================
+  renderTrenVocales(container) {
+    const student = StorageManager.getActiveStudent();
+    const isLower = (this.currentLevel > 20 && this.currentLevel <= 40);
+    const rawVowels = isLower ? ['a', 'e', 'i', 'o', 'u'] : ['A', 'E', 'I', 'O', 'U'];
+    const missingIndex = (this.currentLevel - 1) % 5;
+    const correctVowel = rawVowels[missingIndex];
+
+    const distractors = rawVowels.filter(v => v !== correctVowel).sort(() => 0.5 - Math.random()).slice(0, 2);
+    const options = [correctVowel, ...distractors].sort(() => 0.5 - Math.random());
+
+    container.innerHTML = `
+      <div class="module-container vowels-bg fade-in" id="trenVocalesModule">
+        <header class="module-header">
+          <button class="back-btn" id="btnBackToLevels">⬅️ Niveles</button>
+          <div style="text-align:center;">
+            <h2>EL TREN DE LAS VOCALES 🚂</h2>
+            <div style="font-size:0.85rem; font-weight:bold; color:#0288d1;">
+              Nivel ${this.currentLevel} de 50 • ¡Engancha el vagón que falta!
+            </div>
+          </div>
+          <div class="score-box">⭐ ${student.stars || 0}</div>
+        </header>
+
+        <main class="game-board" style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; flex:1;">
+          <!-- Título y Sonido del Tren -->
+          <div style="background:white; border-radius:18px; padding:8px 18px; border:3px solid #0288d1; box-shadow:0 6px 14px rgba(0,0,0,0.08); font-size:clamp(0.95rem, 2vh, 1.25rem); font-weight:900; color:#01579b;">
+            ¿Qué vocal falta en la secuencia? ¡Chuu chuu! 💨
+          </div>
+
+          <!-- Secuencia de Vagones del Tren -->
+          <div class="train-cars-row" style="display:flex; align-items:center; justify-content:center; gap:clamp(4px, 1.2vw, 10px); flex-wrap:wrap; max-width:96vw;">
+            <!-- Locomotora -->
+            <div style="font-size:clamp(2.4rem, 5.5vh, 3.6rem); margin-right:4px;">🚂</div>
+
+            ${rawVowels.map((v, i) => {
+              if (i === missingIndex) {
+                return `
+                  <div class="train-car missing-car" id="missingCarSlot" style="width:clamp(48px, 11vw, 68px); height:clamp(54px, 12vh, 76px); background:#fff9c4; border:3.5px dashed #fbc02d; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:clamp(1.6rem, 3.8vh, 2.4rem); font-weight:900; color:#f57f17; box-shadow:0 4px 8px rgba(0,0,0,0.1);">
+                    ?
+                  </div>
+                `;
+              }
+              return `
+                <div class="train-car" style="width:clamp(48px, 11vw, 68px); height:clamp(54px, 12vh, 76px); background:linear-gradient(180deg, #ffffff 0%, #e1f5fe 100%); border:3.5px solid #0288d1; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:clamp(1.6rem, 3.8vh, 2.4rem); font-weight:900; color:#01579b; box-shadow:0 4px 8px rgba(0,0,0,0.1);">
+                  ${v}
+                </div>
+              `;
+            }).join('')}
+          </div>
+
+          <!-- Opciones de Vagones para Seleccionar -->
+          <div class="vowel-train-options" style="display:flex; gap:clamp(10px, 2.5vw, 18px); margin-top:12px;">
+            ${options.map(opt => `
+              <button class="vowel-option-btn" data-vowel="${opt}" style="width:clamp(60px, 13vw, 76px); height:clamp(60px, 13vw, 76px); border-radius:20px; background:linear-gradient(135deg, #00bcd4 0%, #0097a7 100%); border:3.5px solid white; color:white; font-size:clamp(1.8rem, 4vh, 2.6rem); font-weight:900; cursor:pointer; box-shadow:0 6px 14px rgba(0,0,0,0.18); transition:transform 0.15s;">
+                ${opt}
+              </button>
+            `).join('')}
+          </div>
+        </main>
+
+        <footer class="module-footer">
+          <span class="tip-text">Toca la vocal que completa el tren en orden A, E, I, O, U.</span>
+        </footer>
+      </div>
+    `;
+
+    container.querySelector('#btnBackToLevels')?.addEventListener('click', () => {
+      audio.playClick();
+      this.currentLevel = null;
+      this.render(container);
+    });
+
+    const missingSlot = container.querySelector('#missingCarSlot');
+
+    container.querySelectorAll('.vowel-option-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const selected = btn.dataset.vowel;
+
+        if (selected === correctVowel) {
+          audio.playSuccess();
+          btn.style.background = '#4caf50';
+          if (missingSlot) {
+            missingSlot.innerText = selected;
+            missingSlot.style.background = '#c8e6c9';
+            missingSlot.style.borderColor = '#2e7d32';
+            missingSlot.style.color = '#1b5e20';
+            missingSlot.style.borderStyle = 'solid';
+          }
+
+          StorageManager.completeModuleLevel('vowels_tren', this.currentLevel, 3);
+          StorageManager.addStars(2);
+          Confetti.shoot(2200);
+
+          audio.speak(`¡Chuu chuu! ¡Completaste el tren con la vocal ${correctVowel}!`);
+
+          setTimeout(() => {
+            if (this.currentLevel < 50) {
+              this.currentLevel++;
+              this.render(container);
+            } else {
+              this.currentLevel = null;
+              this.render(container);
+            }
+          }, 1400);
+        } else {
+          audio.playWrong();
+          btn.style.transform = 'rotate(-8deg)';
+          setTimeout(() => { btn.style.transform = 'none'; }, 200);
+          audio.speak(`Esa es la letra ${selected}. Busca la vocal que falta en el tren.`);
+        }
+      });
+    });
+
+    audio.speak(`¿Qué vocal falta en el tren?`);
   }
 }
