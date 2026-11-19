@@ -169,10 +169,66 @@ export const ARMA_SILABAS_50_LEVELS = [
   { consonant: 'V', vowel: 'U', syllable: 'VU', word: 'VUELO', relationText: 'VUELO', emoji: '✈️' }
 ];
 
+// ============================================================================
+// 3. JUEGO 3: ¿CON QUÉ SÍLABA EMPIEZA? (50 NIVELES DE CONCIENCIA FONOLÓGICA)
+// ============================================================================
+export const SILABAS_INICIO_50 = [
+  { word: 'PERRO', emoji: '🐶', initialSyllable: 'PE', remainder: 'RRO', options: ['PE', 'MA', 'SO'] },
+  { word: 'MAMÁ', emoji: '👩', initialSyllable: 'MA', remainder: 'MÁ', options: ['MA', 'TA', 'LU'] },
+  { word: 'SAPO', emoji: '🐸', initialSyllable: 'SA', remainder: 'PO', options: ['SA', 'CO', 'ME'] },
+  { word: 'LUNA', emoji: '🌙', initialSyllable: 'LU', remainder: 'NA', options: ['LU', 'PA', 'NO'] },
+  { word: 'TAZA', emoji: '☕', initialSyllable: 'TA', remainder: 'ZA', options: ['TA', 'MI', 'SO'] },
+  { word: 'PATO', emoji: '🦆', initialSyllable: 'PA', remainder: 'TO', options: ['PA', 'SE', 'LI'] },
+  { word: 'NUBE', emoji: '☁️', initialSyllable: 'NU', remainder: 'BE', options: ['NU', 'RA', 'TE'] },
+  { word: 'RATÓN', emoji: '🐭', initialSyllable: 'RA', remainder: 'TÓN', options: ['RA', 'PO', 'MO'] },
+  { word: 'CASA', emoji: '🏠', initialSyllable: 'CA', remainder: 'SA', options: ['CA', 'ME', 'VI'] },
+  { word: 'DADO', emoji: '🎲', initialSyllable: 'DA', remainder: 'DO', options: ['DA', 'SO', 'TU'] },
+  { word: 'VACA', emoji: '🐮', initialSyllable: 'VA', remainder: 'CA', options: ['VA', 'LE', 'PI'] },
+  { word: 'MESA', emoji: '🪑', initialSyllable: 'ME', remainder: 'SA', options: ['ME', 'TO', 'SA'] },
+  { word: 'SOL', emoji: '☀️', initialSyllable: 'SO', remainder: 'L', options: ['SO', 'LA', 'DE'] },
+  { word: 'PELOTA', emoji: '⚽', initialSyllable: 'PE', remainder: 'LOTA', options: ['PE', 'NA', 'RO'] },
+  { word: 'TINA', emoji: '🛁', initialSyllable: 'TI', remainder: 'NA', options: ['TI', 'MA', 'LU'] },
+  { word: 'LEÓN', emoji: '🦁', initialSyllable: 'LE', remainder: 'ÓN', options: ['LE', 'PO', 'SI'] },
+  { word: 'PIÑA', emoji: '🍍', initialSyllable: 'PI', remainder: 'ÑA', options: ['PI', 'FA', 'NO'] },
+  { word: 'NIDO', emoji: '🪹', initialSyllable: 'NI', remainder: 'DO', options: ['NI', 'TA', 'SE'] },
+  { word: 'ROSA', emoji: '🌹', initialSyllable: 'RO', remainder: 'SA', options: ['RO', 'CU', 'ME'] },
+  { word: 'CUNA', emoji: '🛏️', initialSyllable: 'CU', remainder: 'NA', options: ['CU', 'BA', 'LO'] },
+  { word: 'DEDO', emoji: '👆', initialSyllable: 'DE', remainder: 'DO', options: ['DE', 'SA', 'MI'] },
+  { word: 'VELA', emoji: '🕯️', initialSyllable: 'VE', remainder: 'LA', options: ['VE', 'TO', 'NA'] },
+  { word: 'MONO', emoji: '🐒', initialSyllable: 'MO', remainder: 'NO', options: ['MO', 'LA', 'TU'] },
+  { word: 'SILLA', emoji: '🪑', initialSyllable: 'SI', remainder: 'LLA', options: ['SI', 'PA', 'VE'] },
+  { word: 'TOMATE', emoji: '🍅', initialSyllable: 'TO', remainder: 'MATE', options: ['TO', 'RU', 'ME'] },
+  { word: 'LIMA', emoji: '🍋', initialSyllable: 'LI', remainder: 'MA', options: ['LI', 'SO', 'TE'] },
+  { word: 'POZO', emoji: '🪣', initialSyllable: 'PO', remainder: 'ZO', options: ['PO', 'NI', 'LA'] },
+  { word: 'NARIZ', emoji: '👃', initialSyllable: 'NA', remainder: 'RIZ', options: ['NA', 'LO', 'SI'] },
+  { word: 'RUEDA', emoji: '🛞', initialSyllable: 'RUE', remainder: 'DA', options: ['RUE', 'CA', 'PE'] },
+  { word: 'COCO', emoji: '🥥', initialSyllable: 'CO', remainder: 'CO', options: ['CO', 'TI', 'MA'] },
+  { word: 'DIENTE', emoji: '🦷', initialSyllable: 'DIEN', remainder: 'TE', options: ['DIEN', 'PO', 'SU'] },
+  { word: 'VASO', emoji: '🥛', initialSyllable: 'VA', remainder: 'SO', options: ['VA', 'MO', 'LI'] },
+  { word: 'MOTO', emoji: '🏍️', initialSyllable: 'MO', remainder: 'TO', options: ['MO', 'SE', 'DA'] },
+  { word: 'SOPA', emoji: '🍲', initialSyllable: 'SO', remainder: 'PA', options: ['SO', 'CU', 'LA'] },
+  { word: 'TULIPÁN', emoji: '🌷', initialSyllable: 'TU', remainder: 'LIPÁN', options: ['TU', 'NA', 'RE'] },
+  { word: 'LÁPIZ', emoji: '✏️', initialSyllable: 'LÁ', remainder: 'PIZ', options: ['LÁ', 'PO', 'VE'] },
+  { word: 'PUMA', emoji: '🐆', initialSyllable: 'PU', remainder: 'MA', options: ['PU', 'TI', 'SA'] },
+  { word: 'NOTA', emoji: '🎵', initialSyllable: 'NO', remainder: 'TA', options: ['NO', 'MA', 'LE'] },
+  { word: 'RAMA', emoji: '🌿', initialSyllable: 'RA', remainder: 'MA', options: ['RA', 'SI', 'TO'] },
+  { word: 'CAMIÓN', emoji: '🚚', initialSyllable: 'CA', remainder: 'MIÓN', options: ['CA', 'LU', 'PE'] },
+  { word: 'DULCE', emoji: '🍬', initialSyllable: 'DUL', remainder: 'CE', options: ['DUL', 'MI', 'SO'] },
+  { word: 'VIOLÍN', emoji: '🎻', initialSyllable: 'VIO', remainder: 'LÍN', options: ['VIO', 'PA', 'NE'] },
+  { word: 'MUÑECA', emoji: '🪆', initialSyllable: 'MU', remainder: 'ÑECA', options: ['MU', 'TA', 'LI'] },
+  { word: 'SUBMARINO', emoji: '🚤', initialSyllable: 'SUB', remainder: 'MARINO', options: ['SUB', 'LA', 'PE'] },
+  { word: 'TAMBOR', emoji: '🥁', initialSyllable: 'TAM', remainder: 'BOR', options: ['TAM', 'SO', 'RE'] },
+  { word: 'LORO', emoji: '🦜', initialSyllable: 'LO', remainder: 'RO', options: ['LO', 'MA', 'PI'] },
+  { word: 'PAYASO', emoji: '🤡', initialSyllable: 'PA', remainder: 'YASO', options: ['PA', 'NE', 'TI'] },
+  { word: 'NIEVE', emoji: '❄️', initialSyllable: 'NIE', remainder: 'VE', options: ['NIE', 'SO', 'LA'] },
+  { word: 'RELOJ', emoji: '⏰', initialSyllable: 'RE', remainder: 'LOJ', options: ['RE', 'TO', 'MA'] },
+  { word: 'CORONA', emoji: '👑', initialSyllable: 'CO', remainder: 'RONA', options: ['CO', 'PA', 'SU'] }
+];
+
 export class SyllablesScreen {
   constructor(appNavigator) {
     this.navigator = appNavigator;
-    this.activeSubgame = null; // null = menú de juegos en círculos, 'completa' o 'arma'
+    this.activeSubgame = null; // null = menú de juegos en círculos, 'completa', 'arma', 'inicio'
     this.currentLevel = null;  // null = selector de 50 circulitos, número = nivel activo
   }
 
@@ -194,19 +250,23 @@ export class SyllablesScreen {
       this.renderCompletaPalabra(container);
     } else if (this.activeSubgame === 'arma') {
       this.renderArmaSilaba(container);
+    } else if (this.activeSubgame === 'inicio') {
+      this.renderSilabaInicial(container);
     }
   }
 
   // ==========================================================================
-  // VISTA 1: MENÚ DE SUB-JUEGOS EN CÍRCULOS (COMPLETA LA PALABRA / ARMA LA SÍLABA)
+  // VISTA 1: MENÚ DE SUB-JUEGOS EN CÍRCULOS
   // ==========================================================================
   renderSubgamesMenu(container) {
     const student = StorageManager.getActiveStudent();
     const progCompleta = StorageManager.getModuleLevels('syllables_completa');
     const progArma = StorageManager.getModuleLevels('syllables_arma');
+    const progInicio = StorageManager.getModuleLevels('syllables_inicio');
 
     const countCompleta = Object.keys(progCompleta.completed || {}).length;
     const countArma = Object.keys(progArma.completed || {}).length;
+    const countInicio = Object.keys(progInicio.completed || {}).length;
 
     container.innerHTML = `
       <div class="module-container syllables-bg fade-in">
@@ -215,7 +275,7 @@ export class SyllablesScreen {
           <div style="text-align:center;">
             <h2>MÓDULO DE SÍLABAS</h2>
             <div style="font-size:0.85rem; font-weight:bold; color:#2e7d32;">
-              Elige tu juego favorito en círculos
+              Elige tu juego favorito en círculos • Método Fonético
             </div>
           </div>
           <div class="score-box">⭐ ${student.stars || 0}</div>
@@ -248,11 +308,23 @@ export class SyllablesScreen {
               </span>
             </button>
 
+            <!-- Círculo 3: ¿Con qué sílaba empieza? -->
+            <button class="subgame-circle-card" id="btnSelectInicio">
+              <div class="subgame-bubble subgame-bubble-s pulse-glow">
+                <span class="subgame-bubble-icon">🎯</span>
+                <span class="subgame-levels-badge badge-cyan" style="background:#00acc1;">50 Niveles</span>
+              </div>
+              <span class="subgame-title-label">¿CON QUÉ SÍLABA EMPIEZA?</span>
+              <span style="font-size:0.75rem; color:#00838f; font-weight:bold; margin-top:2px;">
+                ⭐ ${countInicio}/50 completados
+              </span>
+            </button>
+
           </div>
         </main>
 
         <footer class="module-footer">
-          <span class="tip-text">💡 Toca cualquiera de los círculos para jugar sus 50 niveles interactivos.</span>
+          <span class="tip-text">💡 Toca cualquiera de los 3 círculos para jugar sus 50 niveles interactivos.</span>
         </footer>
       </div>
     `;
@@ -276,6 +348,13 @@ export class SyllablesScreen {
       this.render(container);
     });
 
+    container.querySelector('#btnSelectInicio')?.addEventListener('click', () => {
+      audio.playClick();
+      this.activeSubgame = 'inicio';
+      this.currentLevel = null;
+      this.render(container);
+    });
+
     audio.speak('Elige un juego de sílabas');
   }
 
@@ -283,10 +362,19 @@ export class SyllablesScreen {
   // VISTA 2: SELECTOR DE 50 NIVELES EN CÍRCULOS PARA EL JUEGO SELECCIONADO
   // ==========================================================================
   renderLevelSelector(container) {
-    const isCompleta = (this.activeSubgame === 'completa');
-    const moduleKey = isCompleta ? 'syllables_completa' : 'syllables_arma';
-    const title = isCompleta ? 'Completa la Palabra' : 'Arma la Sílaba (M - S - T - L - P - N - R - C - D - V)';
-    const icon = isCompleta ? '🧩' : '🔤';
+    let moduleKey = 'syllables_completa';
+    let title = 'Completa la Palabra';
+    let icon = '🧩';
+
+    if (this.activeSubgame === 'arma') {
+      moduleKey = 'syllables_arma';
+      title = 'Arma la Sílaba (M - S - T - L - P - N - R - C - D - V)';
+      icon = '🔤';
+    } else if (this.activeSubgame === 'inicio') {
+      moduleKey = 'syllables_inicio';
+      title = '¿Con qué sílaba empieza? (Discriminación Inicial)';
+      icon = '🎯';
+    }
 
     LevelSelector.render({
       container,
@@ -300,7 +388,7 @@ export class SyllablesScreen {
         this.render(container);
       },
       onBackHome: () => {
-        // Regresa al menú de los 2 círculos de juegos
+        // Regresa al menú de círculos de juegos
         this.activeSubgame = null;
         this.currentLevel = null;
         this.render(container);
@@ -528,6 +616,113 @@ export class SyllablesScreen {
     });
 
     audio.speak(instructionText);
+  }
+
+  // ==========================================================================
+  // VISTA 3C: JUEGO "¿CON QUÉ SÍLABA EMPIEZA?" (50 NIVELES: CONCIENCIA FONOLÓGICA)
+  // ==========================================================================
+  renderSilabaInicial(container) {
+    const student = StorageManager.getActiveStudent();
+    const idx = (this.currentLevel - 1) % SILABAS_INICIO_50.length;
+    const item = SILABAS_INICIO_50[idx];
+
+    container.innerHTML = `
+      <div class="module-container syllables-bg fade-in" id="silabaInicialModule">
+        <header class="module-header">
+          <button class="back-btn" id="btnBackToLevels">⬅️ Niveles</button>
+          <div style="text-align:center;">
+            <h2>¿CON QUÉ SÍLABA EMPIEZA?</h2>
+            <div style="font-size:0.8rem; font-weight:bold; color:#00838f;">
+              Juego 3: Nivel ${this.currentLevel} de 50 • Conciencia Fonológica
+            </div>
+          </div>
+          <div class="score-box">⭐ ${student.stars || 0}</div>
+        </header>
+
+        <main class="game-board">
+          <div class="word-card-box">
+            <div style="font-size: clamp(3.2rem, 8vh, 5rem); margin-bottom: 6px;">
+              ${item.emoji}
+            </div>
+
+            <div class="word-puzzle">
+              <div class="drop-zone" id="initialDropZone" style="border-color:#00acc1; background:#e0f7fa; color:#00838f;">?</div>
+              <div class="static-syllable" style="background:#e8f5e9; border-color:#4caf50; color:#2e7d32;">
+                ${item.remainder}
+              </div>
+            </div>
+
+            <p class="instruction-text">
+              ¿Con qué sílaba empieza <strong>${item.word}</strong>?
+            </p>
+
+            <div class="syllables-options" id="initialOptionsContainer" style="display:flex; gap:clamp(8px, 2vw, 16px); margin-top:10px;">
+              ${item.options.map(opt => `
+                <button class="syllable-btn" data-value="${opt}" style="background:#00bcd4; border-color:#0097a7; box-shadow:0 4px 0 #00838f;">${opt}</button>
+              `).join('')}
+            </div>
+          </div>
+        </main>
+
+        <footer class="module-footer">
+          <button class="sound-btn" id="btnListenInitial">🔊 Escuchar Palabra</button>
+        </footer>
+      </div>
+    `;
+
+    container.querySelector('#btnBackToLevels')?.addEventListener('click', () => {
+      audio.playClick();
+      this.currentLevel = null;
+      this.render(container);
+    });
+
+    container.querySelector('#btnListenInitial')?.addEventListener('click', () => {
+      audio.speak(`${item.word}. ¿Con qué sílaba empieza? ¡${item.initialSyllable}!`);
+    });
+
+    const dropZone = container.querySelector('#initialDropZone');
+    const options = container.querySelectorAll('.syllable-btn');
+
+    options.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const selected = e.target.dataset.value;
+
+        if (selected === item.initialSyllable) {
+          audio.playSuccess();
+          e.target.classList.add('correct');
+          e.target.style.background = '#4caf50';
+          e.target.style.borderColor = '#2e7d32';
+          dropZone.innerText = selected;
+          dropZone.classList.add('solved');
+          dropZone.style.background = '#c8e6c9';
+          dropZone.style.borderColor = '#2e7d32';
+          dropZone.style.color = '#1b5e20';
+
+          StorageManager.completeModuleLevel('syllables_inicio', this.currentLevel, 3);
+          Confetti.shoot(2200);
+
+          audio.speak(`¡Excelente! ¡${item.word} empieza con ${item.initialSyllable}!`);
+
+          setTimeout(() => {
+            if (this.currentLevel < 50) {
+              this.currentLevel = this.currentLevel + 1;
+              this.render(container);
+            } else {
+              this.currentLevel = null;
+              this.render(container);
+            }
+          }, 1400);
+
+        } else {
+          audio.playError();
+          e.target.classList.add('wrong');
+          setTimeout(() => e.target.classList.remove('wrong'), 500);
+          audio.speak(`Intenta otra vez. ${item.word} no empieza con ${selected}.`);
+        }
+      });
+    });
+
+    audio.speak(`¿Con qué sílaba empieza ${item.word}?`);
   }
 
   getWordEmoji(word) {
