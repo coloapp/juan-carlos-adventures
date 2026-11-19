@@ -52,7 +52,7 @@ export class StorageManager {
     try {
       const saved = localStorage.getItem(this.KEYS.STUDENTS_LIST);
       if (saved) return JSON.parse(saved);
-    } catch (e) {}
+    } catch (e) { }
     const defaultStudent = this.getActiveStudent();
     return [defaultStudent];
   }
@@ -67,7 +67,7 @@ export class StorageManager {
         list.push(profile);
       }
       localStorage.setItem(this.KEYS.STUDENTS_LIST, JSON.stringify(list));
-    } catch (e) {}
+    } catch (e) { }
   }
 
   static addStars(amount = 1) {
@@ -94,7 +94,7 @@ export class StorageManager {
       const data = saved ? JSON.parse(saved) : {};
       data[moduleKey] = { ...data[moduleKey], ...progress };
       localStorage.setItem(this.KEYS.MODULES_PROGRESS, JSON.stringify(data));
-    } catch (e) {}
+    } catch (e) { }
   }
 
   static getOpenWorldScene() {
@@ -109,7 +109,7 @@ export class StorageManager {
   static saveOpenWorldScene(propsState) {
     try {
       localStorage.setItem(this.KEYS.OPEN_WORLD_SCENE, JSON.stringify(propsState));
-    } catch (e) {}
+    } catch (e) { }
   }
 
   static isAudioMuted() {
@@ -124,7 +124,7 @@ export class StorageManager {
     try {
       const saved = localStorage.getItem('jc_mod_lvl_' + moduleKey);
       if (saved) return JSON.parse(saved);
-    } catch (e) {}
+    } catch (e) { }
     // El nivel 1 siempre está desbloqueado por defecto
     return { maxUnlocked: 1, completed: {} };
   }
@@ -138,7 +138,7 @@ export class StorageManager {
     }
     try {
       localStorage.setItem('jc_mod_lvl_' + moduleKey, JSON.stringify(data));
-    } catch (e) {}
+    } catch (e) { }
     this.addStars(starsEarned);
     return data;
   }

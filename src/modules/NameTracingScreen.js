@@ -65,6 +65,16 @@ export const NAME_TRACING_SUBGAMES = [
     totalLevels: 50,
     bubbleClass: 'subgame-bubble-m',
     themeColor: '#8e24aa'
+  },
+  {
+    id: 'arma_nombre',
+    moduleKey: 'name_tracing_arma',
+    title: 'ARMA TU NOMBRE',
+    subtitle: '50 Niveles: Construye tu nombre con letras móviles',
+    icon: '🔤',
+    totalLevels: 50,
+    bubbleClass: 'subgame-bubble-completa',
+    themeColor: '#00897b'
   }
 ];
 
@@ -177,7 +187,13 @@ export class NameTracingScreen {
       return;
     }
 
-    // Vista 3: Nivel activo de trazado
+    // Vista 3: Juego "Arma tu Nombre"
+    if (this.activeSubgame === 'arma_nombre') {
+      this.renderArmaNombre(container);
+      return;
+    }
+
+    // Vista 4: Nivel activo de trazado
     this.renderGame(container);
   }
 
@@ -263,7 +279,7 @@ export class NameTracingScreen {
       onSelectLevel: (lvl) => {
         audio.playClick();
         this.currentLevel = lvl;
-        this.renderGame(container);
+        this.render(container);
       },
       onBackHome: () => {
         audio.playClick();
@@ -837,11 +853,153 @@ export class NameTracingScreen {
       this.animFrameId = null;
     }
     if (this.arabot) {
-      this.arabot.unmount();
+      if (typeof this.arabot.unmount === 'function') this.arabot.unmount();
+      else if (typeof this.arabot.destroy === 'function') this.arabot.destroy();
       this.arabot = null;
     }
     this.sparkles = [];
     this.isDrawing = false;
     this.activePointerId = null;
+  }
+
+  // ==========================================================================
+  // SUBJUEGO 5: ARMA TU NOMBRE (50 NIVELES: LETRAS MÓVILES)
+  // ==========================================================================
+  renderArmaNombre(container) {
+    const student = StorageManager.getActiveStudent();
+    const nameParts = (student.name || 'Juan Carlos').trim().toUpperCase().split(/\s+/);
+    const firstName = nameParts[0] || 'JUAN';
+    const secondName = nameParts.length > 1 ? nameParts.slice(1).join('') : firstName;
+
+    let targetWord = firstName;
+    if (this.currentLevel <= 10) {
+      targetWord = firstName;
+    } else if (this.currentLevel <= 20) {
+      targetWord = secondName;
+    } else {
+      const words = ['MAMA', 'PAPA', 'AMIGO', 'KINDER', 'CASA', 'SOL', 'LUNA', 'FLOR', 'CAMPEON', 'ESTRELLA', 'GENIAL', 'FELIZ', 'SUPER'];
+      targetWord = words[(this.currentLevel - 21) % words.length];
+    }
+
+    const letters = targetWord.split('');
+    let nextCharIndex = 0;
+
+    // Fichas desordenadas con 2 distractores si es corta
+    const allAbc = 'ABCDEFGHIJKLMNÑOPQRSTUVWXYZ'.split('');
+    const distractors = allAbc.filter(c => !letters.includes(c)).sort(() => 0.5 - Math.random()).slice(0, 2);
+    const availableTiles = [...letters, ...distractors].sort(() => 0.5 - Math.random());
+
+    container.innerHTML = `
+      <div class="module-container notebook-grid-bg fade-in" id="armaNombreModule">
+        <header class="module-header">
+          <button class="back-btn" id="btnBackToLevels">⬅️ Niveles</button>
+          <div style="text-align:center;">
+            <h2>ARMA TU NOMBRE 🔤</h2>
+            <div style="font-size:0.85rem; font-weight:bold; color:#00796b;">
+              Nivel ${this.currentLevel} de 50 • ¡Letras Móviles de Kínder!
+            </div>
+          </div>
+          <div class="score-box">⭐ ${student.stars || 0}</div>
+        </header>
+
+        <main class="game-board" style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; flex:1;">
+          <!-- Credencial del Alumno -->
+          <div style="background:linear-gradient(135deg, #e0f2f1 0%, #ffffff 100%); border:4px solid #00897b; border-radius:24px; padding:12px 24px; box-shadow:0 8px 20px rgba(0,0,0,0.12); display:flex; align-items:center; gap:16px; max-width:min(92vw, 560px);">
+            <img src="${student.avatarUrl || 'public/assets/images/character_avatar.svg'}" 
+                 style="width:56px; height:56px; border-radius:50%; border:3px solid #00897b; background:#ffffff;"
+                 onerror="this.src='public/assets/images/character_avatar.png'">
+            <div>
+              <div style="font-size:0.8rem; font-weight:bold; color:#00796b; letter-spacing:1px;">CREDENCIAL DE ESTUDIANTE</div>
+              <div style="font-size:clamp(1.1rem, 2.8vh, 1.6rem); font-weight:900; color:#004d40;">${student.name.toUpperCase()}</div>
+            </div>
+          </div>
+
+          <!-- Casillas Vacías para Armar la Palabra -->
+          <div style="display:flex; gap:clamp(6px, 1.8vw, 12px); flex-wrap:wrap; justify-content:center; margin:6px 0;">
+            ${letters.map((_, i) => `
+              <div class="name-slot-box" id="nameSlot_${i}" style="width:clamp(46px, 11vw, 64px); height:clamp(54px, 12vh, 74px); background:#ffffff; border:3.5px dashed #00897b; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:clamp(1.6rem, 3.8vh, 2.4rem); font-weight:900; color:#004d40; box-shadow:0 4px 10px rgba(0,0,0,0.08);">
+                _
+              </div>
+            `).join('')}
+          </div>
+
+          <p style="font-size:clamp(0.9rem, 2vh, 1.15rem); font-weight:bold; color:#37474f; margin:0; text-align:center;">
+            Toca las letras en orden para armar: <span style="color:#00796b; font-weight:900;">${targetWord}</span>
+          </p>
+
+          <!-- Fichas Móviles para Tocar -->
+          <div id="tilesContainer" style="display:flex; gap:clamp(8px, 2vw, 14px); flex-wrap:wrap; justify-content:center; max-width:min(94vw, 520px);">
+            ${availableTiles.map((char, idx) => `
+              <button class="letter-tile-btn" data-char="${char}" data-index="${idx}" style="width:clamp(52px, 11.5vw, 68px); height:clamp(52px, 11.5vw, 68px); border-radius:18px; background:linear-gradient(135deg, #00acc1 0%, #00838f 100%); border:3.5px solid white; color:white; font-size:clamp(1.8rem, 4vh, 2.6rem); font-weight:900; cursor:pointer; box-shadow:0 6px 14px rgba(0,0,0,0.18); transition:transform 0.15s;">
+                ${char}
+              </button>
+            `).join('')}
+          </div>
+        </main>
+
+        <footer class="module-footer">
+          <span class="tip-text">Toca cada letra en orden para formar ${targetWord}.</span>
+        </footer>
+      </div>
+    `;
+
+    container.querySelector('#btnBackToLevels')?.addEventListener('click', () => {
+      audio.playClick();
+      this.currentLevel = null;
+      this.render(container);
+    });
+
+    container.querySelectorAll('.letter-tile-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (nextCharIndex >= letters.length) return;
+
+        const char = btn.dataset.char;
+        const expected = letters[nextCharIndex];
+
+        if (char === expected) {
+          audio.playStar();
+          btn.style.visibility = 'hidden';
+
+          const slot = container.querySelector(`#nameSlot_${nextCharIndex}`);
+          if (slot) {
+            slot.innerText = char;
+            slot.style.background = '#b2dfdb';
+            slot.style.borderStyle = 'solid';
+            slot.style.borderColor = '#00796b';
+            slot.style.color = '#004d40';
+            slot.style.animation = 'popScale 0.25s ease';
+          }
+
+          audio.speak(char);
+          nextCharIndex++;
+
+          if (nextCharIndex >= letters.length) {
+            audio.playSuccess();
+            Confetti.shoot(2500);
+            StorageManager.completeModuleLevel('name_tracing_arma', this.currentLevel, 3);
+            StorageManager.addStars(2);
+
+            audio.speak(`¡Excelente ${student.name}! ¡Armaste la palabra ${targetWord}!`);
+
+            setTimeout(() => {
+              if (this.currentLevel < 50) {
+                this.currentLevel++;
+                this.render(container);
+              } else {
+                this.currentLevel = null;
+                this.render(container);
+              }
+            }, 1400);
+          }
+        } else {
+          audio.playWrong();
+          btn.style.transform = 'rotate(-8deg)';
+          setTimeout(() => { btn.style.transform = 'none'; }, 200);
+          audio.speak(`Esa es la letra ${char}. Busca la letra ${expected}.`);
+        }
+      });
+    });
+
+    audio.speak(`Vamos a armar ${targetWord}. ¿Cuál es la primera letra? ¡La ${letters[0]}!`);
   }
 }

@@ -815,6 +815,140 @@ const tests = [
       const levelSelector = appRoot.querySelector('.level-selector-module');
       if (!levelSelector) throw new Error('No abrió el selector de Completa la Palabra');
     }
+  },
+  {
+    name: 'Nuevo Juego Sílabas: ¿Con qué sílaba empieza?',
+    run: () => {
+      app.screens['syllables'].activeSubgame = null;
+      app.screens['syllables'].currentLevel = null;
+      app.navigate('syllables');
+      const cardInicio = appRoot.querySelector('#btnSelectInicio');
+      if (!cardInicio) throw new Error('No se encontró el botón btnSelectInicio');
+      cardInicio.click();
+
+      const levelSelector = appRoot.querySelector('.level-selector-module');
+      if (!levelSelector) throw new Error('No abrió el LevelSelector de ¿Con qué sílaba empieza?');
+
+      const node1 = appRoot.querySelector('[data-level="1"]');
+      if (!node1) throw new Error('No se encontró nivel 1 en ¿Con qué sílaba empieza?');
+      node1.click();
+
+      const moduleEl = appRoot.querySelector('#silabaInicialModule');
+      if (!moduleEl) throw new Error('No se renderizó la vista de ¿Con qué sílaba empieza?');
+      const dropZone = appRoot.querySelector('#initialDropZone');
+      if (!dropZone) throw new Error('No se encontró initialDropZone');
+    }
+  },
+  {
+    name: 'Nuevo Juego Números: Alimenta al Monito',
+    run: () => {
+      app.screens['numbers'].activeSubgame = null;
+      app.screens['numbers'].currentLevel = null;
+      app.navigate('numbers');
+      const card = appRoot.querySelector('[data-game="alimenta_monito"]');
+      if (!card) throw new Error('No se encontró la tarjeta alimenta_monito');
+      card.click();
+
+      const selector = appRoot.querySelector('.level-selector-module');
+      if (!selector) throw new Error('Alimenta al Monito no abrió el LevelSelector');
+      const node1 = appRoot.querySelector('[data-level="1"]');
+      if (!node1) throw new Error('No se encontró nivel 1 en Alimenta al Monito');
+      node1.click();
+
+      const game = appRoot.querySelector('#alimentaMonitoModule');
+      if (!game) throw new Error('No se abrió el juego Alimenta al Monito');
+      const foodBtns = appRoot.querySelectorAll('.food-item-btn');
+      if (foodBtns.length === 0) throw new Error('No hay alimentos para tocar en Alimenta al Monito');
+    }
+  },
+  {
+    name: 'Nuevo Juego Vocales: El Tren de las Vocales',
+    run: () => {
+      app.screens['vowels'].activeSubgame = null;
+      app.screens['vowels'].currentLevel = null;
+      app.navigate('vowels');
+      const card = appRoot.querySelector('[data-game="tren_vocales"]');
+      if (!card) throw new Error('No se encontró la tarjeta tren_vocales');
+      card.click();
+
+      const selector = appRoot.querySelector('.level-selector-module');
+      if (!selector) throw new Error('Tren de Vocales no abrió el LevelSelector');
+      const node1 = appRoot.querySelector('[data-level="1"]');
+      if (!node1) throw new Error('No se encontró nivel 1 en Tren de Vocales');
+      node1.click();
+
+      const game = appRoot.querySelector('#trenVocalesModule');
+      if (!game) throw new Error('No se abrió el juego El Tren de las Vocales');
+      const missingCar = appRoot.querySelector('#missingCarSlot');
+      if (!missingCar) throw new Error('No se encontró el vagón faltante en el tren');
+    }
+  },
+  {
+    name: 'Nuevo Juego Figuras: Detective de Formas',
+    run: () => {
+      app.screens['shapes'].activeSubgame = null;
+      app.screens['shapes'].currentLevel = null;
+      app.navigate('shapes');
+      const card = appRoot.querySelector('[data-game="detective_formas"]');
+      if (!card) throw new Error('No se encontró la tarjeta detective_formas');
+      card.click();
+
+      const selector = appRoot.querySelector('.level-selector-module');
+      if (!selector) throw new Error('Detective de Formas no abrió el LevelSelector');
+      const node1 = appRoot.querySelector('[data-level="1"]');
+      if (!node1) throw new Error('No se encontró nivel 1 en Detective de Formas');
+      node1.click();
+
+      const game = appRoot.querySelector('#detectiveFormasModule');
+      if (!game) throw new Error('No se abrió el juego Detective de Formas');
+      const items = appRoot.querySelectorAll('.detective-item-btn');
+      if (items.length !== 8) throw new Error(`Se esperaban 8 figuras en el tapete de detective, hay: ${items.length}`);
+    }
+  },
+  {
+    name: 'Nuevo Juego Traza tu Nombre: Arma tu Nombre',
+    run: () => {
+      app.screens['name-tracing'].activeSubgame = null;
+      app.screens['name-tracing'].currentLevel = null;
+      app.navigate('name-tracing');
+      const card = appRoot.querySelector('[data-game="arma_nombre"]');
+      if (!card) throw new Error('No se encontró la tarjeta arma_nombre');
+      card.click();
+
+      const selector = appRoot.querySelector('.level-selector-module');
+      if (!selector) throw new Error('Arma tu Nombre no abrió el LevelSelector');
+      const node1 = appRoot.querySelector('[data-level="1"]');
+      if (!node1) throw new Error('No se encontró nivel 1 en Arma tu Nombre');
+      node1.click();
+
+      const game = appRoot.querySelector('#armaNombreModule');
+      if (!game) throw new Error('No se abrió el juego Arma tu Nombre');
+      const tiles = appRoot.querySelectorAll('.letter-tile-btn');
+      if (tiles.length === 0) throw new Error('No se renderizaron las fichas móviles');
+    }
+  },
+  {
+    name: 'Nuevo Juego Trazos: Caminitos Mágicos',
+    run: () => {
+      app.screens['letter-tracing'].activeSubgame = null;
+      app.screens['letter-tracing'].currentLevel = null;
+      app.navigate('letter-tracing');
+      const card = appRoot.querySelector('[data-game="caminitos_magicos"]');
+      if (!card) throw new Error('No se encontró la tarjeta caminitos_magicos');
+      card.click();
+
+      const selector = appRoot.querySelector('.level-selector-module');
+      if (!selector) throw new Error('Caminitos Mágicos no abrió el LevelSelector');
+      const node1 = appRoot.querySelector('[data-level="1"]');
+      if (!node1) throw new Error('No se encontró nivel 1 en Caminitos Mágicos');
+      node1.click();
+
+      const game = appRoot.querySelector('#tracingModule');
+      if (!game) throw new Error('No se abrió el juego Caminitos Mágicos');
+      const startBadge = appRoot.querySelector('.caminito-start-badge');
+      const endGoal = appRoot.querySelector('#caminitoEndGoal');
+      if (!startBadge || !endGoal) throw new Error('No se encontraron los personajes inicio/fin en Caminitos Mágicos');
+    }
   }
 ];
 
