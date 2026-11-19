@@ -53,6 +53,16 @@ export const NUMBERS_SUBGAMES = [
     totalLevels: 50,
     bubbleClass: 'subgame-bubble-m',
     themeColor: '#7b1fa2'
+  },
+  {
+    id: 'alimenta_monito',
+    moduleKey: 'numbers_alimenta',
+    title: 'ALIMENTA AL MONITO',
+    subtitle: '50 Niveles: Correspondencia uno a uno en la canasta',
+    icon: '🍌',
+    totalLevels: 50,
+    bubbleClass: 'subgame-bubble-vocales',
+    themeColor: '#f57f17'
   }
 ];
 
@@ -127,6 +137,8 @@ export class NumbersScreen {
       this.renderQuienTieneMas(container);
     } else if (this.activeSubgame === 'torre_bloques') {
       this.renderTorreBloques(container);
+    } else if (this.activeSubgame === 'alimenta_monito') {
+      this.renderAlimentaMonito(container);
     }
   }
 
@@ -588,5 +600,151 @@ export class NumbersScreen {
     });
 
     audio.speak(`Toca los números del menor al mayor`);
+  }
+
+  // ==========================================================================
+  // SUBJUEGO 5: ALIMENTA AL MONITO (50 NIVELES: CORRESPONDENCIA UNO A UNO)
+  // ==========================================================================
+  renderAlimentaMonito(container) {
+    const student = StorageManager.getActiveStudent();
+    const foods = [
+      { name: 'plátanos', single: 'plátano', emoji: '🍌' },
+      { name: 'manzanas', single: 'manzana', emoji: '🍎' },
+      { name: 'fresas', single: 'fresa', emoji: '🍓' },
+      { name: 'naranjas', single: 'naranja', emoji: '🍊' },
+      { name: 'zanahorias', single: 'zanahoria', emoji: '🥕' },
+      { name: 'galletas', single: 'galleta', emoji: '🍪' }
+    ];
+    const food = foods[(this.currentLevel - 1) % foods.length];
+    const targetCount = ((this.currentLevel - 1) % 8) + 2; // de 2 a 9 objetos
+    let collectedCount = 0;
+    const availableTotal = targetCount + 3;
+
+    container.innerHTML = `
+      <div class="module-container numbers-bg fade-in" id="alimentaMonitoModule">
+        <header class="module-header">
+          <button class="back-btn" id="btnBackToLevels">⬅️ Niveles</button>
+          <div style="text-align:center;">
+            <h2>ALIMENTA AL MONITO 🐵</h2>
+            <div style="font-size:0.85rem; font-weight:bold; color:#00838f;">
+              Nivel ${this.currentLevel} de 50 • ¡Pon ${targetCount} ${food.name}!
+            </div>
+          </div>
+          <div class="score-box">⭐ ${student.stars || 0}</div>
+        </header>
+
+        <main class="game-board" style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; flex:1;">
+          <!-- Monito y Bocadillo de Diálogo -->
+          <div style="display:flex; align-items:center; gap:14px; background:white; padding:10px 18px; border-radius:20px; box-shadow:0 6px 16px rgba(0,0,0,0.1); border:3px solid #ffb300;">
+            <span style="font-size:clamp(2.8rem, 6vh, 4rem);" id="monkeyFace">🐵</span>
+            <div>
+              <div style="font-size:clamp(0.95rem, 2vh, 1.25rem); font-weight:900; color:#e65100;">
+                "¡Tengo hambre! Pon <strong>${targetCount} ${food.name}</strong> en mi canasta."
+              </div>
+              <div style="font-size:0.85rem; color:#455a64; font-weight:bold;">
+                Llevas: <strong id="basketCountLabel" style="color:#2e7d32; font-size:1.1rem;">0</strong> / ${targetCount}
+              </div>
+            </div>
+          </div>
+
+          <!-- Canasta Receptora (Canasta de Picnic) -->
+          <div class="basket-container" style="background:#fff8e1; border:4px dashed #ff9800; border-radius:24px; min-height:80px; width:min(90vw, 420px); display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap; padding:10px 16px; box-shadow:inset 0 4px 10px rgba(0,0,0,0.06);">
+            <span style="font-size:2.5rem; margin-right:4px;">🧺</span>
+            <div id="basketItemsRow" style="display:flex; gap:6px; flex-wrap:wrap; min-height:40px; align-items:center;">
+              <span id="emptyBasketNotice" style="color:#8d6e63; font-style:italic; font-size:0.9rem;">Canasta vacía... toca los alimentos abajo</span>
+            </div>
+          </div>
+
+          <!-- Mesa con Alimentos Disponibles para Tocar -->
+          <div style="background:white; border:3px solid #81c784; border-radius:20px; padding:10px 16px; width:min(90vw, 480px); box-shadow:0 8px 18px rgba(0,0,0,0.08);">
+            <div style="font-size:0.8rem; font-weight:bold; color:#2e7d32; text-align:center; margin-bottom:8px;">
+              🍎 Toca para meter en la canasta:
+            </div>
+            <div id="foodStockRow" style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap;">
+              ${Array.from({ length: availableTotal }).map((_, i) => `
+                <button class="food-item-btn" data-index="${i}" style="font-size:2.4rem; background:#f1f8e9; border:2px solid #aed581; border-radius:16px; width:58px; height:58px; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 8px rgba(0,0,0,0.08); transition:transform 0.15s;">
+                  ${food.emoji}
+                </button>
+              `).join('')}
+            </div>
+          </div>
+        </main>
+
+        <footer class="module-footer" style="display:flex; justify-content:space-between; align-items:center; width:100%; box-sizing:border-box;">
+          <button class="clear-btn" id="btnResetBasket" style="background:#ff7043; color:white; border:none; padding:8px 14px; border-radius:12px; font-weight:bold; cursor:pointer;">🔄 Vaciar Canasta</button>
+          <span class="tip-text">Toca exactamente ${targetCount} ${food.name}.</span>
+        </footer>
+      </div>
+    `;
+
+    container.querySelector('#btnBackToLevels')?.addEventListener('click', () => {
+      audio.playClick();
+      this.currentLevel = null;
+      this.render(container);
+    });
+
+    const basketItemsRow = container.querySelector('#basketItemsRow');
+    const emptyNotice = container.querySelector('#emptyBasketNotice');
+    const basketCountLabel = container.querySelector('#basketCountLabel');
+    const monkeyFace = container.querySelector('#monkeyFace');
+
+    const updateDisplay = () => {
+      if (basketCountLabel) basketCountLabel.innerText = `${collectedCount}`;
+      if (emptyNotice) emptyNotice.style.display = (collectedCount === 0) ? 'inline' : 'none';
+    };
+
+    container.querySelector('#btnResetBasket')?.addEventListener('click', () => {
+      audio.playClick();
+      collectedCount = 0;
+      updateDisplay();
+      if (basketItemsRow) {
+        basketItemsRow.innerHTML = `<span id="emptyBasketNotice" style="color:#8d6e63; font-style:italic; font-size:0.9rem;">Canasta vacía... toca los alimentos abajo</span>`;
+      }
+      container.querySelectorAll('.food-item-btn').forEach(b => {
+        b.style.visibility = 'visible';
+      });
+      audio.speak('Canasta vacía. Vuelve a contar.');
+    });
+
+    container.querySelectorAll('.food-item-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (collectedCount >= targetCount) return;
+
+        audio.playPop();
+        btn.style.visibility = 'hidden';
+        collectedCount++;
+
+        const itemSpan = document.createElement('span');
+        itemSpan.style.fontSize = '2.2rem';
+        itemSpan.style.animation = 'popScale 0.25s ease';
+        itemSpan.innerText = food.emoji;
+        basketItemsRow.appendChild(itemSpan);
+
+        updateDisplay();
+        audio.speak(`${collectedCount}`);
+
+        if (collectedCount === targetCount) {
+          if (monkeyFace) monkeyFace.innerText = '😋';
+          audio.playSuccess();
+          Confetti.shoot(2500);
+          StorageManager.completeModuleLevel('numbers_alimenta', this.currentLevel, 3);
+          StorageManager.addStars(2);
+
+          audio.speak(`¡Ñam ñam qué rico! ¡Pusiste exactamente ${targetCount} ${food.name}!`);
+
+          setTimeout(() => {
+            if (this.currentLevel < 50) {
+              this.currentLevel++;
+              this.render(container);
+            } else {
+              this.currentLevel = null;
+              this.render(container);
+            }
+          }, 1500);
+        }
+      });
+    });
+
+    audio.speak(`Pon ${targetCount} ${food.name} en la canasta del monito.`);
   }
 }

@@ -64,7 +64,7 @@ class StorageManager {
     try {
       const saved = localStorage.getItem(this.KEYS.STUDENTS_LIST);
       if (saved) return JSON.parse(saved);
-    } catch (e) {}
+    } catch (e) { }
     const defaultStudent = this.getActiveStudent();
     return [defaultStudent];
   }
@@ -79,7 +79,7 @@ class StorageManager {
         list.push(profile);
       }
       localStorage.setItem(this.KEYS.STUDENTS_LIST, JSON.stringify(list));
-    } catch (e) {}
+    } catch (e) { }
   }
 
   static addStars(amount = 1) {
@@ -106,7 +106,7 @@ class StorageManager {
       const data = saved ? JSON.parse(saved) : {};
       data[moduleKey] = { ...data[moduleKey], ...progress };
       localStorage.setItem(this.KEYS.MODULES_PROGRESS, JSON.stringify(data));
-    } catch (e) {}
+    } catch (e) { }
   }
 
   static getOpenWorldScene() {
@@ -121,7 +121,7 @@ class StorageManager {
   static saveOpenWorldScene(propsState) {
     try {
       localStorage.setItem(this.KEYS.OPEN_WORLD_SCENE, JSON.stringify(propsState));
-    } catch (e) {}
+    } catch (e) { }
   }
 
   static isAudioMuted() {
@@ -136,7 +136,7 @@ class StorageManager {
     try {
       const saved = localStorage.getItem('jc_mod_lvl_' + moduleKey);
       if (saved) return JSON.parse(saved);
-    } catch (e) {}
+    } catch (e) { }
     // El nivel 1 siempre está desbloqueado por defecto
     return { maxUnlocked: 1, completed: {} };
   }
@@ -150,7 +150,7 @@ class StorageManager {
     }
     try {
       localStorage.setItem('jc_mod_lvl_' + moduleKey, JSON.stringify(data));
-    } catch (e) {}
+    } catch (e) { }
     this.addStars(starsEarned);
     return data;
   }
@@ -1085,6 +1085,10 @@ class ArabotAssistant {
     this.pointerElement = null;
     this.isTutorialRunning = false;
   }
+
+  unmount() {
+    this.destroy();
+  }
 }
 
 
@@ -1427,6 +1431,12 @@ const PATTERN_STROKES = {
   ],
   'espiral': [
     { id: 'P_E1', label: '1', arrow: '🌀', type: 'curve', pts: [{ x: 0.50, y: 0.50 }, { x: 0.42, y: 0.42 }, { x: 0.50, y: 0.34 }, { x: 0.62, y: 0.46 }, { x: 0.52, y: 0.66 }, { x: 0.30, y: 0.56 }, { x: 0.45, y: 0.22 }, { x: 0.78, y: 0.40 }, { x: 0.60, y: 0.82 }] }
+  ],
+  'curva_arco': [
+    { id: 'P_A1', label: '1', arrow: '⤴', type: 'curve', pts: [{ x: 0.12, y: 0.75 }, { x: 0.30, y: 0.35 }, { x: 0.50, y: 0.22 }, { x: 0.70, y: 0.35 }, { x: 0.88, y: 0.75 }] }
+  ],
+  'liana_curvas': [
+    { id: 'P_L1', label: '1', arrow: '〰', type: 'curve', pts: [{ x: 0.12, y: 0.35 }, { x: 0.32, y: 0.72 }, { x: 0.52, y: 0.32 }, { x: 0.72, y: 0.72 }, { x: 0.88, y: 0.40 }] }
   ]
 };
 
@@ -3290,6 +3300,16 @@ const NAME_TRACING_SUBGAMES = [
     totalLevels: 50,
     bubbleClass: 'subgame-bubble-m',
     themeColor: '#8e24aa'
+  },
+  {
+    id: 'arma_nombre',
+    moduleKey: 'name_tracing_arma',
+    title: 'ARMA TU NOMBRE',
+    subtitle: '50 Niveles: Construye tu nombre con letras móviles',
+    icon: '🔤',
+    totalLevels: 50,
+    bubbleClass: 'subgame-bubble-completa',
+    themeColor: '#00897b'
   }
 ];
 
@@ -3398,7 +3418,13 @@ class NameTracingScreen {
       return;
     }
 
-    // Vista 3: Nivel activo de trazado
+    // Vista 3: Juego "Arma tu Nombre"
+    if (this.activeSubgame === 'arma_nombre') {
+      this.renderArmaNombre(container);
+      return;
+    }
+
+    // Vista 4: Nivel activo de trazado
     this.renderGame(container);
   }
 
@@ -3484,7 +3510,7 @@ class NameTracingScreen {
       onSelectLevel: (lvl) => {
         audio.playClick();
         this.currentLevel = lvl;
-        this.renderGame(container);
+        this.render(container);
       },
       onBackHome: () => {
         audio.playClick();
@@ -4058,12 +4084,154 @@ class NameTracingScreen {
       this.animFrameId = null;
     }
     if (this.arabot) {
-      this.arabot.unmount();
+      if (typeof this.arabot.unmount === 'function') this.arabot.unmount();
+      else if (typeof this.arabot.destroy === 'function') this.arabot.destroy();
       this.arabot = null;
     }
     this.sparkles = [];
     this.isDrawing = false;
     this.activePointerId = null;
+  }
+
+  // ==========================================================================
+  // SUBJUEGO 5: ARMA TU NOMBRE (50 NIVELES: LETRAS MÓVILES)
+  // ==========================================================================
+  renderArmaNombre(container) {
+    const student = StorageManager.getActiveStudent();
+    const nameParts = (student.name || 'Juan Carlos').trim().toUpperCase().split(/\s+/);
+    const firstName = nameParts[0] || 'JUAN';
+    const secondName = nameParts.length > 1 ? nameParts.slice(1).join('') : firstName;
+
+    let targetWord = firstName;
+    if (this.currentLevel <= 10) {
+      targetWord = firstName;
+    } else if (this.currentLevel <= 20) {
+      targetWord = secondName;
+    } else {
+      const words = ['MAMA', 'PAPA', 'AMIGO', 'KINDER', 'CASA', 'SOL', 'LUNA', 'FLOR', 'CAMPEON', 'ESTRELLA', 'GENIAL', 'FELIZ', 'SUPER'];
+      targetWord = words[(this.currentLevel - 21) % words.length];
+    }
+
+    const letters = targetWord.split('');
+    let nextCharIndex = 0;
+
+    // Fichas desordenadas con 2 distractores si es corta
+    const allAbc = 'ABCDEFGHIJKLMNÑOPQRSTUVWXYZ'.split('');
+    const distractors = allAbc.filter(c => !letters.includes(c)).sort(() => 0.5 - Math.random()).slice(0, 2);
+    const availableTiles = [...letters, ...distractors].sort(() => 0.5 - Math.random());
+
+    container.innerHTML = `
+      <div class="module-container notebook-grid-bg fade-in" id="armaNombreModule">
+        <header class="module-header">
+          <button class="back-btn" id="btnBackToLevels">⬅️ Niveles</button>
+          <div style="text-align:center;">
+            <h2>ARMA TU NOMBRE 🔤</h2>
+            <div style="font-size:0.85rem; font-weight:bold; color:#00796b;">
+              Nivel ${this.currentLevel} de 50 • ¡Letras Móviles de Kínder!
+            </div>
+          </div>
+          <div class="score-box">⭐ ${student.stars || 0}</div>
+        </header>
+
+        <main class="game-board" style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; flex:1;">
+          <!-- Credencial del Alumno -->
+          <div style="background:linear-gradient(135deg, #e0f2f1 0%, #ffffff 100%); border:4px solid #00897b; border-radius:24px; padding:12px 24px; box-shadow:0 8px 20px rgba(0,0,0,0.12); display:flex; align-items:center; gap:16px; max-width:min(92vw, 560px);">
+            <img src="${student.avatarUrl || 'public/assets/images/character_avatar.svg'}" 
+                 style="width:56px; height:56px; border-radius:50%; border:3px solid #00897b; background:#ffffff;"
+                 onerror="this.src='public/assets/images/character_avatar.png'">
+            <div>
+              <div style="font-size:0.8rem; font-weight:bold; color:#00796b; letter-spacing:1px;">CREDENCIAL DE ESTUDIANTE</div>
+              <div style="font-size:clamp(1.1rem, 2.8vh, 1.6rem); font-weight:900; color:#004d40;">${student.name.toUpperCase()}</div>
+            </div>
+          </div>
+
+          <!-- Casillas Vacías para Armar la Palabra -->
+          <div style="display:flex; gap:clamp(6px, 1.8vw, 12px); flex-wrap:wrap; justify-content:center; margin:6px 0;">
+            ${letters.map((_, i) => `
+              <div class="name-slot-box" id="nameSlot_${i}" style="width:clamp(46px, 11vw, 64px); height:clamp(54px, 12vh, 74px); background:#ffffff; border:3.5px dashed #00897b; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:clamp(1.6rem, 3.8vh, 2.4rem); font-weight:900; color:#004d40; box-shadow:0 4px 10px rgba(0,0,0,0.08);">
+                _
+              </div>
+            `).join('')}
+          </div>
+
+          <p style="font-size:clamp(0.9rem, 2vh, 1.15rem); font-weight:bold; color:#37474f; margin:0; text-align:center;">
+            Toca las letras en orden para armar: <span style="color:#00796b; font-weight:900;">${targetWord}</span>
+          </p>
+
+          <!-- Fichas Móviles para Tocar -->
+          <div id="tilesContainer" style="display:flex; gap:clamp(8px, 2vw, 14px); flex-wrap:wrap; justify-content:center; max-width:min(94vw, 520px);">
+            ${availableTiles.map((char, idx) => `
+              <button class="letter-tile-btn" data-char="${char}" data-index="${idx}" style="width:clamp(52px, 11.5vw, 68px); height:clamp(52px, 11.5vw, 68px); border-radius:18px; background:linear-gradient(135deg, #00acc1 0%, #00838f 100%); border:3.5px solid white; color:white; font-size:clamp(1.8rem, 4vh, 2.6rem); font-weight:900; cursor:pointer; box-shadow:0 6px 14px rgba(0,0,0,0.18); transition:transform 0.15s;">
+                ${char}
+              </button>
+            `).join('')}
+          </div>
+        </main>
+
+        <footer class="module-footer">
+          <span class="tip-text">Toca cada letra en orden para formar ${targetWord}.</span>
+        </footer>
+      </div>
+    `;
+
+    container.querySelector('#btnBackToLevels')?.addEventListener('click', () => {
+      audio.playClick();
+      this.currentLevel = null;
+      this.render(container);
+    });
+
+    container.querySelectorAll('.letter-tile-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (nextCharIndex >= letters.length) return;
+
+        const char = btn.dataset.char;
+        const expected = letters[nextCharIndex];
+
+        if (char === expected) {
+          audio.playStar();
+          btn.style.visibility = 'hidden';
+
+          const slot = container.querySelector(`#nameSlot_${nextCharIndex}`);
+          if (slot) {
+            slot.innerText = char;
+            slot.style.background = '#b2dfdb';
+            slot.style.borderStyle = 'solid';
+            slot.style.borderColor = '#00796b';
+            slot.style.color = '#004d40';
+            slot.style.animation = 'popScale 0.25s ease';
+          }
+
+          audio.speak(char);
+          nextCharIndex++;
+
+          if (nextCharIndex >= letters.length) {
+            audio.playSuccess();
+            Confetti.shoot(2500);
+            StorageManager.completeModuleLevel('name_tracing_arma', this.currentLevel, 3);
+            StorageManager.addStars(2);
+
+            audio.speak(`¡Excelente ${student.name}! ¡Armaste la palabra ${targetWord}!`);
+
+            setTimeout(() => {
+              if (this.currentLevel < 50) {
+                this.currentLevel++;
+                this.render(container);
+              } else {
+                this.currentLevel = null;
+                this.render(container);
+              }
+            }, 1400);
+          }
+        } else {
+          audio.playWrong();
+          btn.style.transform = 'rotate(-8deg)';
+          setTimeout(() => { btn.style.transform = 'none'; }, 200);
+          audio.speak(`Esa es la letra ${char}. Busca la letra ${expected}.`);
+        }
+      });
+    });
+
+    audio.speak(`Vamos a armar ${targetWord}. ¿Cuál es la primera letra? ¡La ${letters[0]}!`);
   }
 }
 
@@ -4201,6 +4369,17 @@ const TRACING_SUBGAMES = [
     bubbleClass: 'subgame-bubble-m',
     themeColor: '#d81b60',
     description: 'Trazos con gancho y fuerza de la letra R con el Ratón.'
+  },
+  {
+    id: 'caminitos_magicos',
+    moduleKey: 'tracing_caminitos_magicos',
+    title: 'CAMINITOS MÁGICOS',
+    subtitle: '50 Niveles: Conecta personajes y grafomotricidad',
+    icon: '🌈',
+    totalLevels: 50,
+    bubbleClass: 'subgame-bubble-s',
+    themeColor: '#00acc1',
+    description: 'Guía a los animalitos a su destino recorriendo caminitos curvos, zig-zag y en arco.'
   },
   {
     id: 'pizarra_magica',
@@ -4398,6 +4577,37 @@ const GRAFOMOTRICIDAD_LEVELS = (() => {
   }
   return list;
 })();
+
+// 50 Niveles de Caminitos Mágicos (Grafomotricidad con Conexión de Personajes)
+const CAMINITOS_MAGICOS_LEVELS = (() => {
+  const journeys = [
+    { start: '🐝', end: '🌸', title: 'La Abejita a la Flor', pattern: 'olas_mar', instruction: '✏️ Traza las olas suaves para llevar la Abejita a la Flor.' },
+    { start: '🐶', end: '🦴', title: 'El Perrito a su Hueso', pattern: 'lineas_horizontales', instruction: '✏️ Traza la línea recta para que el Perrito alcance su Hueso.' },
+    { start: '🚀', end: '🌙', title: 'El Cohete a la Luna', pattern: 'curva_arco', instruction: '✏️ Traza el arco estelar que lleva el Cohete a la Luna.' },
+    { start: '🐰', end: '🥕', title: 'El Conejito a la Zanahoria', pattern: 'montañas_zigzag', instruction: '✏️ Traza los saltitos en zig-zag hacia la Zanahoria.' },
+    { start: '⛵', end: '🏝️', title: 'El Barquito a la Isla', pattern: 'olas_mar', instruction: '✏️ Traza las olas marinas hacia la Isla del Tesoro.' },
+    { start: '🐒', end: '🍌', title: 'El Monito a su Plátano', pattern: 'liana_curvas', instruction: '✏️ Traza las lianas de la selva para darle el Plátano al Monito.' },
+    { start: '🚗', end: '🏠', title: 'El Cochecito a Casa', pattern: 'lineas_horizontales', instruction: '✏️ Traza la carretera que lleva el Coche a la Casita.' },
+    { start: '🐥', end: '🐔', title: 'El Pollito con Mamá Gallina', pattern: 'montañas_zigzag', instruction: '✏️ Traza los pasitos para reunir al Pollito con Mamá Gallina.' },
+    { start: '🐸', end: '🪷', title: 'La Ranita al Nenúfar', pattern: 'curva_arco', instruction: '✏️ Traza el salto alto de la Ranita hacia el Nenúfar florecido.' },
+    { start: '🦋', end: '🌻', title: 'La Mariposa al Girasol', pattern: 'espiral', instruction: '✏️ Traza el vuelo en espiral para posar la Mariposa en el Girasol.' }
+  ];
+
+  const list = [];
+  for (let i = 1; i <= 50; i++) {
+    const j = journeys[(i - 1) % journeys.length];
+    list.push({
+      id: i,
+      type: 'caminitos',
+      startEmoji: j.start,
+      endEmoji: j.end,
+      patternKey: j.pattern,
+      title: `Caminito ${i}: ${j.title}`,
+      instruction: j.instruction
+    });
+  }
+  return list;
+})();
 const CONSONANTES_WORKBOOK_LEVELS = buildConsonante50Levels('M', 'MANZANA', 'M de Manzana', '🍎');
 
 // Diccionario de niveles de los subjuegos
@@ -4405,6 +4615,7 @@ const SUBGAMES_LEVEL_MAP = {
   vocales_cuadernillo: VOCALES_WORKBOOK_LEVELS,
   consonantes_cuadernillo: CONSONANTES_WORKBOOK_LEVELS,
   grafomotricidad: GRAFOMOTRICIDAD_LEVELS,
+  caminitos_magicos: CAMINITOS_MAGICOS_LEVELS,
   letra_m: buildConsonante50Levels('M', 'MANZANA', 'M de Manzana', '🍎'),
   letra_s: buildConsonante50Levels('S', 'SOL', 'S de Sol', '☀️'),
   letra_t: buildConsonante50Levels('T', 'TORTUGA', 'T de Tortuga', '🐢'),
@@ -4620,6 +4831,7 @@ class LetterTracingScreen {
     this.levelConfig = levels[idx];
 
     const isIntro = (this.levelConfig.type === 'intro_hollow');
+    const isCaminito = (this.levelConfig.type === 'caminitos');
     const letterChar = this.levelConfig.letter || this.levelConfig.char || 'A';
     this.pedagogicalData = getPedagogicalLetter(letterChar);
 
@@ -4672,6 +4884,15 @@ class LetterTracingScreen {
               <div class="notebook-tree-zone" id="notebookTreeZone">
                 ${this.pedagogicalData.getSurpriseSvg ? this.pedagogicalData.getSurpriseSvg() : ''}
                 <div class="tree-caption" id="treeCaption">${this.pedagogicalData.phonetic || ''} ${this.pedagogicalData.icon || '⭐'}</div>
+              </div>
+            ` : isCaminito ? `
+              <div class="caminito-emojis-stage" style="position:absolute; inset:0; pointer-events:none; z-index:3; display:flex; justify-content:space-between; align-items:center; padding:0 36px;">
+                <div class="caminito-start-badge" style="font-size:clamp(2.8rem, 6vh, 4rem); filter:drop-shadow(0 4px 8px rgba(0,0,0,0.22));">
+                  ${this.levelConfig.startEmoji || '🐝'}
+                </div>
+                <div class="caminito-end-badge pulse-glow" id="caminitoEndGoal" style="font-size:clamp(2.8rem, 6vh, 4rem); filter:drop-shadow(0 4px 8px rgba(0,0,0,0.22));">
+                  ${this.levelConfig.endEmoji || '🌸'}
+                </div>
               </div>
             ` : `
               <div class="row-progress-counter" id="rowProgressCounter">
@@ -4759,6 +4980,12 @@ class LetterTracingScreen {
     else if (this.levelConfig.type === 'pattern_trace') {
       const patternBounds = { x: 60, y: 80, width: 640, height: 260 };
       this.activeStrokes = StrokeGenerator.getStrokes(this.levelConfig.patternKey || 'lineas_verticales', patternBounds);
+      this.totalRowLetters = this.activeStrokes.length;
+    }
+    // Caso 4: Caminitos Mágicos (Conexión de Personajes)
+    else if (this.levelConfig.type === 'caminitos') {
+      const patternBounds = { x: 120, y: 80, width: 520, height: 260 };
+      this.activeStrokes = StrokeGenerator.getStrokes(this.levelConfig.patternKey || 'olas_mar', patternBounds);
       this.totalRowLetters = this.activeStrokes.length;
     }
   }
@@ -5802,10 +6029,66 @@ const ARMA_SILABAS_50_LEVELS = [
   { consonant: 'V', vowel: 'O', syllable: 'VO', word: 'VOTO', relationText: 'VOTO (¡con V y T!)', emoji: '🗳️' },
   { consonant: 'V', vowel: 'U', syllable: 'VU', word: 'VUELO', relationText: 'VUELO', emoji: '✈️' }
 ];
+
+// ============================================================================
+// 3. JUEGO 3: ¿CON QUÉ SÍLABA EMPIEZA? (50 NIVELES DE CONCIENCIA FONOLÓGICA)
+// ============================================================================
+const SILABAS_INICIO_50 = [
+  { word: 'PERRO', emoji: '🐶', initialSyllable: 'PE', remainder: 'RRO', options: ['PE', 'MA', 'SO'] },
+  { word: 'MAMÁ', emoji: '👩', initialSyllable: 'MA', remainder: 'MÁ', options: ['MA', 'TA', 'LU'] },
+  { word: 'SAPO', emoji: '🐸', initialSyllable: 'SA', remainder: 'PO', options: ['SA', 'CO', 'ME'] },
+  { word: 'LUNA', emoji: '🌙', initialSyllable: 'LU', remainder: 'NA', options: ['LU', 'PA', 'NO'] },
+  { word: 'TAZA', emoji: '☕', initialSyllable: 'TA', remainder: 'ZA', options: ['TA', 'MI', 'SO'] },
+  { word: 'PATO', emoji: '🦆', initialSyllable: 'PA', remainder: 'TO', options: ['PA', 'SE', 'LI'] },
+  { word: 'NUBE', emoji: '☁️', initialSyllable: 'NU', remainder: 'BE', options: ['NU', 'RA', 'TE'] },
+  { word: 'RATÓN', emoji: '🐭', initialSyllable: 'RA', remainder: 'TÓN', options: ['RA', 'PO', 'MO'] },
+  { word: 'CASA', emoji: '🏠', initialSyllable: 'CA', remainder: 'SA', options: ['CA', 'ME', 'VI'] },
+  { word: 'DADO', emoji: '🎲', initialSyllable: 'DA', remainder: 'DO', options: ['DA', 'SO', 'TU'] },
+  { word: 'VACA', emoji: '🐮', initialSyllable: 'VA', remainder: 'CA', options: ['VA', 'LE', 'PI'] },
+  { word: 'MESA', emoji: '🪑', initialSyllable: 'ME', remainder: 'SA', options: ['ME', 'TO', 'SA'] },
+  { word: 'SOL', emoji: '☀️', initialSyllable: 'SO', remainder: 'L', options: ['SO', 'LA', 'DE'] },
+  { word: 'PELOTA', emoji: '⚽', initialSyllable: 'PE', remainder: 'LOTA', options: ['PE', 'NA', 'RO'] },
+  { word: 'TINA', emoji: '🛁', initialSyllable: 'TI', remainder: 'NA', options: ['TI', 'MA', 'LU'] },
+  { word: 'LEÓN', emoji: '🦁', initialSyllable: 'LE', remainder: 'ÓN', options: ['LE', 'PO', 'SI'] },
+  { word: 'PIÑA', emoji: '🍍', initialSyllable: 'PI', remainder: 'ÑA', options: ['PI', 'FA', 'NO'] },
+  { word: 'NIDO', emoji: '🪹', initialSyllable: 'NI', remainder: 'DO', options: ['NI', 'TA', 'SE'] },
+  { word: 'ROSA', emoji: '🌹', initialSyllable: 'RO', remainder: 'SA', options: ['RO', 'CU', 'ME'] },
+  { word: 'CUNA', emoji: '🛏️', initialSyllable: 'CU', remainder: 'NA', options: ['CU', 'BA', 'LO'] },
+  { word: 'DEDO', emoji: '👆', initialSyllable: 'DE', remainder: 'DO', options: ['DE', 'SA', 'MI'] },
+  { word: 'VELA', emoji: '🕯️', initialSyllable: 'VE', remainder: 'LA', options: ['VE', 'TO', 'NA'] },
+  { word: 'MONO', emoji: '🐒', initialSyllable: 'MO', remainder: 'NO', options: ['MO', 'LA', 'TU'] },
+  { word: 'SILLA', emoji: '🪑', initialSyllable: 'SI', remainder: 'LLA', options: ['SI', 'PA', 'VE'] },
+  { word: 'TOMATE', emoji: '🍅', initialSyllable: 'TO', remainder: 'MATE', options: ['TO', 'RU', 'ME'] },
+  { word: 'LIMA', emoji: '🍋', initialSyllable: 'LI', remainder: 'MA', options: ['LI', 'SO', 'TE'] },
+  { word: 'POZO', emoji: '🪣', initialSyllable: 'PO', remainder: 'ZO', options: ['PO', 'NI', 'LA'] },
+  { word: 'NARIZ', emoji: '👃', initialSyllable: 'NA', remainder: 'RIZ', options: ['NA', 'LO', 'SI'] },
+  { word: 'RUEDA', emoji: '🛞', initialSyllable: 'RUE', remainder: 'DA', options: ['RUE', 'CA', 'PE'] },
+  { word: 'COCO', emoji: '🥥', initialSyllable: 'CO', remainder: 'CO', options: ['CO', 'TI', 'MA'] },
+  { word: 'DIENTE', emoji: '🦷', initialSyllable: 'DIEN', remainder: 'TE', options: ['DIEN', 'PO', 'SU'] },
+  { word: 'VASO', emoji: '🥛', initialSyllable: 'VA', remainder: 'SO', options: ['VA', 'MO', 'LI'] },
+  { word: 'MOTO', emoji: '🏍️', initialSyllable: 'MO', remainder: 'TO', options: ['MO', 'SE', 'DA'] },
+  { word: 'SOPA', emoji: '🍲', initialSyllable: 'SO', remainder: 'PA', options: ['SO', 'CU', 'LA'] },
+  { word: 'TULIPÁN', emoji: '🌷', initialSyllable: 'TU', remainder: 'LIPÁN', options: ['TU', 'NA', 'RE'] },
+  { word: 'LÁPIZ', emoji: '✏️', initialSyllable: 'LÁ', remainder: 'PIZ', options: ['LÁ', 'PO', 'VE'] },
+  { word: 'PUMA', emoji: '🐆', initialSyllable: 'PU', remainder: 'MA', options: ['PU', 'TI', 'SA'] },
+  { word: 'NOTA', emoji: '🎵', initialSyllable: 'NO', remainder: 'TA', options: ['NO', 'MA', 'LE'] },
+  { word: 'RAMA', emoji: '🌿', initialSyllable: 'RA', remainder: 'MA', options: ['RA', 'SI', 'TO'] },
+  { word: 'CAMIÓN', emoji: '🚚', initialSyllable: 'CA', remainder: 'MIÓN', options: ['CA', 'LU', 'PE'] },
+  { word: 'DULCE', emoji: '🍬', initialSyllable: 'DUL', remainder: 'CE', options: ['DUL', 'MI', 'SO'] },
+  { word: 'VIOLÍN', emoji: '🎻', initialSyllable: 'VIO', remainder: 'LÍN', options: ['VIO', 'PA', 'NE'] },
+  { word: 'MUÑECA', emoji: '🪆', initialSyllable: 'MU', remainder: 'ÑECA', options: ['MU', 'TA', 'LI'] },
+  { word: 'SUBMARINO', emoji: '🚤', initialSyllable: 'SUB', remainder: 'MARINO', options: ['SUB', 'LA', 'PE'] },
+  { word: 'TAMBOR', emoji: '🥁', initialSyllable: 'TAM', remainder: 'BOR', options: ['TAM', 'SO', 'RE'] },
+  { word: 'LORO', emoji: '🦜', initialSyllable: 'LO', remainder: 'RO', options: ['LO', 'MA', 'PI'] },
+  { word: 'PAYASO', emoji: '🤡', initialSyllable: 'PA', remainder: 'YASO', options: ['PA', 'NE', 'TI'] },
+  { word: 'NIEVE', emoji: '❄️', initialSyllable: 'NIE', remainder: 'VE', options: ['NIE', 'SO', 'LA'] },
+  { word: 'RELOJ', emoji: '⏰', initialSyllable: 'RE', remainder: 'LOJ', options: ['RE', 'TO', 'MA'] },
+  { word: 'CORONA', emoji: '👑', initialSyllable: 'CO', remainder: 'RONA', options: ['CO', 'PA', 'SU'] }
+];
 class SyllablesScreen {
   constructor(appNavigator) {
     this.navigator = appNavigator;
-    this.activeSubgame = null; // null = menú de juegos en círculos, 'completa' o 'arma'
+    this.activeSubgame = null; // null = menú de juegos en círculos, 'completa', 'arma', 'inicio'
     this.currentLevel = null;  // null = selector de 50 circulitos, número = nivel activo
   }
 
@@ -5827,19 +6110,23 @@ class SyllablesScreen {
       this.renderCompletaPalabra(container);
     } else if (this.activeSubgame === 'arma') {
       this.renderArmaSilaba(container);
+    } else if (this.activeSubgame === 'inicio') {
+      this.renderSilabaInicial(container);
     }
   }
 
   // ==========================================================================
-  // VISTA 1: MENÚ DE SUB-JUEGOS EN CÍRCULOS (COMPLETA LA PALABRA / ARMA LA SÍLABA)
+  // VISTA 1: MENÚ DE SUB-JUEGOS EN CÍRCULOS
   // ==========================================================================
   renderSubgamesMenu(container) {
     const student = StorageManager.getActiveStudent();
     const progCompleta = StorageManager.getModuleLevels('syllables_completa');
     const progArma = StorageManager.getModuleLevels('syllables_arma');
+    const progInicio = StorageManager.getModuleLevels('syllables_inicio');
 
     const countCompleta = Object.keys(progCompleta.completed || {}).length;
     const countArma = Object.keys(progArma.completed || {}).length;
+    const countInicio = Object.keys(progInicio.completed || {}).length;
 
     container.innerHTML = `
       <div class="module-container syllables-bg fade-in">
@@ -5848,7 +6135,7 @@ class SyllablesScreen {
           <div style="text-align:center;">
             <h2>MÓDULO DE SÍLABAS</h2>
             <div style="font-size:0.85rem; font-weight:bold; color:#2e7d32;">
-              Elige tu juego favorito en círculos
+              Elige tu juego favorito en círculos • Método Fonético
             </div>
           </div>
           <div class="score-box">⭐ ${student.stars || 0}</div>
@@ -5881,11 +6168,23 @@ class SyllablesScreen {
               </span>
             </button>
 
+            <!-- Círculo 3: ¿Con qué sílaba empieza? -->
+            <button class="subgame-circle-card" id="btnSelectInicio">
+              <div class="subgame-bubble subgame-bubble-s pulse-glow">
+                <span class="subgame-bubble-icon">🎯</span>
+                <span class="subgame-levels-badge badge-cyan" style="background:#00acc1;">50 Niveles</span>
+              </div>
+              <span class="subgame-title-label">¿CON QUÉ SÍLABA EMPIEZA?</span>
+              <span style="font-size:0.75rem; color:#00838f; font-weight:bold; margin-top:2px;">
+                ⭐ ${countInicio}/50 completados
+              </span>
+            </button>
+
           </div>
         </main>
 
         <footer class="module-footer">
-          <span class="tip-text">💡 Toca cualquiera de los círculos para jugar sus 50 niveles interactivos.</span>
+          <span class="tip-text">💡 Toca cualquiera de los 3 círculos para jugar sus 50 niveles interactivos.</span>
         </footer>
       </div>
     `;
@@ -5909,6 +6208,13 @@ class SyllablesScreen {
       this.render(container);
     });
 
+    container.querySelector('#btnSelectInicio')?.addEventListener('click', () => {
+      audio.playClick();
+      this.activeSubgame = 'inicio';
+      this.currentLevel = null;
+      this.render(container);
+    });
+
     audio.speak('Elige un juego de sílabas');
   }
 
@@ -5916,10 +6222,19 @@ class SyllablesScreen {
   // VISTA 2: SELECTOR DE 50 NIVELES EN CÍRCULOS PARA EL JUEGO SELECCIONADO
   // ==========================================================================
   renderLevelSelector(container) {
-    const isCompleta = (this.activeSubgame === 'completa');
-    const moduleKey = isCompleta ? 'syllables_completa' : 'syllables_arma';
-    const title = isCompleta ? 'Completa la Palabra' : 'Arma la Sílaba (M - S - T - L - P - N - R - C - D - V)';
-    const icon = isCompleta ? '🧩' : '🔤';
+    let moduleKey = 'syllables_completa';
+    let title = 'Completa la Palabra';
+    let icon = '🧩';
+
+    if (this.activeSubgame === 'arma') {
+      moduleKey = 'syllables_arma';
+      title = 'Arma la Sílaba (M - S - T - L - P - N - R - C - D - V)';
+      icon = '🔤';
+    } else if (this.activeSubgame === 'inicio') {
+      moduleKey = 'syllables_inicio';
+      title = '¿Con qué sílaba empieza? (Discriminación Inicial)';
+      icon = '🎯';
+    }
 
     LevelSelector.render({
       container,
@@ -5933,7 +6248,7 @@ class SyllablesScreen {
         this.render(container);
       },
       onBackHome: () => {
-        // Regresa al menú de los 2 círculos de juegos
+        // Regresa al menú de círculos de juegos
         this.activeSubgame = null;
         this.currentLevel = null;
         this.render(container);
@@ -6163,6 +6478,113 @@ class SyllablesScreen {
     audio.speak(instructionText);
   }
 
+  // ==========================================================================
+  // VISTA 3C: JUEGO "¿CON QUÉ SÍLABA EMPIEZA?" (50 NIVELES: CONCIENCIA FONOLÓGICA)
+  // ==========================================================================
+  renderSilabaInicial(container) {
+    const student = StorageManager.getActiveStudent();
+    const idx = (this.currentLevel - 1) % SILABAS_INICIO_50.length;
+    const item = SILABAS_INICIO_50[idx];
+
+    container.innerHTML = `
+      <div class="module-container syllables-bg fade-in" id="silabaInicialModule">
+        <header class="module-header">
+          <button class="back-btn" id="btnBackToLevels">⬅️ Niveles</button>
+          <div style="text-align:center;">
+            <h2>¿CON QUÉ SÍLABA EMPIEZA?</h2>
+            <div style="font-size:0.8rem; font-weight:bold; color:#00838f;">
+              Juego 3: Nivel ${this.currentLevel} de 50 • Conciencia Fonológica
+            </div>
+          </div>
+          <div class="score-box">⭐ ${student.stars || 0}</div>
+        </header>
+
+        <main class="game-board">
+          <div class="word-card-box">
+            <div style="font-size: clamp(3.2rem, 8vh, 5rem); margin-bottom: 6px;">
+              ${item.emoji}
+            </div>
+
+            <div class="word-puzzle">
+              <div class="drop-zone" id="initialDropZone" style="border-color:#00acc1; background:#e0f7fa; color:#00838f;">?</div>
+              <div class="static-syllable" style="background:#e8f5e9; border-color:#4caf50; color:#2e7d32;">
+                ${item.remainder}
+              </div>
+            </div>
+
+            <p class="instruction-text">
+              ¿Con qué sílaba empieza <strong>${item.word}</strong>?
+            </p>
+
+            <div class="syllables-options" id="initialOptionsContainer" style="display:flex; gap:clamp(8px, 2vw, 16px); margin-top:10px;">
+              ${item.options.map(opt => `
+                <button class="syllable-btn" data-value="${opt}" style="background:#00bcd4; border-color:#0097a7; box-shadow:0 4px 0 #00838f;">${opt}</button>
+              `).join('')}
+            </div>
+          </div>
+        </main>
+
+        <footer class="module-footer">
+          <button class="sound-btn" id="btnListenInitial">🔊 Escuchar Palabra</button>
+        </footer>
+      </div>
+    `;
+
+    container.querySelector('#btnBackToLevels')?.addEventListener('click', () => {
+      audio.playClick();
+      this.currentLevel = null;
+      this.render(container);
+    });
+
+    container.querySelector('#btnListenInitial')?.addEventListener('click', () => {
+      audio.speak(`${item.word}. ¿Con qué sílaba empieza? ¡${item.initialSyllable}!`);
+    });
+
+    const dropZone = container.querySelector('#initialDropZone');
+    const options = container.querySelectorAll('.syllable-btn');
+
+    options.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const selected = e.target.dataset.value;
+
+        if (selected === item.initialSyllable) {
+          audio.playSuccess();
+          e.target.classList.add('correct');
+          e.target.style.background = '#4caf50';
+          e.target.style.borderColor = '#2e7d32';
+          dropZone.innerText = selected;
+          dropZone.classList.add('solved');
+          dropZone.style.background = '#c8e6c9';
+          dropZone.style.borderColor = '#2e7d32';
+          dropZone.style.color = '#1b5e20';
+
+          StorageManager.completeModuleLevel('syllables_inicio', this.currentLevel, 3);
+          Confetti.shoot(2200);
+
+          audio.speak(`¡Excelente! ¡${item.word} empieza con ${item.initialSyllable}!`);
+
+          setTimeout(() => {
+            if (this.currentLevel < 50) {
+              this.currentLevel = this.currentLevel + 1;
+              this.render(container);
+            } else {
+              this.currentLevel = null;
+              this.render(container);
+            }
+          }, 1400);
+
+        } else {
+          audio.playError();
+          e.target.classList.add('wrong');
+          setTimeout(() => e.target.classList.remove('wrong'), 500);
+          audio.speak(`Intenta otra vez. ${item.word} no empieza con ${selected}.`);
+        }
+      });
+    });
+
+    audio.speak(`¿Con qué sílaba empieza ${item.word}?`);
+  }
+
   getWordEmoji(word) {
     const emojis = {
       'ELEFANTE': '🐘', 'PELOTA': '⚽', 'MONITO': '🐒', 'ESTRELLA': '⭐', 'GATITO': '🐱',
@@ -6235,6 +6657,16 @@ const NUMBERS_SUBGAMES = [
     totalLevels: 50,
     bubbleClass: 'subgame-bubble-m',
     themeColor: '#7b1fa2'
+  },
+  {
+    id: 'alimenta_monito',
+    moduleKey: 'numbers_alimenta',
+    title: 'ALIMENTA AL MONITO',
+    subtitle: '50 Niveles: Correspondencia uno a uno en la canasta',
+    icon: '🍌',
+    totalLevels: 50,
+    bubbleClass: 'subgame-bubble-vocales',
+    themeColor: '#f57f17'
   }
 ];
 function getNumberPuzzleForLevel(levelNum) {
@@ -6307,6 +6739,8 @@ class NumbersScreen {
       this.renderQuienTieneMas(container);
     } else if (this.activeSubgame === 'torre_bloques') {
       this.renderTorreBloques(container);
+    } else if (this.activeSubgame === 'alimenta_monito') {
+      this.renderAlimentaMonito(container);
     }
   }
 
@@ -6769,6 +7203,152 @@ class NumbersScreen {
 
     audio.speak(`Toca los números del menor al mayor`);
   }
+
+  // ==========================================================================
+  // SUBJUEGO 5: ALIMENTA AL MONITO (50 NIVELES: CORRESPONDENCIA UNO A UNO)
+  // ==========================================================================
+  renderAlimentaMonito(container) {
+    const student = StorageManager.getActiveStudent();
+    const foods = [
+      { name: 'plátanos', single: 'plátano', emoji: '🍌' },
+      { name: 'manzanas', single: 'manzana', emoji: '🍎' },
+      { name: 'fresas', single: 'fresa', emoji: '🍓' },
+      { name: 'naranjas', single: 'naranja', emoji: '🍊' },
+      { name: 'zanahorias', single: 'zanahoria', emoji: '🥕' },
+      { name: 'galletas', single: 'galleta', emoji: '🍪' }
+    ];
+    const food = foods[(this.currentLevel - 1) % foods.length];
+    const targetCount = ((this.currentLevel - 1) % 8) + 2; // de 2 a 9 objetos
+    let collectedCount = 0;
+    const availableTotal = targetCount + 3;
+
+    container.innerHTML = `
+      <div class="module-container numbers-bg fade-in" id="alimentaMonitoModule">
+        <header class="module-header">
+          <button class="back-btn" id="btnBackToLevels">⬅️ Niveles</button>
+          <div style="text-align:center;">
+            <h2>ALIMENTA AL MONITO 🐵</h2>
+            <div style="font-size:0.85rem; font-weight:bold; color:#00838f;">
+              Nivel ${this.currentLevel} de 50 • ¡Pon ${targetCount} ${food.name}!
+            </div>
+          </div>
+          <div class="score-box">⭐ ${student.stars || 0}</div>
+        </header>
+
+        <main class="game-board" style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; flex:1;">
+          <!-- Monito y Bocadillo de Diálogo -->
+          <div style="display:flex; align-items:center; gap:14px; background:white; padding:10px 18px; border-radius:20px; box-shadow:0 6px 16px rgba(0,0,0,0.1); border:3px solid #ffb300;">
+            <span style="font-size:clamp(2.8rem, 6vh, 4rem);" id="monkeyFace">🐵</span>
+            <div>
+              <div style="font-size:clamp(0.95rem, 2vh, 1.25rem); font-weight:900; color:#e65100;">
+                "¡Tengo hambre! Pon <strong>${targetCount} ${food.name}</strong> en mi canasta."
+              </div>
+              <div style="font-size:0.85rem; color:#455a64; font-weight:bold;">
+                Llevas: <strong id="basketCountLabel" style="color:#2e7d32; font-size:1.1rem;">0</strong> / ${targetCount}
+              </div>
+            </div>
+          </div>
+
+          <!-- Canasta Receptora (Canasta de Picnic) -->
+          <div class="basket-container" style="background:#fff8e1; border:4px dashed #ff9800; border-radius:24px; min-height:80px; width:min(90vw, 420px); display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap; padding:10px 16px; box-shadow:inset 0 4px 10px rgba(0,0,0,0.06);">
+            <span style="font-size:2.5rem; margin-right:4px;">🧺</span>
+            <div id="basketItemsRow" style="display:flex; gap:6px; flex-wrap:wrap; min-height:40px; align-items:center;">
+              <span id="emptyBasketNotice" style="color:#8d6e63; font-style:italic; font-size:0.9rem;">Canasta vacía... toca los alimentos abajo</span>
+            </div>
+          </div>
+
+          <!-- Mesa con Alimentos Disponibles para Tocar -->
+          <div style="background:white; border:3px solid #81c784; border-radius:20px; padding:10px 16px; width:min(90vw, 480px); box-shadow:0 8px 18px rgba(0,0,0,0.08);">
+            <div style="font-size:0.8rem; font-weight:bold; color:#2e7d32; text-align:center; margin-bottom:8px;">
+              🍎 Toca para meter en la canasta:
+            </div>
+            <div id="foodStockRow" style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap;">
+              ${Array.from({ length: availableTotal }).map((_, i) => `
+                <button class="food-item-btn" data-index="${i}" style="font-size:2.4rem; background:#f1f8e9; border:2px solid #aed581; border-radius:16px; width:58px; height:58px; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 8px rgba(0,0,0,0.08); transition:transform 0.15s;">
+                  ${food.emoji}
+                </button>
+              `).join('')}
+            </div>
+          </div>
+        </main>
+
+        <footer class="module-footer" style="display:flex; justify-content:space-between; align-items:center; width:100%; box-sizing:border-box;">
+          <button class="clear-btn" id="btnResetBasket" style="background:#ff7043; color:white; border:none; padding:8px 14px; border-radius:12px; font-weight:bold; cursor:pointer;">🔄 Vaciar Canasta</button>
+          <span class="tip-text">Toca exactamente ${targetCount} ${food.name}.</span>
+        </footer>
+      </div>
+    `;
+
+    container.querySelector('#btnBackToLevels')?.addEventListener('click', () => {
+      audio.playClick();
+      this.currentLevel = null;
+      this.render(container);
+    });
+
+    const basketItemsRow = container.querySelector('#basketItemsRow');
+    const emptyNotice = container.querySelector('#emptyBasketNotice');
+    const basketCountLabel = container.querySelector('#basketCountLabel');
+    const monkeyFace = container.querySelector('#monkeyFace');
+
+    const updateDisplay = () => {
+      if (basketCountLabel) basketCountLabel.innerText = `${collectedCount}`;
+      if (emptyNotice) emptyNotice.style.display = (collectedCount === 0) ? 'inline' : 'none';
+    };
+
+    container.querySelector('#btnResetBasket')?.addEventListener('click', () => {
+      audio.playClick();
+      collectedCount = 0;
+      updateDisplay();
+      if (basketItemsRow) {
+        basketItemsRow.innerHTML = `<span id="emptyBasketNotice" style="color:#8d6e63; font-style:italic; font-size:0.9rem;">Canasta vacía... toca los alimentos abajo</span>`;
+      }
+      container.querySelectorAll('.food-item-btn').forEach(b => {
+        b.style.visibility = 'visible';
+      });
+      audio.speak('Canasta vacía. Vuelve a contar.');
+    });
+
+    container.querySelectorAll('.food-item-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (collectedCount >= targetCount) return;
+
+        audio.playPop();
+        btn.style.visibility = 'hidden';
+        collectedCount++;
+
+        const itemSpan = document.createElement('span');
+        itemSpan.style.fontSize = '2.2rem';
+        itemSpan.style.animation = 'popScale 0.25s ease';
+        itemSpan.innerText = food.emoji;
+        basketItemsRow.appendChild(itemSpan);
+
+        updateDisplay();
+        audio.speak(`${collectedCount}`);
+
+        if (collectedCount === targetCount) {
+          if (monkeyFace) monkeyFace.innerText = '😋';
+          audio.playSuccess();
+          Confetti.shoot(2500);
+          StorageManager.completeModuleLevel('numbers_alimenta', this.currentLevel, 3);
+          StorageManager.addStars(2);
+
+          audio.speak(`¡Ñam ñam qué rico! ¡Pusiste exactamente ${targetCount} ${food.name}!`);
+
+          setTimeout(() => {
+            if (this.currentLevel < 50) {
+              this.currentLevel++;
+              this.render(container);
+            } else {
+              this.currentLevel = null;
+              this.render(container);
+            }
+          }, 1500);
+        }
+      });
+    });
+
+    audio.speak(`Pon ${targetCount} ${food.name} en la canasta del monito.`);
+  }
 }
 
 
@@ -6885,6 +7465,16 @@ const VOWELS_SUBGAMES = [
     totalLevels: 50,
     bubbleClass: 'subgame-bubble-m',
     themeColor: '#4caf50'
+  },
+  {
+    id: 'tren_vocales',
+    moduleKey: 'vowels_tren',
+    title: 'EL TREN DE LAS VOCALES',
+    subtitle: '50 Niveles: Completa el vagón con la vocal faltante',
+    icon: '🚂',
+    totalLevels: 50,
+    bubbleClass: 'subgame-bubble-s',
+    themeColor: '#0288d1'
   }
 ];
 class VowelsScreen {
@@ -6928,6 +7518,8 @@ class VowelsScreen {
       this.renderBurbujasVocales(container);
     } else if (this.activeSubgame === 'memorama_vocales') {
       this.renderMemoramaVocales(container);
+    } else if (this.activeSubgame === 'tren_vocales') {
+      this.renderTrenVocales(container);
     }
   }
 
@@ -7375,6 +7967,125 @@ class VowelsScreen {
 
     audio.speak('Encuentra las parejas del memorama');
   }
+
+  // ==========================================================================
+  // SUBJUEGO 5: EL TREN DE LAS VOCALES (50 NIVELES: SECUENCIA Y ORDEN A-E-I-O-U)
+  // ==========================================================================
+  renderTrenVocales(container) {
+    const student = StorageManager.getActiveStudent();
+    const isLower = (this.currentLevel > 20 && this.currentLevel <= 40);
+    const rawVowels = isLower ? ['a', 'e', 'i', 'o', 'u'] : ['A', 'E', 'I', 'O', 'U'];
+    const missingIndex = (this.currentLevel - 1) % 5;
+    const correctVowel = rawVowels[missingIndex];
+
+    const distractors = rawVowels.filter(v => v !== correctVowel).sort(() => 0.5 - Math.random()).slice(0, 2);
+    const options = [correctVowel, ...distractors].sort(() => 0.5 - Math.random());
+
+    container.innerHTML = `
+      <div class="module-container vowels-bg fade-in" id="trenVocalesModule">
+        <header class="module-header">
+          <button class="back-btn" id="btnBackToLevels">⬅️ Niveles</button>
+          <div style="text-align:center;">
+            <h2>EL TREN DE LAS VOCALES 🚂</h2>
+            <div style="font-size:0.85rem; font-weight:bold; color:#0288d1;">
+              Nivel ${this.currentLevel} de 50 • ¡Engancha el vagón que falta!
+            </div>
+          </div>
+          <div class="score-box">⭐ ${student.stars || 0}</div>
+        </header>
+
+        <main class="game-board" style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; flex:1;">
+          <!-- Título y Sonido del Tren -->
+          <div style="background:white; border-radius:18px; padding:8px 18px; border:3px solid #0288d1; box-shadow:0 6px 14px rgba(0,0,0,0.08); font-size:clamp(0.95rem, 2vh, 1.25rem); font-weight:900; color:#01579b;">
+            ¿Qué vocal falta en la secuencia? ¡Chuu chuu! 💨
+          </div>
+
+          <!-- Secuencia de Vagones del Tren -->
+          <div class="train-cars-row" style="display:flex; align-items:center; justify-content:center; gap:clamp(4px, 1.2vw, 10px); flex-wrap:wrap; max-width:96vw;">
+            <!-- Locomotora -->
+            <div style="font-size:clamp(2.4rem, 5.5vh, 3.6rem); margin-right:4px;">🚂</div>
+
+            ${rawVowels.map((v, i) => {
+              if (i === missingIndex) {
+                return `
+                  <div class="train-car missing-car" id="missingCarSlot" style="width:clamp(48px, 11vw, 68px); height:clamp(54px, 12vh, 76px); background:#fff9c4; border:3.5px dashed #fbc02d; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:clamp(1.6rem, 3.8vh, 2.4rem); font-weight:900; color:#f57f17; box-shadow:0 4px 8px rgba(0,0,0,0.1);">
+                    ?
+                  </div>
+                `;
+              }
+              return `
+                <div class="train-car" style="width:clamp(48px, 11vw, 68px); height:clamp(54px, 12vh, 76px); background:linear-gradient(180deg, #ffffff 0%, #e1f5fe 100%); border:3.5px solid #0288d1; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:clamp(1.6rem, 3.8vh, 2.4rem); font-weight:900; color:#01579b; box-shadow:0 4px 8px rgba(0,0,0,0.1);">
+                  ${v}
+                </div>
+              `;
+            }).join('')}
+          </div>
+
+          <!-- Opciones de Vagones para Seleccionar -->
+          <div class="vowel-train-options" style="display:flex; gap:clamp(10px, 2.5vw, 18px); margin-top:12px;">
+            ${options.map(opt => `
+              <button class="vowel-option-btn" data-vowel="${opt}" style="width:clamp(60px, 13vw, 76px); height:clamp(60px, 13vw, 76px); border-radius:20px; background:linear-gradient(135deg, #00bcd4 0%, #0097a7 100%); border:3.5px solid white; color:white; font-size:clamp(1.8rem, 4vh, 2.6rem); font-weight:900; cursor:pointer; box-shadow:0 6px 14px rgba(0,0,0,0.18); transition:transform 0.15s;">
+                ${opt}
+              </button>
+            `).join('')}
+          </div>
+        </main>
+
+        <footer class="module-footer">
+          <span class="tip-text">Toca la vocal que completa el tren en orden A, E, I, O, U.</span>
+        </footer>
+      </div>
+    `;
+
+    container.querySelector('#btnBackToLevels')?.addEventListener('click', () => {
+      audio.playClick();
+      this.currentLevel = null;
+      this.render(container);
+    });
+
+    const missingSlot = container.querySelector('#missingCarSlot');
+
+    container.querySelectorAll('.vowel-option-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const selected = btn.dataset.vowel;
+
+        if (selected === correctVowel) {
+          audio.playSuccess();
+          btn.style.background = '#4caf50';
+          if (missingSlot) {
+            missingSlot.innerText = selected;
+            missingSlot.style.background = '#c8e6c9';
+            missingSlot.style.borderColor = '#2e7d32';
+            missingSlot.style.color = '#1b5e20';
+            missingSlot.style.borderStyle = 'solid';
+          }
+
+          StorageManager.completeModuleLevel('vowels_tren', this.currentLevel, 3);
+          StorageManager.addStars(2);
+          Confetti.shoot(2200);
+
+          audio.speak(`¡Chuu chuu! ¡Completaste el tren con la vocal ${correctVowel}!`);
+
+          setTimeout(() => {
+            if (this.currentLevel < 50) {
+              this.currentLevel++;
+              this.render(container);
+            } else {
+              this.currentLevel = null;
+              this.render(container);
+            }
+          }, 1400);
+        } else {
+          audio.playWrong();
+          btn.style.transform = 'rotate(-8deg)';
+          setTimeout(() => { btn.style.transform = 'none'; }, 200);
+          audio.speak(`Esa es la letra ${selected}. Busca la vocal que falta en el tren.`);
+        }
+      });
+    });
+
+    audio.speak(`¿Qué vocal falta en el tren?`);
+  }
 }
 
 
@@ -7432,6 +8143,16 @@ const SHAPES_SUBGAMES = [
     totalLevels: 50,
     bubbleClass: 'subgame-bubble-m',
     themeColor: '#00897b'
+  },
+  {
+    id: 'detective_formas',
+    moduleKey: 'shapes_detective',
+    title: 'DETECTIVE DE FORMAS',
+    subtitle: '50 Niveles: Encuentra las figuras escondidas',
+    icon: '🔍',
+    totalLevels: 50,
+    bubbleClass: 'subgame-bubble-vocales',
+    themeColor: '#7b1fa2'
   }
 ];
 const SHAPES_DATA = [
@@ -7530,6 +8251,8 @@ class ShapesScreen {
       this.renderMundoReal(container);
     } else if (this.activeSubgame === 'series_patrones') {
       this.renderSeriesPatrones(container);
+    } else if (this.activeSubgame === 'detective_formas') {
+      this.renderDetectiveFormas(container);
     }
   }
 
@@ -8008,6 +8731,145 @@ class ShapesScreen {
     });
 
     audio.speak(`¿Qué figura sigue en el patrón?`);
+  }
+
+  // ==========================================================================
+  // SUBJUEGO 5: DETECTIVE DE FORMAS (50 NIVELES: DISCRIMINACIÓN VISUAL)
+  // ==========================================================================
+  renderDetectiveFormas(container) {
+    const student = StorageManager.getActiveStudent();
+    const targetShape = SHAPES_DATA[(this.currentLevel - 1) % SHAPES_DATA.length];
+    const targetCount = ((this.currentLevel - 1) % 2) + 2; // Buscar 2 o 3 figuras
+    let foundCount = 0;
+
+    // Crear lista de 8 figuras: targetCount de la figura objetivo + distractores de otras figuras
+    const palette = ['#ff5722', '#e91e63', '#9c27b0', '#2196f3', '#4caf50', '#ff9800', '#fbc02d'];
+    const otherShapes = SHAPES_DATA.filter(s => s.shapeType !== targetShape.shapeType);
+
+    const items = [];
+    for (let i = 0; i < targetCount; i++) {
+      items.push({
+        id: `target_${i}`,
+        isTarget: true,
+        shapeType: targetShape.shapeType,
+        name: targetShape.name,
+        color: palette[i % palette.length]
+      });
+    }
+
+    const distractorCount = 8 - targetCount;
+    for (let i = 0; i < distractorCount; i++) {
+      const other = otherShapes[i % otherShapes.length];
+      items.push({
+        id: `distractor_${i}`,
+        isTarget: false,
+        shapeType: other.shapeType,
+        name: other.name,
+        color: palette[(i + 3) % palette.length]
+      });
+    }
+
+    // Mezclar aleatoriamente
+    items.sort(() => 0.5 - Math.random());
+
+    container.innerHTML = `
+      <div class="module-container shapes-bg fade-in" id="detectiveFormasModule">
+        <header class="module-header">
+          <button class="back-btn" id="btnBackToLevels">⬅️ Niveles</button>
+          <div style="text-align:center;">
+            <h2>DETECTIVE DE FORMAS 🔍</h2>
+            <div style="font-size:0.85rem; font-weight:bold; color:#7b1fa2;">
+              Nivel ${this.currentLevel} de 50 • ¡Misión de Observación!
+            </div>
+          </div>
+          <div class="score-box">⭐ ${student.stars || 0}</div>
+        </header>
+
+        <main class="game-board" style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; flex:1;">
+          <!-- Banner de la Misión Detective -->
+          <div style="display:flex; align-items:center; gap:12px; background:white; padding:10px 20px; border-radius:20px; border:3px solid #7b1fa2; box-shadow:0 6px 14px rgba(0,0,0,0.08);">
+            <span style="font-size:clamp(2.4rem, 5vh, 3.2rem);">🔍</span>
+            <div>
+              <div style="font-size:clamp(0.95rem, 2vh, 1.25rem); font-weight:900; color:#4a148c;">
+                ¡Encuentra todos los <strong>${targetShape.name}S</strong>!
+              </div>
+              <div style="font-size:0.85rem; color:#616161; font-weight:bold;">
+                Encontrados: <strong id="detectiveCounterLabel" style="color:#2e7d32; font-size:1.1rem;">0</strong> de ${targetCount}
+              </div>
+            </div>
+          </div>
+
+          <!-- Tapete con Figuras para Explorar -->
+          <div class="detective-shapes-grid" style="display:grid; grid-template-columns:repeat(4, 1fr); gap:clamp(10px, 2.5vw, 18px); max-width:min(94vw, 540px); background:white; padding:14px; border-radius:24px; border:3px solid #ba68c8; box-shadow:0 8px 20px rgba(0,0,0,0.1);">
+            ${items.map(item => `
+              <button class="detective-item-btn" data-target="${item.isTarget}" data-name="${item.name}" style="background:#f3e5f5; border:3px solid white; border-radius:18px; padding:10px; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 10px rgba(0,0,0,0.08); transition:transform 0.15s, box-shadow 0.15s;">
+                ${ShapesScreen.getShapeSvg(item.shapeType, item.color, 58, 58)}
+              </button>
+            `).join('')}
+          </div>
+        </main>
+
+        <footer class="module-footer">
+          <span class="tip-text">Toca todas las figuras con forma de ${targetShape.name}.</span>
+        </footer>
+      </div>
+    `;
+
+    container.querySelector('#btnBackToLevels')?.addEventListener('click', () => {
+      audio.playClick();
+      this.currentLevel = null;
+      this.render(container);
+    });
+
+    const counterLabel = container.querySelector('#detectiveCounterLabel');
+
+    container.querySelectorAll('.detective-item-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (btn.classList.contains('found')) return;
+
+        const isTarget = (btn.dataset.target === 'true');
+        const shapeName = btn.dataset.name;
+
+        if (isTarget) {
+          audio.playStar();
+          btn.classList.add('found');
+          btn.style.background = '#c8e6c9';
+          btn.style.borderColor = '#4caf50';
+          btn.style.boxShadow = '0 0 16px #4caf50';
+          btn.style.transform = 'scale(1.1)';
+
+          foundCount++;
+          if (counterLabel) counterLabel.innerText = `${foundCount}`;
+          audio.speak(`${foundCount}`);
+
+          if (foundCount >= targetCount) {
+            audio.playSuccess();
+            Confetti.shoot(2500);
+            StorageManager.completeModuleLevel('shapes_detective', this.currentLevel, 3);
+            StorageManager.addStars(2);
+
+            audio.speak(`¡Excelente detective! ¡Encontraste todos los ${targetShape.name}S!`);
+
+            setTimeout(() => {
+              if (this.currentLevel < 50) {
+                this.currentLevel++;
+                this.render(container);
+              } else {
+                this.currentLevel = null;
+                this.render(container);
+              }
+            }, 1400);
+          }
+        } else {
+          audio.playWrong();
+          btn.style.transform = 'rotate(-8deg)';
+          setTimeout(() => { btn.style.transform = 'none'; }, 200);
+          audio.speak(`Ese es un ${shapeName}. ¡Busca los ${targetShape.name}S!`);
+        }
+      });
+    });
+
+    audio.speak(`¡Misión detective! Encuentra los ${targetCount} ${targetShape.name}S.`);
   }
 }
 

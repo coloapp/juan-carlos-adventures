@@ -138,6 +138,17 @@ export const TRACING_SUBGAMES = [
     description: 'Trazos con gancho y fuerza de la letra R con el Ratón.'
   },
   {
+    id: 'caminitos_magicos',
+    moduleKey: 'tracing_caminitos_magicos',
+    title: 'CAMINITOS MÁGICOS',
+    subtitle: '50 Niveles: Conecta personajes y grafomotricidad',
+    icon: '🌈',
+    totalLevels: 50,
+    bubbleClass: 'subgame-bubble-s',
+    themeColor: '#00acc1',
+    description: 'Guía a los animalitos a su destino recorriendo caminitos curvos, zig-zag y en arco.'
+  },
+  {
     id: 'pizarra_magica',
     moduleKey: 'tracing_pizarra_magica',
     title: 'PIZARRA MÁGICA ESCOLAR',
@@ -334,6 +345,37 @@ export const GRAFOMOTRICIDAD_LEVELS = (() => {
   return list;
 })();
 
+// 50 Niveles de Caminitos Mágicos (Grafomotricidad con Conexión de Personajes)
+export const CAMINITOS_MAGICOS_LEVELS = (() => {
+  const journeys = [
+    { start: '🐝', end: '🌸', title: 'La Abejita a la Flor', pattern: 'olas_mar', instruction: '✏️ Traza las olas suaves para llevar la Abejita a la Flor.' },
+    { start: '🐶', end: '🦴', title: 'El Perrito a su Hueso', pattern: 'lineas_horizontales', instruction: '✏️ Traza la línea recta para que el Perrito alcance su Hueso.' },
+    { start: '🚀', end: '🌙', title: 'El Cohete a la Luna', pattern: 'curva_arco', instruction: '✏️ Traza el arco estelar que lleva el Cohete a la Luna.' },
+    { start: '🐰', end: '🥕', title: 'El Conejito a la Zanahoria', pattern: 'montañas_zigzag', instruction: '✏️ Traza los saltitos en zig-zag hacia la Zanahoria.' },
+    { start: '⛵', end: '🏝️', title: 'El Barquito a la Isla', pattern: 'olas_mar', instruction: '✏️ Traza las olas marinas hacia la Isla del Tesoro.' },
+    { start: '🐒', end: '🍌', title: 'El Monito a su Plátano', pattern: 'liana_curvas', instruction: '✏️ Traza las lianas de la selva para darle el Plátano al Monito.' },
+    { start: '🚗', end: '🏠', title: 'El Cochecito a Casa', pattern: 'lineas_horizontales', instruction: '✏️ Traza la carretera que lleva el Coche a la Casita.' },
+    { start: '🐥', end: '🐔', title: 'El Pollito con Mamá Gallina', pattern: 'montañas_zigzag', instruction: '✏️ Traza los pasitos para reunir al Pollito con Mamá Gallina.' },
+    { start: '🐸', end: '🪷', title: 'La Ranita al Nenúfar', pattern: 'curva_arco', instruction: '✏️ Traza el salto alto de la Ranita hacia el Nenúfar florecido.' },
+    { start: '🦋', end: '🌻', title: 'La Mariposa al Girasol', pattern: 'espiral', instruction: '✏️ Traza el vuelo en espiral para posar la Mariposa en el Girasol.' }
+  ];
+
+  const list = [];
+  for (let i = 1; i <= 50; i++) {
+    const j = journeys[(i - 1) % journeys.length];
+    list.push({
+      id: i,
+      type: 'caminitos',
+      startEmoji: j.start,
+      endEmoji: j.end,
+      patternKey: j.pattern,
+      title: `Caminito ${i}: ${j.title}`,
+      instruction: j.instruction
+    });
+  }
+  return list;
+})();
+
 export const CONSONANTES_WORKBOOK_LEVELS = buildConsonante50Levels('M', 'MANZANA', 'M de Manzana', '🍎');
 
 // Diccionario de niveles de los subjuegos
@@ -341,6 +383,7 @@ export const SUBGAMES_LEVEL_MAP = {
   vocales_cuadernillo: VOCALES_WORKBOOK_LEVELS,
   consonantes_cuadernillo: CONSONANTES_WORKBOOK_LEVELS,
   grafomotricidad: GRAFOMOTRICIDAD_LEVELS,
+  caminitos_magicos: CAMINITOS_MAGICOS_LEVELS,
   letra_m: buildConsonante50Levels('M', 'MANZANA', 'M de Manzana', '🍎'),
   letra_s: buildConsonante50Levels('S', 'SOL', 'S de Sol', '☀️'),
   letra_t: buildConsonante50Levels('T', 'TORTUGA', 'T de Tortuga', '🐢'),
@@ -556,6 +599,7 @@ export class LetterTracingScreen {
     this.levelConfig = levels[idx];
 
     const isIntro = (this.levelConfig.type === 'intro_hollow');
+    const isCaminito = (this.levelConfig.type === 'caminitos');
     const letterChar = this.levelConfig.letter || this.levelConfig.char || 'A';
     this.pedagogicalData = getPedagogicalLetter(letterChar);
 
@@ -608,6 +652,15 @@ export class LetterTracingScreen {
               <div class="notebook-tree-zone" id="notebookTreeZone">
                 ${this.pedagogicalData.getSurpriseSvg ? this.pedagogicalData.getSurpriseSvg() : ''}
                 <div class="tree-caption" id="treeCaption">${this.pedagogicalData.phonetic || ''} ${this.pedagogicalData.icon || '⭐'}</div>
+              </div>
+            ` : isCaminito ? `
+              <div class="caminito-emojis-stage" style="position:absolute; inset:0; pointer-events:none; z-index:3; display:flex; justify-content:space-between; align-items:center; padding:0 36px;">
+                <div class="caminito-start-badge" style="font-size:clamp(2.8rem, 6vh, 4rem); filter:drop-shadow(0 4px 8px rgba(0,0,0,0.22));">
+                  ${this.levelConfig.startEmoji || '🐝'}
+                </div>
+                <div class="caminito-end-badge pulse-glow" id="caminitoEndGoal" style="font-size:clamp(2.8rem, 6vh, 4rem); filter:drop-shadow(0 4px 8px rgba(0,0,0,0.22));">
+                  ${this.levelConfig.endEmoji || '🌸'}
+                </div>
               </div>
             ` : `
               <div class="row-progress-counter" id="rowProgressCounter">
@@ -695,6 +748,12 @@ export class LetterTracingScreen {
     else if (this.levelConfig.type === 'pattern_trace') {
       const patternBounds = { x: 60, y: 80, width: 640, height: 260 };
       this.activeStrokes = StrokeGenerator.getStrokes(this.levelConfig.patternKey || 'lineas_verticales', patternBounds);
+      this.totalRowLetters = this.activeStrokes.length;
+    }
+    // Caso 4: Caminitos Mágicos (Conexión de Personajes)
+    else if (this.levelConfig.type === 'caminitos') {
+      const patternBounds = { x: 120, y: 80, width: 520, height: 260 };
+      this.activeStrokes = StrokeGenerator.getStrokes(this.levelConfig.patternKey || 'olas_mar', patternBounds);
       this.totalRowLetters = this.activeStrokes.length;
     }
   }

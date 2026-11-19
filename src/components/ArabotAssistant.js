@@ -270,4 +270,8 @@ export class ArabotAssistant {
     this.pointerElement = null;
     this.isTutorialRunning = false;
   }
+
+  unmount() {
+    this.destroy();
+  }
 }

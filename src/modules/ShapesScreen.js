@@ -53,6 +53,16 @@ export const SHAPES_SUBGAMES = [
     totalLevels: 50,
     bubbleClass: 'subgame-bubble-m',
     themeColor: '#00897b'
+  },
+  {
+    id: 'detective_formas',
+    moduleKey: 'shapes_detective',
+    title: 'DETECTIVE DE FORMAS',
+    subtitle: '50 Niveles: Encuentra las figuras escondidas',
+    icon: '🔍',
+    totalLevels: 50,
+    bubbleClass: 'subgame-bubble-vocales',
+    themeColor: '#7b1fa2'
   }
 ];
 
@@ -153,6 +163,8 @@ export class ShapesScreen {
       this.renderMundoReal(container);
     } else if (this.activeSubgame === 'series_patrones') {
       this.renderSeriesPatrones(container);
+    } else if (this.activeSubgame === 'detective_formas') {
+      this.renderDetectiveFormas(container);
     }
   }
 
@@ -631,5 +643,144 @@ export class ShapesScreen {
     });
 
     audio.speak(`¿Qué figura sigue en el patrón?`);
+  }
+
+  // ==========================================================================
+  // SUBJUEGO 5: DETECTIVE DE FORMAS (50 NIVELES: DISCRIMINACIÓN VISUAL)
+  // ==========================================================================
+  renderDetectiveFormas(container) {
+    const student = StorageManager.getActiveStudent();
+    const targetShape = SHAPES_DATA[(this.currentLevel - 1) % SHAPES_DATA.length];
+    const targetCount = ((this.currentLevel - 1) % 2) + 2; // Buscar 2 o 3 figuras
+    let foundCount = 0;
+
+    // Crear lista de 8 figuras: targetCount de la figura objetivo + distractores de otras figuras
+    const palette = ['#ff5722', '#e91e63', '#9c27b0', '#2196f3', '#4caf50', '#ff9800', '#fbc02d'];
+    const otherShapes = SHAPES_DATA.filter(s => s.shapeType !== targetShape.shapeType);
+
+    const items = [];
+    for (let i = 0; i < targetCount; i++) {
+      items.push({
+        id: `target_${i}`,
+        isTarget: true,
+        shapeType: targetShape.shapeType,
+        name: targetShape.name,
+        color: palette[i % palette.length]
+      });
+    }
+
+    const distractorCount = 8 - targetCount;
+    for (let i = 0; i < distractorCount; i++) {
+      const other = otherShapes[i % otherShapes.length];
+      items.push({
+        id: `distractor_${i}`,
+        isTarget: false,
+        shapeType: other.shapeType,
+        name: other.name,
+        color: palette[(i + 3) % palette.length]
+      });
+    }
+
+    // Mezclar aleatoriamente
+    items.sort(() => 0.5 - Math.random());
+
+    container.innerHTML = `
+      <div class="module-container shapes-bg fade-in" id="detectiveFormasModule">
+        <header class="module-header">
+          <button class="back-btn" id="btnBackToLevels">⬅️ Niveles</button>
+          <div style="text-align:center;">
+            <h2>DETECTIVE DE FORMAS 🔍</h2>
+            <div style="font-size:0.85rem; font-weight:bold; color:#7b1fa2;">
+              Nivel ${this.currentLevel} de 50 • ¡Misión de Observación!
+            </div>
+          </div>
+          <div class="score-box">⭐ ${student.stars || 0}</div>
+        </header>
+
+        <main class="game-board" style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; flex:1;">
+          <!-- Banner de la Misión Detective -->
+          <div style="display:flex; align-items:center; gap:12px; background:white; padding:10px 20px; border-radius:20px; border:3px solid #7b1fa2; box-shadow:0 6px 14px rgba(0,0,0,0.08);">
+            <span style="font-size:clamp(2.4rem, 5vh, 3.2rem);">🔍</span>
+            <div>
+              <div style="font-size:clamp(0.95rem, 2vh, 1.25rem); font-weight:900; color:#4a148c;">
+                ¡Encuentra todos los <strong>${targetShape.name}S</strong>!
+              </div>
+              <div style="font-size:0.85rem; color:#616161; font-weight:bold;">
+                Encontrados: <strong id="detectiveCounterLabel" style="color:#2e7d32; font-size:1.1rem;">0</strong> de ${targetCount}
+              </div>
+            </div>
+          </div>
+
+          <!-- Tapete con Figuras para Explorar -->
+          <div class="detective-shapes-grid" style="display:grid; grid-template-columns:repeat(4, 1fr); gap:clamp(10px, 2.5vw, 18px); max-width:min(94vw, 540px); background:white; padding:14px; border-radius:24px; border:3px solid #ba68c8; box-shadow:0 8px 20px rgba(0,0,0,0.1);">
+            ${items.map(item => `
+              <button class="detective-item-btn" data-target="${item.isTarget}" data-name="${item.name}" style="background:#f3e5f5; border:3px solid white; border-radius:18px; padding:10px; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 10px rgba(0,0,0,0.08); transition:transform 0.15s, box-shadow 0.15s;">
+                ${ShapesScreen.getShapeSvg(item.shapeType, item.color, 58, 58)}
+              </button>
+            `).join('')}
+          </div>
+        </main>
+
+        <footer class="module-footer">
+          <span class="tip-text">Toca todas las figuras con forma de ${targetShape.name}.</span>
+        </footer>
+      </div>
+    `;
+
+    container.querySelector('#btnBackToLevels')?.addEventListener('click', () => {
+      audio.playClick();
+      this.currentLevel = null;
+      this.render(container);
+    });
+
+    const counterLabel = container.querySelector('#detectiveCounterLabel');
+
+    container.querySelectorAll('.detective-item-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (btn.classList.contains('found')) return;
+
+        const isTarget = (btn.dataset.target === 'true');
+        const shapeName = btn.dataset.name;
+
+        if (isTarget) {
+          audio.playStar();
+          btn.classList.add('found');
+          btn.style.background = '#c8e6c9';
+          btn.style.borderColor = '#4caf50';
+          btn.style.boxShadow = '0 0 16px #4caf50';
+          btn.style.transform = 'scale(1.1)';
+
+          foundCount++;
+          if (counterLabel) counterLabel.innerText = `${foundCount}`;
+          audio.speak(`${foundCount}`);
+
+          if (foundCount >= targetCount) {
+            audio.playSuccess();
+            Confetti.shoot(2500);
+            StorageManager.completeModuleLevel('shapes_detective', this.currentLevel, 3);
+            StorageManager.addStars(2);
+
+            audio.speak(`¡Excelente detective! ¡Encontraste todos los ${targetShape.name}S!`);
+
+            setTimeout(() => {
+              if (this.currentLevel < 50) {
+                this.currentLevel++;
+                this.render(container);
+              } else {
+                this.currentLevel = null;
+                this.render(container);
+              }
+            }, 1400);
+          }
+        } else {
+          audio.playWrong();
+          btn.style.transform = 'rotate(-8deg)';
+          setTimeout(() => { btn.style.transform = 'none'; }, 200);
+          audio.speak(`Ese es un ${shapeName}. ¡Busca los ${targetShape.name}S!`);
+        }
+      });
+    });
+
+    audio.speak(`¡Misión detective! Encuentra los ${targetCount} ${targetShape.name}S.`);
   }
 }
